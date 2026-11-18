@@ -82,6 +82,19 @@ At the end of every session, edit `docs/STATE.md`:
 A stale `STATE.md` is worse than no `STATE.md`, because the next agent will
 trust it.
 
+### P6 — Build and index the theme packages
+
+1. `./packages/build.sh` as a normal user, never root. It runs `makepkg` per
+   package directory and then `repo-add` into `packages/repo`.
+2. Expect it to fail the first time. Neither `PKGBUILD` has ever been built, and
+   "upstream's install.sh was read carefully" is not the same claim as "it
+   builds".
+3. Fix exactly the thing it names, rerun, then commit. Do not add a package, and
+   do not relax a check, to make a failure go away.
+4. If a layout package builds, `plasma-apply-lookandfeel --list` on a Plasma 6
+   machine should show `org.halcora.lookandfeel.win` and `.macos`. That is the
+   check that the rename worked, and no CI job can do it.
+
 ---
 
 ## Failure to action
@@ -109,6 +122,22 @@ trust it.
 - **`mkarchiso` finishes but no ISO in `out/`** — check `iso_name` and
   `install_dir` in `profiledef.sh`; `out/*.iso` is a glob and a naming change can
   put the file elsewhere.
+- **`makepkg` fails inside `build()`, running an upstream `install.sh`** — the
+  upstream moved. Re-read its `install.sh` and its tree rather than guessing at
+  flags, and bump the commit in `source=` and the version in `pkgver` together.
+  `scripts/fetch-themes.sh` prints the new HEAD.
+- **`cp: cannot stat …/plasma/look-and-feel/…` in a layout package** — upstream
+  renamed its Global Theme directory. `package()` copies named items on purpose:
+  a wildcard would also ship the Liquid and HiDPI variants upstream installs
+  unconditionally. Update the names.
+- **`Running makepkg as root is not allowed`** — correct, and load-bearing. The
+  layout packages let upstream's installer choose between `$HOME` and
+  `/usr/share` based on `$UID`, so building as root would write to the build
+  machine's `/usr/share`. Run `packages/build.sh` as a normal user.
+- **A layout id disappears from `plasma-apply-lookandfeel --list`** — the
+  `Id`/`X-KDE-PluginInfo-Name` rename in the PKGBUILD stopped matching. The
+  check workflow catches the opposite case (an id no package produces), not a
+  rename that silently half-worked.
 - **Anything about `profiledef.sh` variables** — compare against upstream's
   `configs/releng/profiledef.sh` for the archiso version Arch currently ships.
   Ours is meant to mirror it exactly except for naming and `file_permissions`.
@@ -160,6 +189,9 @@ trust it.
 It will have. Check, in this order:
 
 1. `git log --oneline -15` — what happened since `33fee82`.
+2. `git branch -a` — unmerged work. `themes/lookandfeel` holds the two layout
+   packages and `packages/build.sh`; read its `docs/STATE.md` entry before
+   assuming it is finished.
 2. `docs/STATE.md` — the previous agent's verified state. Trust its *dates*, not
    its optimism.
 3. `docs/TASKS.md` — which checkboxes are ticked. The first untutored one is yours.
