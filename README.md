@@ -4,8 +4,10 @@ A Linux desktop distribution that **looks like Xiaomi HyperOS**, ships a
 **Windows-style layout by default**, offers a **macOS-style layout as an option**,
 and is built to be unthreatening to people arriving from Windows.
 
-Status: **the live ISO and installer are being built.** The theme packages do not
-exist yet, so the current image is a boot-and-install test, not a design test.
+Status: **the live ISO builds in CI and is downloadable, and has never been
+booted.** The installer has never completed an install. The theme packages exist
+as recipes on the `themes/lookandfeel` branch and have never been built, so the
+current image is a boot-and-install test, not a design test.
 
 ---
 
