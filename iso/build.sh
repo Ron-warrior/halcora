@@ -107,8 +107,21 @@ if [[ -n ${HALCORA_REPO:-} ]]; then
     # absent: it is written but not wired into Calamares yet, and an image that
     # shows it would say the installer had been rebranded when settings.conf
     # still says `branding: default`.
-    printf 'halcora-theme-hyperos\nhalcora-defaults\nhalcora-first-run\nhalcora-migrate\nhalcora-icons-fluent\nhalcora-icons-whitesur\nhalcora-cursors-whitesur\nhalcora-lookandfeel-win\nhalcora-lookandfeel-macos\nhalcora-layout\n' \
-        >>"$PROFILE/packages.x86_64"
+    #
+    # One package per line, because the CI check that these directories exist
+    # reads this list line by line.
+    cat >>"$PROFILE/packages.x86_64" <<'EOF'
+halcora-theme-hyperos
+halcora-defaults
+halcora-first-run
+halcora-migrate
+halcora-icons-fluent
+halcora-icons-whitesur
+halcora-cursors-whitesur
+halcora-lookandfeel-win
+halcora-lookandfeel-macos
+halcora-layout
+EOF
 else
     printf '==> HALCORA_REPO unset: no Halcora packages in this image\n'
 fi

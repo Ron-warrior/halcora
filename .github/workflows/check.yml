@@ -432,7 +432,7 @@ jobs:
       - name: The image's package list matches packages that exist
         run: |
           status=0
-          names=$(grep -oE 'halcora-[a-z0-9-]+' iso/build.sh | sort -u)
+          names=$(sed -n '/^halcora-[a-z0-9-]*$/p' iso/build.sh | sort -u)
           if [ -z "$names" ]; then
             echo '::warning::no halcora packages named in iso/build.sh'
             exit 0
