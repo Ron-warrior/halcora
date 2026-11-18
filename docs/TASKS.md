@@ -111,6 +111,14 @@ both layouts can wear HyperOS colour the moment they ship.
 shapes. Until they exist this is a palette, not a theme, and the release notes
 must keep saying so.
 
+**Read this before starting the recolour.** Fluent-kde's Plasma style is not
+plain SVG: the files under `plasma/desktoptheme/Fluent/` (note: `Fluent`, not
+`Fluent-dark` — that name is created by the installer) are `.svgz`, i.e. gzipped.
+A `sed` over them matches nothing. The recolour has to gunzip, edit, and gzip
+again, and it needs the actual colour literals out of those files, which cannot
+be read without decompressing them. Do that on a machine with the checkout, not
+by guessing hex values from the screenshots.
+
 **Honest expectation:** it will look like recoloured Fluent long before it looks
 like HyperOS. That is expected. Do not stall the queue waiting for beauty.
 

@@ -14,6 +14,12 @@
 # to exist here. Claiming otherwise would make "the HyperOS theme" a lie in the
 # only place a user could check it.
 #
+# When it is attempted: Fluent's Plasma style lives in
+# plasma/desktoptheme/Fluent/ (the `Fluent-dark` name is made by install.sh) and
+# its files are .svgz, gzipped. sed over them silently matches nothing, so the
+# recolour must gunzip, sed, gzip, and must take its source hex values from the
+# decompressed files rather than from a screenshot.
+#
 # Nothing in this file has been built.
 
 pkgname=halcora-theme-hyperos
