@@ -11,6 +11,12 @@ nothing.**
   installed as the Global Theme `org.halcora.lookandfeel.win`.
 - `halcora-lookandfeel-macos` — **written, never built.** Wraps `WhiteSur-kde`
   the same way, installed as `org.halcora.lookandfeel.macos`.
+- `halcora-icons-fluent` — **written, never built.** Fluent's icon theme, so the
+  Windows layout's Global Theme stops naming an icon theme that does not exist
+  (`Theme=Fluent-dark` in its `contents/defaults`). Upstream's installer builds
+  three visible themes on top of hidden `.Fluent*-base` directories joined by
+  relative symlinks; `cp -a` preserves those, and copying only the visible
+  directories would leave every link broken.
 - `halcora-theme-hyperos` — **palette written, style not.** Two colour schemes,
   light and dark, authored by hand from a first approximation of HyperOS (not
   device-sampled — see the header in each file). The Plasma style, Aurorae

@@ -28,6 +28,7 @@ depends=('plasma-workspace')
 optdepends=(
   'kwin: Aurorae window decorations, without which the buttons are stock'
   'kvantum: the Kvantum widget style the theme sets for Qt applications'
+  'halcora-icons-fluent: the Fluent icon theme this Global Theme names'
 )
 source=("fluent-kde::git+https://github.com/vinceliuice/Fluent-kde.git#commit=44794f29c89de994b0179aebabd2f5776c90d236")
 sha256sums=('SKIP')

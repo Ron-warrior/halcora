@@ -1,0 +1,42 @@
+# Maintainer: Halcora <noreply@github.com/Ron-warrior>
+#
+# Fluent's icon theme, repackaged so the Windows layout's Global Theme stops
+# referring to an icon theme that does not exist. That reference
+# (Theme=Fluent-dark in the layout's contents/defaults) was dangling, and Plasma
+# silently fell back to whatever icons the user already had.
+#
+# Upstream's install.sh is used as-is. It takes -d for the destination, which is
+# better than the $HOME trick the layout packages need, and it builds three
+# visible themes (Fluent, -light, -dark) on top of hidden .Fluent*-base
+# directories joined by relative symlinks. cp -a preserves those symlinks, which
+# is why this does not try to be clever about copying individual sizes.
+#
+# Nothing in this file has been built.
+
+pkgname=halcora-icons-fluent
+pkgver=20260830.c8a244f
+pkgrel=1
+pkgdesc='Fluent icon theme for the Halcora Windows layout (wraps Fluent-icon-theme)'
+arch=('any')
+url='https://github.com/Ron-warrior/halcora'
+license=('GPL-3.0-or-later')
+# No dependency on gtk-update-icon-cache: upstream calls it opportunistically and
+# tolerates it missing. Plasma builds its own cache.
+depends=()
+source=("fluent-icon-theme::git+https://github.com/vinceliuice/Fluent-icon-theme.git#commit=c8a244f571ef8fb47812bdc9dbce76546cedce69")
+sha256sums=('SKIP')
+
+build() {
+  cd "$srcdir/Fluent-icon-theme"
+  # -d points the installer at a staging directory, so nothing outside it is
+  # written. Without arguments it installs all nine colour variants; the default
+  # (standard) is the one the layout's Global Theme asks for.
+  bash ./install.sh -d "$srcdir/stage/icons"
+}
+
+package() {
+  install -d "$pkgdir/usr/share/icons"
+  # The dotfiles matter: .Fluent-base and friends are what the visible themes
+  # symlink into. Copying only the visible ones would leave broken links.
+  cp -a "$srcdir/stage/icons/." "$pkgdir/usr/share/icons/"
+}

@@ -99,7 +99,7 @@ if [[ -n ${HALCORA_REPO:-} ]]; then
     # absent: it is written but not wired into Calamares yet, and an image that
     # shows it would say the installer had been rebranded when settings.conf
     # still says `branding: default`.
-    printf 'halcora-theme-hyperos\nhalcora-defaults\nhalcora-lookandfeel-win\nhalcora-lookandfeel-macos\nhalcora-layout\n' \
+    printf 'halcora-theme-hyperos\nhalcora-defaults\nhalcora-icons-fluent\nhalcora-lookandfeel-win\nhalcora-lookandfeel-macos\nhalcora-layout\n' \
         >>"$PROFILE/packages.x86_64"
 else
     printf '==> HALCORA_REPO unset: no Halcora packages in this image\n'

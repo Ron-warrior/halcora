@@ -33,6 +33,8 @@ the commands in `docs/HANDOFF.md` before trusting them.
   - `halcora-defaults` puts that palette in `/etc/skel` as the system default
     and sets double-click, because a layout package deliberately does not set a
     colour scheme.
+  - `halcora-icons-fluent` wraps Fluent-icon-theme, so the Windows layout's
+    Global Theme stops naming an icon theme that does not exist.
   - `halcora-branding` provides `os-release` and a Calamares branding directory.
     **Not wired in**: `settings.conf` still says `branding: default`, because
     changing the installer's appearance before the first boot test would blur
