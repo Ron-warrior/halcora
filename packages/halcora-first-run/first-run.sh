@@ -28,15 +28,24 @@ mkdir -p "$(dirname "$marker")"
 # desktop still has to end up consistent. A cancelled run therefore applies the
 # default layout rather than leaving the session with Breeze's icons and no
 # decoration, which would look broken rather than undecided.
+#
+# The status is captured rather than tested with an if/else, because under
+# `set -e` a "No" and a closed window are different exit codes and only one of
+# them is 1; testing `$?` inside an else branch would abort the script on the
+# other.
 layout=win
-if kdialog --title 'Welcome to Halcora' --yes-label 'Windows' --no-label 'macOS' --yesno \
+set +e
+kdialog --title 'Welcome to Halcora' --yes-label 'Windows' --no-label 'macOS' --yesno \
     'Start with the Windows-style layout?\n\nChoose No for the macOS-style layout. You can switch at any time with halcora-layout.'
-then
-    layout=win
-else
-    # kdialog exits 1 for "No" and something else for a closed window.
-    [ "$?" -eq 1 ] && layout=macos
-fi
+answer=$?
+set -e
+
+case "$answer" in
+    0) layout=win ;;
+    1) layout=macos ;;
+    *) layout=win ;;
+esac
+
 halcora-layout "$layout" || true
 
 # MiSans is offered, never bundled: Xiaomi's licence allows use but not
