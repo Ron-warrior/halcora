@@ -1,0 +1,27 @@
+// Let the live account start the installer without a password.
+//
+// pkexec authenticates through polkit, and the live account has no password at
+// all — autologin means nobody types one — so pkexec has nothing to ask for and
+// refuses. Without this rule the installer's icon does nothing, which is
+// indistinguishable from a broken image.
+//
+// The grant is as narrow as polkit allows: one user, one action, and only when
+// the program path mentions calamares. Everything else still needs a real
+// password, which the live account does not have.
+//
+// This file is one of the live-session leftovers the installer has to remove
+// (iso/README gap 5).
+
+polkit.addRule(function (action, subject) {
+    if (subject.user !== "live") {
+        return null;
+    }
+    if (action.id !== "org.freedesktop.policykit.exec") {
+        return null;
+    }
+    var program = action.lookup("program");
+    if (program && program.indexOf("calamares") !== -1) {
+        return polkit.Result.YES;
+    }
+    return null;
+});

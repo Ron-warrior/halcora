@@ -91,6 +91,7 @@ packagekit-qt6
 # so it can elevate with pkexec, and xorg-xhost so that the root process is
 # allowed to open the live session's X display at all.
 polkit
+polkit-kde-agent
 xorg-xhost
 kcoreaddons
 kpmcore
