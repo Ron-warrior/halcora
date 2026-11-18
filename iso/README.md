@@ -34,6 +34,15 @@ In CI, `.github/workflows/iso.yml` does the same thing in a privileged Arch
 container, plus the one step that cannot come from the package list: building
 Calamares from source (it is AUR-only) and staging it for `build.sh` to overlay.
 
+The Halcora theme and layout packages come from a local repository, not from
+Arch. Build one with `packages/build.sh`, then:
+
+    sudo HALCORA_REPO=$PWD/packages/repo ./iso/build.sh
+
+With `HALCORA_REPO` unset — which is what CI does — the image contains no Halcora
+packages and looks like stock Plasma. That is the current state, and the reason
+the prealpha is a boot-and-install test rather than a design test.
+
 Nothing can be built or tested on the user's device, so **CI is the only real
 build host and the only real test loop.** An ISO that has not been through the
 workflow has not been built.

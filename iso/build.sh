@@ -66,7 +66,42 @@ else
     printf '==> CALAMARES_STAGE unset: building an ISO with no installer\n'
 fi
 
-# 6. Symlinks. These cannot live in git, so they are made here.
+# 6. Halcora's own packages, when somebody has built them.
+#
+#    The theme packages are not in the Arch repositories, so until a local
+#   pacman repository exists the image simply does not contain them and looks
+#   like stock Plasma. Pointing HALCORA_REPO at the output of
+#   `packages/build.sh` pulls them in.
+#
+#   Build time only: the repository is added to the *profile*, which mkarchiso
+#   uses to install packages. It is deliberately not added to the installed
+#   system's /etc/pacman.conf, because update infrastructure is a later phase and
+#   an installed system pointed at a path on someone else's disk is worse than
+#   one with no extra repository at all.
+if [[ -n ${HALCORA_REPO:-} ]]; then
+    if [[ ! -d $HALCORA_REPO ]]; then
+        printf 'HALCORA_REPO is set but %s is not a directory\n' "$HALCORA_REPO" >&2
+        exit 1
+    fi
+    if ! compgen -G "$HALCORA_REPO/*.pkg.tar.zst" >/dev/null; then
+        printf 'HALCORA_REPO has no built packages; run packages/build.sh first\n' >&2
+        exit 1
+    fi
+    printf '==> adding local repository %s\n' "$HALCORA_REPO"
+    {
+        printf '\n[halcora]\n'
+        # These are our own packages, built here, unsigned. Trusting them is the
+        # same decision as shipping them in the image.
+        printf 'SigLevel = Optional TrustAll\n'
+        printf 'Server = file://%s\n' "$HALCORA_REPO"
+    } >>"$PROFILE/pacman.conf"
+    printf 'halcora-lookandfeel-win\nhalcora-lookandfeel-macos\nhalcora-layout\n' \
+        >>"$PROFILE/packages.x86_64"
+else
+    printf '==> HALCORA_REPO unset: no Halcora packages in this image\n'
+fi
+
+# 7. Symlinks. These cannot live in git, so they are made here.
 printf '==> creating service symlinks\n'
 SYSTEMD=$PROFILE/airootfs/etc/systemd/system
 mkdir -p "$SYSTEMD/multi-user.target.wants" "$SYSTEMD/network-online.target.wants"
@@ -85,12 +120,12 @@ ln -sf /dev/null "$SYSTEMD/multi-user.target.wants/systemd-networkd.service"
 # classic self-inflicted outage, so the networkd .network files go.
 rm -f "$PROFILE"/airootfs/etc/systemd/network/*.network
 
-# 7. The live user's home. The account itself comes from sysusers.d, which is
+# 8. The live user's home. The account itself comes from sysusers.d, which is
 #    declarative and creates the matching group for us.
 printf '==> creating /home/live\n'
 install -d -o 1000 -g 1000 -m 750 "$PROFILE/airootfs/home/live"
 
-# 8. Build.
+# 9. Build.
 printf '==> mkarchiso\n'
 mkarchiso -v -w "$WORK/work" -o "$OUT" "$PROFILE"
 
