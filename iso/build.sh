@@ -48,8 +48,16 @@ install -m 644 "$ROOT/iso/profile/packages.x86_64" "$PROFILE/packages.x86_64"
 cp -a "$ROOT/iso/overlay/." "$PROFILE/airootfs/"
 
 # 4. Our own scripts that belong in the image.
-install -Dm 755 "$ROOT/scripts/halcora-layout" \
-    "$PROFILE/airootfs/usr/local/bin/halcora-layout"
+#
+#    halcora-layout is deliberately NOT copied here any more. It ships in the
+#    halcora-layout package, and a second copy in /usr/local/bin would shadow the
+#    packaged /usr/bin one for the life of the installed system — so a later
+#    package upgrade would be silently ignored. Without HALCORA_REPO there are no
+#    layout packages either, and a switcher with nothing to switch to is not
+#    worth the duplication.
+#
+#    Everything from step 5 on is conditional or additive, so the default build
+#    (CI, no repo) is unchanged by this file only in ways described here.
 
 # 5. Calamares, when CI has built it out of tree. It is not in the Arch
 #    repositories, so it cannot come from the package list.
