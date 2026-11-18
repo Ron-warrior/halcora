@@ -33,6 +33,10 @@ the commands in `docs/HANDOFF.md` before trusting them.
   - `halcora-defaults` puts that palette in `/etc/skel` as the system default
     and sets double-click, because a layout package deliberately does not set a
     colour scheme.
+  - `halcora-branding` provides `os-release` and a Calamares branding directory.
+    **Not wired in**: `settings.conf` still says `branding: default`, because
+    changing the installer's appearance before the first boot test would blur
+    that test.
   - `packages/build.sh` runs `makepkg` then `repo-add` into `packages/repo`.
   - **No `makepkg` run has been attempted** and there is no pacman repository in
     the tree. CI checks only that the packages parse as shell, that each

@@ -23,8 +23,10 @@ nothing.**
   already in `iso/profile/packages.x86_64`, so a wrapper would be a dependency
   with our name on it and nothing else. Delete this entry rather than write it
   unless a real reason appears.
-- `halcora-branding` — os-release, Plymouth, SDDM theme, Calamares branding,
-  wallpapers (our own, not Xiaomi's). **Not written.**
+- `halcora-branding` — **written, never built, not wired in.** `os-release` and
+  a Calamares branding directory with a placeholder mark. `settings.conf` still
+  says `branding: default` on purpose: changing what the installer looks like
+  before the first boot test would blur that test's result.
 - `halcora-defaults` — **written, never built.** `/etc/skel/.config/kdeglobals`
   with two keys and no more: the HyperOS colour scheme (because the layout
   packages carry no palette), and double-click, stated explicitly because it is

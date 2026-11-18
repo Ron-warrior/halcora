@@ -207,13 +207,18 @@ jobs:
       # docs/DESIGN.md: the palette lives in halcora-theme-hyperos and nowhere
       # else, or a layout could not wear it without layout code changing. This is
       # the cheapest possible guard for that rule: no literal #rrggbb outside the
-      # one directory allowed to have them.
+      # directories allowed to have them.
+      #
+      # halcora-branding is allowed because a logo's own colours are brand
+      # assets, not a themeable palette — there is nothing to re-skin there.
+      # Every other hex belongs in the theme package.
       - name: The palette lives only in the HyperOS theme
         run: |
           status=0
           found=$(grep -rIlE '#[0-9A-Fa-f]{6}' \
                     iso packages scripts 2>/dev/null \
-                  | grep -v '^packages/halcora-theme-hyperos/' || true)
+                  | grep -v '^packages/halcora-theme-hyperos/' \
+                  | grep -v '^packages/halcora-branding/' || true)
           if [ -n "$found" ]; then
             for f in $found; do
               printf '::error file=%s::hard-coded colour outside halcora-theme-hyperos\n' "$f"
@@ -231,7 +236,8 @@ jobs:
           import yaml
 
           bad = 0
-          files = glob.glob("iso/overlay/etc/calamares/**/*.conf", recursive=True)
+          files = sorted(glob.glob("iso/overlay/etc/calamares/**/*.conf", recursive=True)
+                         + glob.glob("packages/*/calamares/*.desc"))
           if not files:
               print("::error::no Calamares configuration found")
               sys.exit(1)

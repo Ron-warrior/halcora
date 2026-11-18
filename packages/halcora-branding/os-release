@@ -1,0 +1,11 @@
+NAME="Halcora"
+PRETTY_NAME="Halcora (prealpha)"
+ID=halcora
+ID_LIKE=arch
+BUILD_ID=rolling
+ANSI_COLOR="38;2;52;130;255"
+HOME_URL="https://github.com/Ron-warrior/halcora"
+DOCUMENTATION_URL="https://github.com/Ron-warrior/halcora/blob/main/docs/STATE.md"
+SUPPORT_URL="https://github.com/Ron-warrior/halcora/issues"
+BUG_REPORT_URL="https://github.com/Ron-warrior/halcora/issues"
+LOGO=halcora-logo

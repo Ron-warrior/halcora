@@ -1,0 +1,37 @@
+# Maintainer: Halcora <noreply@github.com/Ron-warrior>
+#
+# Halcora's identity: os-release and the installer's branding.
+#
+# NOT WIRED IN YET. iso/overlay/etc/calamares/settings.conf still says
+# `branding: default`, deliberately: the first boot test is the most valuable
+# data this project can get, and changing what the installer looks like before
+# that test would blur it. Switching to `branding: halcora` is a one-line change
+# once the ISO can install packages from our repository.
+#
+# The logo is a placeholder mark, not identity work. It exists so Calamares has
+# something rather than an empty space.
+#
+# Nothing in this file has been built.
+
+pkgname=halcora-branding
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Halcora identity: os-release and Calamares branding (not yet used by the ISO)'
+arch=('any')
+url='https://github.com/Ron-warrior/halcora'
+license=('GPL-3.0-or-later')
+depends=('calamares')
+source=()
+sha256sums=()
+
+package() {
+  # /usr/lib/os-release belongs to the base system; /etc/os-release is the
+  # documented override and is what every tool actually consults first.
+  install -Dm644 "$startdir/os-release" "$pkgdir/etc/os-release"
+
+  install -d "$pkgdir/etc/calamares/branding/halcora"
+  install -m644 "$startdir/calamares/branding.desc" \
+    "$startdir/calamares/logo.svg" \
+    "$startdir/calamares/icon.svg" \
+    "$pkgdir/etc/calamares/branding/halcora/"
+}

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Placeholder mark: a squircle with two uprights and a crossbar, the
+       simplest thing that reads as an H at 32px and needs no font. Replace with
+       real identity work once there is an identity; this exists so Calamares has
+       a logo rather than an empty space. -->
+  <rect x="4" y="4" width="120" height="120" rx="34" fill="#3482ff"/>
+  <rect x="38" y="34" width="14" height="60" rx="7" fill="#ffffff"/>
+  <rect x="76" y="34" width="14" height="60" rx="7" fill="#ffffff"/>
+  <rect x="46" y="57" width="36" height="14" rx="7" fill="#ffffff"/>
+</svg>

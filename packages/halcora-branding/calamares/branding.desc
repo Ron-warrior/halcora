@@ -1,0 +1,35 @@
+---
+# Calamares branding for Halcora.
+#
+# Lives in a package rather than in the ISO overlay so that the installer and
+# the installed system agree about what the distribution is called; the ISO
+# overlay already holds the module configuration and nothing here changes it.
+#
+# Only keys Calamares documents are used. A wrong key is ignored silently, which
+# is exactly the failure mode this file cannot test, so keep it boring.
+#
+# No `style:` block on purpose. Calamares cannot read a KDE colour scheme, and
+# docs/DESIGN.md keeps the palette in halcora-theme-hyperos alone — repeating
+# six hex values here would be a second place to change when the palette is
+# corrected. The installer therefore wears Calamares's default chrome until
+# there is a reason and a mechanism to do better.
+
+componentName: halcora
+
+strings:
+    productName: Halcora
+    shortProductName: Halcora
+    version: prealpha
+    shortVersion: prealpha
+    versionedName: Halcora prealpha
+    shortVersionedName: Halcora prealpha
+    bootloaderEntryName: Halcora
+    productUrl: https://github.com/Ron-warrior/halcora
+    supportUrl: https://github.com/Ron-warrior/halcora/issues
+
+images:
+    productLogo: logo.svg
+    productIcon: icon.svg
+
+windowExpandedSize: 860x540
+windowPreferredSize: 860x540
