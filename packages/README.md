@@ -20,8 +20,11 @@ nothing.**
   wallpapers (our own, not Xiaomi's). **Not written.**
 - `halcora-defaults` — `/etc/skel`: Plasma defaults, window rules, the
   deliberately-untouched keybinds, first-run state. **Not written.**
-- `halcora-layout` — installs `scripts/halcora-layout` to `/usr/local/bin` plus
-  a `.desktop` entry in Settings. **Not written.**
+- `halcora-layout` — **written, never built.** Installs `scripts/halcora-layout`
+  to `/usr/bin`, and depends on both layout packages: a switcher offering one
+  choice is not a switcher. Its launcher entry is deliberately absent until the
+  first-run wizard (TASK-7) can offer it, because an icon that prints to a
+  terminal nobody opened is not a feature.
 - `halcora-migrate` — the Windows import tool and its Calamares module
   (phase 4). **Not written.**
 
@@ -96,7 +99,7 @@ nothing. Pointing the ISO's `pacman.conf` at it is the next piece of phase 1.
 ## What has not been done
 
 Nothing here has been built. No `makepkg` run has been attempted, in CI or
-anywhere else, and there is no pacman repository to build against yet. The two
+anywhere else, and there is no pacman repository to build against yet. The three
 `PKGBUILD`s are written from upstream's `install.sh` — which was read, not
 guessed at — but "read the installer carefully" and "the package builds" are
 different claims. `docs/TASKS.md` TASK-4 says what done looks like.

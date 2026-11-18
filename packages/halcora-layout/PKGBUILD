@@ -1,0 +1,37 @@
+# Maintainer: Halcora <noreply@github.com/Ron-warrior>
+#
+# Installs the layout switcher. There is no upstream: the script is ours, and
+# this package exists so that it is owned by pacman instead of being a loose
+# file dropped into the image by iso/build.sh.
+#
+# Nothing in this file has been built.
+#
+# Not yet written here, on purpose: a .desktop entry. A launcher item that runs
+# halcora-layout prints to a terminal nobody opened, so the sensible entry point
+# is the first-run wizard (docs/TASKS.md TASK-7), not two silent launcher icons.
+
+pkgname=halcora-layout
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Halcora layout switcher: Windows-shaped by default, macOS-shaped on request'
+arch=('any')
+url='https://github.com/Ron-warrior/halcora'
+license=('GPL-3.0-or-later')
+# Both layouts are dependencies rather than options: a switcher that offers one
+# choice is not a switcher, and plasma-apply-lookandfeel exits non-zero on an id
+# it cannot find.
+depends=('plasma-workspace' 'halcora-lookandfeel-win' 'halcora-lookandfeel-macos')
+source=()
+sha256sums=()
+
+package() {
+  # $startdir is the directory holding this PKGBUILD, so the script is taken
+  # from the repository rather than duplicated. There is exactly one copy of
+  # scripts/halcora-layout and it is the one that ships.
+  #
+  # /usr/bin, not /usr/local/bin: /usr/local belongs to the machine's owner, and
+  # iso/build.sh's copy there is a live-image convenience that this package
+  # makes redundant once it is in the repository.
+  install -Dm755 "$startdir/../../scripts/halcora-layout" \
+    "$pkgdir/usr/bin/halcora-layout"
+}
