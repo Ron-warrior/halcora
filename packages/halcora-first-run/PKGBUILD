@@ -1,0 +1,31 @@
+# Maintainer: Halcora <noreply@github.com/Ron-warrior>
+#
+# The first-run question. One dialog, once per account, and then never again.
+#
+# It is a package rather than a file in the ISO overlay so that it survives into
+# the installed system through the same route as everything else, and so that its
+# dependencies (kdialog, the switcher) are declared rather than assumed.
+#
+# Nothing in this file has been built.
+
+pkgname=halcora-first-run
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Asks once, at first login, which layout to start with'
+arch=('any')
+url='https://github.com/Ron-warrior/halcora'
+license=('GPL-3.0-or-later')
+# halcora-layout pulls in both layout packages. kdialog is KDE's own dialog
+# frontend and is not pulled in by plasma-meta, so it is named.
+depends=('kdialog' 'halcora-layout' 'xdg-utils')
+source=()
+sha256sums=()
+
+package() {
+  install -Dm755 "$startdir/first-run.sh" "$pkgdir/usr/bin/halcora-first-run"
+
+  # /etc/skel, not /etc/xdg/autostart: the question is per account and belongs to
+  # the account's own autostart directory, where the user can delete it.
+  install -Dm644 "$startdir/halcora-first-run.desktop" \
+    "$pkgdir/etc/skel/.config/autostart/halcora-first-run.desktop"
+}

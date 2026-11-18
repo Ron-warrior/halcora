@@ -55,6 +55,11 @@ nothing.**
   choice is not a switcher. Its launcher entry is deliberately absent until the
   first-run wizard (TASK-7) can offer it, because an icon that prints to a
   terminal nobody opened is not a feature.
+- `halcora-first-run` — **written, never built.** One dialog at first login:
+  Windows layout or macOS layout, then an offer to open Xiaomi's page for MiSans.
+  Writes a marker before asking, because being asked again at every login is
+  worse than a question that was skipped. In `/etc/skel/.config/autostart`, so it
+  is per account and the user can delete it.
 - `halcora-migrate` — the Windows import tool and its Calamares module
   (phase 4). **Not written.**
 
