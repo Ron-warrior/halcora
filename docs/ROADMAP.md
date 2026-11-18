@@ -47,10 +47,12 @@ The theme packages, and the layout switcher finally has something to switch to:
   a dependency rather than a build.
 - `halcora-branding` — our own wallpapers, Plymouth splash, Calamares branding.
 
-As of the `themes/lookandfeel` branch the first two are written and have never
-been built; `halcora-layout` (the package that ships the switcher) is written
-too. Everything else here is unwritten. Nothing in this list is in the ISO until
-`packages/build.sh` produces a repository the image can read.
+As of the `themes/lookandfeel` branch, everything in this list except the
+branding's Calamares wiring exists as a package, and **none of it has been
+built**. The theme is a palette, a window decoration, a Kvantum config and a
+self-verifying Plasma style recolour; the icons and cursors exist; the first-run
+question exists. Nothing in this list is in the ISO until `packages/build.sh`
+produces a repository the image can read and `HALCORA_REPO` points at it.
 
 **Exit criterion:** `halcora-layout win` and `halcora-layout macos` both produce
 the intended desktop on a freshly installed system, with no manual steps, and

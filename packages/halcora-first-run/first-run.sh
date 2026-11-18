@@ -24,13 +24,20 @@ fi
 mkdir -p "$(dirname "$marker")"
 : >"$marker"
 
+# Yes is Windows, No is macOS, and closing the dialog is a cancellation — but the
+# desktop still has to end up consistent. A cancelled run therefore applies the
+# default layout rather than leaving the session with Breeze's icons and no
+# decoration, which would look broken rather than undecided.
+layout=win
 if kdialog --title 'Welcome to Halcora' --yes-label 'Windows' --no-label 'macOS' --yesno \
     'Start with the Windows-style layout?\n\nChoose No for the macOS-style layout. You can switch at any time with halcora-layout.'
 then
-    halcora-layout win || true
+    layout=win
 else
-    halcora-layout macos || true
+    # kdialog exits 1 for "No" and something else for a closed window.
+    [ "$?" -eq 1 ] && layout=macos
 fi
+halcora-layout "$layout" || true
 
 # MiSans is offered, never bundled: Xiaomi's licence allows use but not
 # redistribution of the font files (docs/LEGAL.md). A link is the whole feature.
