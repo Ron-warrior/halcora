@@ -102,35 +102,44 @@ The only authored design work. Fork Fluent-kde's geometry, recolour to the
 HyperOS palette, Inter as the UI face. `docs/DESIGN.md` has the rules and
 `docs/DECISIONS.md` ADR-4 has the reasoning.
 
-**Done so far:** `packages/halcora-theme-hyperos/color-schemes/*.colors` —
-light and dark, hand-authored, checked by CI for required keys and R,G,B values.
-That is the half DESIGN.md allows to live outside a layout package, and it means
-both layouts can wear HyperOS colour the moment they ship.
+**Done so far:** the palette, the window decoration and the Kvantum config, plus
+a Plasma style recolour that decompresses each `.svgz`, remaps the colours and
+recompresses it — and **skips the style with a build-log note if nothing
+matched**, because those literals have never been read and an unmodified copy
+would look like a finished theme.
 
-**Still open:** the Plasma style, Kvantum style and Aurorae decoration — the
-shapes. Until they exist this is a palette, not a theme, and the release notes
-must keep saying so.
+**Still open:** the Plasma style map has to be verified against a real build. If
+the map is wrong the style silently does not ship. That is one line in a build
+log, and it is the next thing to look for.
 
-**Read this before starting the recolour.** Fluent-kde's Plasma style is not
+**Read this before touching the recolour.** Fluent-kde's Plasma style is not
 plain SVG: the files under `plasma/desktoptheme/Fluent/` (note: `Fluent`, not
 `Fluent-dark` — that name is created by the installer) are `.svgz`, i.e. gzipped.
-A `sed` over them matches nothing. The recolour has to gunzip, edit, and gzip
-again, and it needs the actual colour literals out of those files, which cannot
-be read without decompressing them. Do that on a machine with the checkout, not
-by guessing hex values from the screenshots.
+A `sed` over them matches nothing. The map currently guesses that the style uses
+the same palette as the Kvantum config, which was read. Verify it rather than
+extending the guess.
 
 **Honest expectation:** it will look like recoloured Fluent long before it looks
 like HyperOS. That is expected. Do not stall the queue waiting for beauty.
 
 ---
 
-## TASK-7 — NVIDIA and the first-run wizard
+## TASK-7 — NVIDIA, and the parts of first run that remain
 
-- [ ] Not started.
+- [ ] Boot entry and first-run question done; `chwd` not started.
 
-`chwd` at install time, a second live boot entry that blacklists nouveau, and a
-first-run screen that asks one question (which layout) then offers the MiSans
-download. `docs/DECISIONS.md` ADR-8.
+`chwd` at install time, and the proprietary driver itself. The other two pieces
+exist:
+
+- `iso/build.sh` generates a second UEFI boot entry from archiso's own, with
+  `module_blacklist=nouveau`. It boots the same kernel with the same absent
+  driver, so it changes nothing until `chwd` runs at install time: it is the
+  entry point for the work, not the work.
+- `halcora-first-run` asks one question at login — Windows or macOS layout — and
+  offers Xiaomi's MiSans page. It writes its marker before asking.
+
+**Still missing:** `chwd` in the Calamares sequence, and any evidence that the
+proprietary driver loads on the RTX 2060. `docs/DECISIONS.md` ADR-8.
 
 ---
 
