@@ -88,11 +88,16 @@ downloadable ISO existing.
 
 ## The blocker
 
-**A human has to boot the ISO.** No agent can do this, and nothing else can be
-learned until it happens. `docs/TESTING.md` is the protocol to give them.
+**Two things, both needing a person, not an agent.**
 
-Until a boot report arrives, the only safe work on `main` is documentation and
-the fast check workflow. Anything else risks muddying the first real test.
+1. **Boot the ISO.** No agent can do this, and nothing else can be learned until
+   it happens. `docs/TESTING.md` is the protocol.
+2. **Build the packages.** `packages/build.sh` needs an Arch machine. Nothing on
+   the branch has ever been through `makepkg`, so every recipe is "written
+   against sources that were read", which is not the same claim.
+
+Until those happen, the only safe work is documentation and CI. Everything else
+risks turning an unverified tree into a larger unverified tree.
 
 ## Live hazards, with numbers
 
