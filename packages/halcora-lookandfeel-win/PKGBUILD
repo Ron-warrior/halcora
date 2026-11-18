@@ -27,7 +27,7 @@ license=('GPL-3.0-or-later')
 # The icon theme is a hard dependency, not an option: the Global Theme names
 # Theme=Fluent-dark, and a theme that points at an absent icon set is the failure
 # this package was written to fix.
-depends=('plasma-workspace' 'halcora-icons-fluent')
+depends=('plasma-workspace' 'halcora-icons-fluent' 'halcora-theme-hyperos')
 optdepends=(
   'kwin: Aurorae window decorations, without which the buttons are stock'
   'kvantum: the Kvantum widget style the theme sets for Qt applications'
@@ -119,4 +119,11 @@ package() {
   # KWin falls back, which is the same behaviour as naming any absent theme.
   sed -i 's/^theme=__aurorae__svg__Fluent-dark$/theme=__aurorae__svg__HalcoraHyperOS/' \
     "$lf/contents/defaults"
+
+  # Point the desktop theme (panels, menus, popups) at the HyperOS recolour too.
+  # This line lives under [plasmarc][Theme] and names Fluent's own style, which is
+  # the shape language DESIGN.md says HyperOS should own. If the recolour was
+  # skipped at build time — see halcora-theme-hyperos — Plasma falls back to
+  # Breeze rather than to nothing.
+  sed -i 's/^name=.*/name=HalcoraHyperOS/' "$lf/contents/defaults"
 }

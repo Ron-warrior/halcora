@@ -17,7 +17,7 @@ url='https://github.com/Ron-warrior/halcora'
 license=('GPL-3.0-or-later')
 # The icon theme is a hard dependency for the same reason as the Windows layout:
 # the Global Theme names Theme=WhiteSur-dark.
-depends=('plasma-workspace' 'halcora-icons-whitesur')
+depends=('plasma-workspace' 'halcora-icons-whitesur' 'halcora-theme-hyperos')
 optdepends=(
   'kwin: Aurorae window decorations, which put the buttons on the left'
   'kvantum: the Kvantum widget style the theme sets for Qt applications'
@@ -79,6 +79,11 @@ package() {
   # Same removals as the win package, for the same reasons: the palette belongs
   # to halcora-theme-hyperos, and the cursor theme named here is not shipped.
   sed -i -e '/^ColorScheme=/d' -e '/^cursorTheme=/d' "$lf/contents/defaults"
+
+  # This layout keeps WhiteSur's window decoration — its geometry is built for
+  # buttons on the left — but takes the HyperOS desktop theme, which is the
+  # surface both layouts are meant to share.
+  sed -i 's/^name=.*/name=HalcoraHyperOS/' "$lf/contents/defaults"
 
   # Colour schemes are deliberately not installed. Every one upstream ships
   # belongs to a WhiteSur variant, and Halcora's palette is HyperOS's job; a

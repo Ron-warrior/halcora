@@ -160,6 +160,8 @@ EOF
     printf 'style unmodified would put Fluent colours under the Halcora name.\n'
     printf 'The palette, decoration and Kvantum config are installed as normal.\n\n'
   else
-    sed -i -e 's/^Name=.*/Name=HalcoraHyperOS/' "$st/metadata.desktop"
+    sed -i -e 's/^Name=.*/Name=HalcoraHyperOS/' \
+      -e 's/^X-KDE-PluginInfo-Name=.*/X-KDE-PluginInfo-Name=HalcoraHyperOS/' \
+      "$st/metadata.desktop"
   fi
 }
