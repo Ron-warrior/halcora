@@ -34,6 +34,7 @@ file_permissions=(
   ["/usr/local/bin/choose-mirror"]="0:0:755"
   ["/usr/local/bin/Installation_guide"]="0:0:755"
   ["/usr/local/bin/livecd-sound"]="0:0:755"
+  ["/usr/local/bin/halcora-installer"]="0:0:755"
   ["/usr/local/bin/halcora-layout"]="0:0:755"
   ["/home/live"]="1000:1000:750"
 )

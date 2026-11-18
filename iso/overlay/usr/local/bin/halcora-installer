@@ -1,0 +1,30 @@
+#!/bin/sh
+# Launch Calamares as root, on X11, with the X access it needs.
+#
+# Calamares must run as root. Under X11 a root client cannot open the live user's
+# display unless xhost grants it, and `pkexec calamares` alone therefore opens
+# nothing at all — the failure looks like a dead icon. This grants access for the
+# duration of the installer and revokes it after, rather than leaving the root
+# user permanently allowed to connect.
+#
+# There is deliberately no Wayland path: the live session runs X11 for this
+# reason (see the sddm drop-in in this overlay).
+set -eu
+
+if ! command -v calamares >/dev/null 2>&1; then
+    # Say something rather than failing silently: a missing installer is a build
+    # problem, and a silent exit looks like a broken button.
+    command -v kdialog >/dev/null 2>&1 &&
+        kdialog --title 'Install Halcora' --error \
+            'Calamares is not installed in this image. This is a bug in the image, not something you did.'
+    echo "halcora-installer: calamares not found" >&2
+    exit 1
+fi
+
+xhost +si:localuser:root >/dev/null 2>&1 || true
+
+status=0
+pkexec env QT_QPA_PLATFORM=xcb calamares || status=$?
+
+xhost -si:localuser:root >/dev/null 2>&1 || true
+exit "$status"

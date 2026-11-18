@@ -88,8 +88,10 @@ packagekit-qt6
 # --- installer ---
 # Calamares is not in the Arch repositories, so CI builds it and iso/build.sh
 # overlays it. These are the libraries it links against at runtime, plus polkit
-# so it can elevate with pkexec.
+# so it can elevate with pkexec, and xorg-xhost so that the root process is
+# allowed to open the live session's X display at all.
 polkit
+xorg-xhost
 kcoreaddons
 kpmcore
 libpwquality

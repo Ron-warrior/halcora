@@ -74,7 +74,7 @@ jobs:
       - name: Shell scripts parse
         run: |
           bad=0
-          for f in iso/build.sh scripts/* packages/*.sh packages/*/*.sh; do
+          for f in iso/build.sh scripts/* packages/*.sh packages/*/*.sh iso/overlay/usr/local/bin/*; do
             [ -f "$f" ] || continue
             if ! bash -n "$f"; then
               printf '::error file=%s::does not parse\n' "$f"
@@ -87,7 +87,7 @@ jobs:
         # Advisory only. shellcheck is noisy about style, and style has never
         # broken a build here. Its real findings are printed for a human.
         run: |
-          for f in iso/build.sh scripts/* packages/*.sh packages/*/*.sh; do
+          for f in iso/build.sh scripts/* packages/*.sh packages/*/*.sh iso/overlay/usr/local/bin/*; do
             [ -f "$f" ] || continue
             shellcheck --format=gcc --severity=warning "$f" || true
           done
