@@ -67,3 +67,28 @@ can read the repository and nothing else.
     "If the repo has changed since this was written" section of
     docs/HANDOFF.md, re-verify the state against the code, and update STATE.md
     before starting on any task.
+
+---
+
+## When you have an Arch machine
+
+    I have an Arch machine. Walk me through `packages/build.sh` and tell me what
+    each failure means as it happens.
+
+    Then, if the packages build, check that
+    `plasma-apply-lookandfeel --list` shows both ids, and tell me what the
+    desktop looks like with each layout applied. That report is worth more than
+    the packages themselves: it is the first time any of this has run.
+
+---
+
+## Working on a branch
+
+    The work on branch `themes/lookandfeel` has never been built or booted. Read
+    its entry in docs/STATE.md first.
+
+    `iso.yml` does not run on branch pushes, so anything under iso/ there is
+    unbuilt rather than unchanged. Say which it is.
+
+    Do not merge it to main without telling me first.
+
