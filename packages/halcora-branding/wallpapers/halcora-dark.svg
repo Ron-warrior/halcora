@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 2160" width="3840" height="2160">
+  <!-- Halcora wallpaper, dark: near-black rather than black, with the accent
+       bleeding in from one corner. Same restraint as the light one — no text, no
+       logo, nothing that competes with the desktop. -->
+  <defs>
+    <radialGradient id="bloom" cx="0.28" cy="0.72" r="0.85">
+      <stop offset="0%" stop-color="#16304f"/>
+      <stop offset="40%" stop-color="#101c2b"/>
+      <stop offset="100%" stop-color="#1c1c1e"/>
+    </radialGradient>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1c1c1e" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#1c1c1e" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+  <rect width="3840" height="2160" fill="url(#bloom)"/>
+  <rect width="3840" height="2160" fill="url(#base)"/>
+  <circle cx="1080" cy="1520" r="1400" fill="#5b9aff" opacity="0.10"/>
+</svg>

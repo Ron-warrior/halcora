@@ -40,4 +40,12 @@ package() {
     "$startdir/calamares/logo.svg" \
     "$startdir/calamares/icon.svg" \
     "$pkgdir/etc/calamares/branding/halcora/"
+
+  # Wallpapers are vector so they re-render at any resolution and can be authored
+  # in a text editor. Two, not the six DESIGN.md asks for: the other four are
+  # layout-specific and there is nothing yet to differentiate them by.
+  install -d "$pkgdir/usr/share/backgrounds/halcora"
+  install -m644 "$startdir/wallpapers/halcora-light.svg" \
+    "$startdir/wallpapers/halcora-dark.svg" \
+    "$pkgdir/usr/share/backgrounds/halcora/"
 }

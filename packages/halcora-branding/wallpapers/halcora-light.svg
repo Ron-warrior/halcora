@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 2160" width="3840" height="2160">
+  <!-- Halcora wallpaper, light: a warm off-white field with one soft, off-centre
+       bloom. No text, no logo, no focal object — docs/DESIGN.md asks for soft
+       gradients and a single quiet focus, and a wallpaper that competes with the
+       desktop is a wallpaper that has to be changed.
+       Vector because it is the one format that can be authored in a text editor
+       and re-rendered at any resolution; Plasma renders SVGs natively. -->
+  <defs>
+    <radialGradient id="bloom" cx="0.62" cy="0.38" r="0.72">
+      <stop offset="0%" stop-color="#eaf1ff"/>
+      <stop offset="45%" stop-color="#f3f6fd"/>
+      <stop offset="100%" stop-color="#f7f7fa"/>
+    </radialGradient>
+    <linearGradient id="veil" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="3840" height="2160" fill="url(#bloom)"/>
+  <rect width="3840" height="2160" fill="url(#veil)"/>
+  <circle cx="2380" cy="820" r="1500" fill="#dbe7ff" opacity="0.30"/>
+  <rect width="3840" height="2160" fill="url(#veil)" transform="rotate(180 1920 1080)"/>
+</svg>
