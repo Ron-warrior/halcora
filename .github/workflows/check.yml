@@ -272,6 +272,24 @@ jobs:
           sys.exit(bad)
           PY
 
+      # A module config that settings.conf never names is a typo: Calamares loads
+      # modules by the names in its sequence, and a misspelled entry silently
+      # runs nothing while its .conf sits there looking correct.
+      - name: Every Calamares module config is used
+        run: |
+          status=0
+          for cfg in iso/overlay/etc/calamares/modules/*.conf; do
+            [ -f "$cfg" ] || continue
+            module=$(basename "$cfg" .conf)
+            if ! grep -qE "(^|[[:space:]-])$module([[:space:]]|$)" \
+                 iso/overlay/etc/calamares/settings.conf; then
+              printf '::error file=%s::module %s is configured but settings.conf never names it\n' \
+                "$cfg" "$module"
+              status=1
+            fi
+          done
+          exit "$status"
+
       # install_dir is duplicated into unpackfs.conf by hand. If they diverge,
       # every install produces an unbootable disk and the error surfaces only
       # after a reboot on real hardware.
