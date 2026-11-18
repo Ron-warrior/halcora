@@ -133,6 +133,19 @@ trust it.
 - **`mkarchiso` finishes but no ISO in `out/`** — check `iso_name` and
   `install_dir` in `profiledef.sh`; `out/*.iso` is a glob and a naming change can
   put the file elsewhere.
+- **`cd: no such file or directory: $srcdir/Something`** — the `source=` alias
+  and the directory the build `cd`s into disagree. For a git source, makepkg
+  checks out into a directory named after the alias, so the alias must be spelled
+  exactly like the upstream repository. CI checks this one; if it fires, fix the
+  alias rather than the `cd`.
+- **The build log says "the Plasma style was NOT installed"** — the recolour map
+  did not match anything in Fluent's `.svgz` files. Nothing is broken: the
+  palette, decoration and Kvantum config still install. To fix it, decompress one
+  style file on a machine with the sources, read its literals, and correct the map
+  in `halcora-theme-hyperos`. Do not remove the check to make the message go away.
+- **`gd-`/Qt apps look unstyled after a rebuild** — Kvantum keys its style on the
+  directory name, so `HalcoraHyperOS.kvconfig` and `HalcoraHyperOS.svg` must both
+  match `HalcoraHyperOS/`. Renaming one without the other silently disables it.
 - **`makepkg` fails inside `build()`, running an upstream `install.sh`** — the
   upstream moved. Re-read its `install.sh` and its tree rather than guessing at
   flags, and bump the commit in `source=` and the version in `pkgver` together.
