@@ -58,15 +58,18 @@ the commands in `docs/HANDOFF.md` before trusting them.
     unset, which is what CI does, the image is unchanged. It also adds a second
     UEFI boot entry that blacklists nouveau (ADR-8) — an entry point for the
     NVIDIA work, not the work.
-- **A downloadable ISO**, published as a pre-release:
-  - Tag: `prealpha` (a single moving pre-release, replaced on each green build)
-  - Asset: `halcora-2026.11.18-x86_64.iso`
+- **A downloadable ISO**, published as a moving `prealpha` release:
+  - Built from `8767d41` — the merge that first put the packages and the
+    live-image fixes on `main`.
+  - Asset: `halcora-2026-11-18-x86_64.iso`
   - Size: 2,024,570,880 bytes (1.885 GiB)
-  - SHA-256: `52e6eb90b8c492c5b2584ea339b11c7c3aab001d012185c3d8c50367a97811d1`
-  - Built from commit `33fee82`
-- **CI, build**: `.github/workflows/iso.yml`, 148 lines. Builds Calamares from
-  source on Arch, then `mkarchiso`, then publishes the release. Green as of
-  `33fee82`.
+  - SHA-256: `e8b37faef907c077cc3a632fee5a07adae9b1eedf42ab391dda73f7d416e7609`
+  - It replaces the first prealpha (built from `33fee82`), which could not open
+    its installer at all.
+- **CI, build**: `.github/workflows/iso.yml`, 155 lines. Builds Calamares from
+  source on Arch, then `mkarchiso`, then publishes the release. **Green on
+  `8767d41`** — the first build to contain the X11 live session, installer
+  wrapper, polkit rule and corrected locale.
 - **CI, guard**: `.github/workflows/check.yml`, 131 lines. Unprivileged, about
   two minutes: every package name exists, the scripts parse, the Calamares YAML
   loads, and `install_dir` matches `unpackfs.conf`. It failed on its first run —
