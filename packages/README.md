@@ -25,8 +25,11 @@ nothing.**
   unless a real reason appears.
 - `halcora-branding` — os-release, Plymouth, SDDM theme, Calamares branding,
   wallpapers (our own, not Xiaomi's). **Not written.**
-- `halcora-defaults` — `/etc/skel`: Plasma defaults, window rules, the
-  deliberately-untouched keybinds, first-run state. **Not written.**
+- `halcora-defaults` — **written, never built.** `/etc/skel/.config/kdeglobals`
+  with two keys and no more: the HyperOS colour scheme (because the layout
+  packages carry no palette), and double-click, stated explicitly because it is
+  the first thing a Windows user notices going wrong. A bigger skel is a bigger
+  thing to keep in step with Plasma.
 - `halcora-layout` — **written, never built.** Installs `scripts/halcora-layout`
   to `/usr/bin`, and depends on both layout packages: a switcher offering one
   choice is not a switcher. Its launcher entry is deliberately absent until the

@@ -1,0 +1,33 @@
+# Maintainer: Halcora <noreply@github.com/Ron-warrior>
+#
+# Defaults for a new account: /etc/skel.
+#
+# Deliberately tiny. A big skel is a big thing to keep in step with Plasma, and
+# every key here is one Plasma would otherwise choose for itself. Only settings
+# where Plasma's own default is wrong for this project belong:
+#
+#   ColorScheme  the layout packages carry no palette (ADR-14), so without this
+#                a new account gets Breeze's blue and never sees HyperOS.
+#                Light, because the Windows layout is the default and Windows 11
+#                ships light.
+#   SingleClick  Plasma already defaults to double-click. Stated anyway because
+#                it is the first thing a Windows user notices going wrong, and
+#                an explicit value is harder to lose than an inherited default.
+#
+# Nothing in this file has been built.
+
+pkgname=halcora-defaults
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Halcora defaults for new accounts: HyperOS palette as the system default'
+arch=('any')
+url='https://github.com/Ron-warrior/halcora'
+license=('GPL-3.0-or-later')
+depends=('halcora-theme-hyperos')
+source=()
+sha256sums=()
+
+package() {
+  install -Dm644 "$startdir/skel/kdeglobals" \
+    "$pkgdir/etc/skel/.config/kdeglobals"
+}

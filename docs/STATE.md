@@ -30,6 +30,9 @@ the commands in `docs/HANDOFF.md` before trusting them.
     only** — no Plasma style, Kvantum style or Aurorae decoration yet, so a
     desktop with these colours has Fluent's or Breeze's shapes. The values are a
     considered first approximation, not device-sampled (each file says so).
+  - `halcora-defaults` puts that palette in `/etc/skel` as the system default
+    and sets double-click, because a layout package deliberately does not set a
+    colour scheme.
   - `packages/build.sh` runs `makepkg` then `repo-add` into `packages/repo`.
   - **No `makepkg` run has been attempted** and there is no pacman repository in
     the tree. CI checks only that the packages parse as shell, that each

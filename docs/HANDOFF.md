@@ -70,6 +70,10 @@ little in it.
 2. Read the **last** failing step, not the first line of the log.
 3. Match it against the table below.
 4. Fix exactly that. Push. Do not bundle a second speculative fix.
+5. `iso.yml` only triggers on pushes to `main`. A push to a feature branch runs
+   the fast `Check` workflow and nothing else, so an `iso/` change on a branch is
+   **unbuilt** until it lands on `main` or someone uses Run workflow on that
+   branch. Say "unbuilt", never "unchanged".
 
 ### P5 — Update the state
 
