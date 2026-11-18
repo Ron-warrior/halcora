@@ -12,6 +12,10 @@ pkg/
 *.pkg.tar.zst.sig
 *.src.tar.gz
 
+# Local pacman repository and makepkg work directories (packages/build.sh)
+packages/repo/
+packages/build/
+
 # Vendored upstream checkouts (fetched, never committed)
 themes/
 vendor/

@@ -78,8 +78,20 @@ our repository before an image will build.
 
 ## Repository
 
-A local pacman repository, built with `repo-add`, served over HTTP or from a
-mounted path. Not yet set up; standing it up is the last step of phase 1.
+`build.sh` builds every package into a local pacman repository: it runs
+`makepkg` per directory and then `repo-add`, producing `packages/repo` with
+`halcora.db` and `halcora.files` in it.
+
+    sudo pacman -S --needed base-devel
+    ./packages/build.sh
+
+It must not run as root, because `makepkg` refuses to and the layout packages
+depend on that refusal — upstream's installers write to `/usr/share` when they
+think they are root.
+
+Nothing has been run through it yet, and there is no repository in the tree for
+the same reason: a repository of never-built packages would be a directory of
+nothing. Pointing the ISO's `pacman.conf` at it is the next piece of phase 1.
 
 ## What has not been done
 
