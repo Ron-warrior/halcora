@@ -49,6 +49,21 @@ package() {
     "$startdir/wallpapers/halcora-dark.svg" \
     "$pkgdir/usr/share/backgrounds/halcora/"
 
+  # Also as a Plasma wallpaper package, so they appear in the picker rather than
+  # only being reachable by browsing to /usr/share/backgrounds.
+  #
+  # The KPackageStructure string and the metadata shape here are the one part of
+  # this package that was not read from a working example: no Plasma 6 wallpaper
+  # package was available to copy. A wrong shape makes the package silently
+  # invisible in the picker — it cannot break anything else — so the loose SVGs
+  # above are the fallback and stay.
+  install -d "$pkgdir/usr/share/wallpapers/Halcora/contents/images"
+  install -m644 "$startdir/wallpapers/Halcora/metadata.json" \
+    "$pkgdir/usr/share/wallpapers/Halcora/"
+  install -m644 "$startdir/wallpapers/halcora-light.svg" \
+    "$startdir/wallpapers/halcora-dark.svg" \
+    "$pkgdir/usr/share/wallpapers/Halcora/contents/images/"
+
   # The featured listing Discover shows as "Editor's Choice". The JSON is
   # store/featured.json at the repository root, because it is content rather
   # than part of this package, and the URL points at the installed copy so no

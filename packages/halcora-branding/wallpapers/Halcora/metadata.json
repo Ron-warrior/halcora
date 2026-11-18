@@ -1,0 +1,14 @@
+{
+    "KPackageStructure": "Wallpaper/Images",
+    "KPlugin": {
+        "Id": "Halcora",
+        "Name": "Halcora",
+        "Description": "Halcora's own wallpapers, light and dark",
+        "License": "GPL-3.0+",
+        "Authors": [
+            {
+                "Name": "The Halcora Project"
+            }
+        ]
+    }
+}
