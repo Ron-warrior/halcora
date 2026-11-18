@@ -69,4 +69,40 @@ package() {
     -e 's/^Name=.*/Name=HalcoraHyperOS/' \
     -e 's/Fluent-dark/HalcoraHyperOS/g' \
     "$aur/metadata.desktop"
+
+  # Kvantum, for Qt applications. Its palette lives in the .kvconfig, whose
+  # GeneralColors section was read from upstream rather than guessed:
+  # highlight #0078D4, text #444444, link #0057AE, visited #E040FB, and the
+  # window/base/button greys. Those are what are remapped here.
+  #
+  # Honest limit: this changes the configurable colours — accent, text, links,
+  # surfaces. Kvantum also draws widget elements from its .svg, whose greys are
+  # baked in, so panels and buttons keep Fluent's own shading until that SVG is
+  # recoloured. Both statements belong together.
+  local kv="$pkgdir/usr/share/Kvantum/HalcoraHyperOS"
+  cp -a "$srcdir/Fluent-kde/Kvantum/Fluent" "$kv"
+  sed -i \
+    -e 's/#F5F5F5/#F7F7FA/g' \
+    -e 's/#f8f8f8/#FAFAFC/g' \
+    -e 's/#f2f2f2/#F2F2F6/g' \
+    -e 's/#f0f0f0/#EDEDF2/g' \
+    -e 's/#c8c8c8/#D5D5DC/g' \
+    -e 's/#e1e1e196/#E4E4EA96/g' \
+    -e 's/#0078D474/#3482FF74/g' \
+    -e 's/#0078D4/#3482FF/g' \
+    -e 's/#444444/#1C1C1E/g' \
+    -e 's/#333333/#24242A/g' \
+    -e 's/#424242/#2E2E34/g' \
+    -e 's/#242424/#1C1C1E/g' \
+    -e 's/#0057AE/#3482FF/g' \
+    -e 's/#E040FB/#7A5AF6/g' \
+    "$kv/Fluent.kvconfig"
+  mv "$kv/Fluent.kvconfig" "$kv/HalcoraHyperOS.kvconfig"
+  # Kvantum requires the .svg to share the directory's name.
+  if [ -f "$kv/Fluent.svg" ]; then
+    mv "$kv/Fluent.svg" "$kv/HalcoraHyperOS.svg"
+  fi
+  if [ -f "$kv/FluentDark.svg" ]; then
+    mv "$kv/FluentDark.svg" "$kv/HalcoraHyperOSDark.svg"
+  fi
 }
