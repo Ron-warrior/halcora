@@ -69,7 +69,6 @@ package() {
 
   install -d \
     "$out/aurorae/themes" \
-    "$out/color-schemes" \
     "$out/plasma/desktoptheme" \
     "$out/plasma/look-and-feel" \
     "$out/plasma/plasmoids" \
@@ -109,9 +108,8 @@ package() {
   #   cursorTheme  points at a cursor set this package does not ship, so the
   #                line would be a promise the system cannot keep.
   #
-  # The icon theme line is left alone even though the icon theme is not shipped
-  # yet: Plasma falls back to the system icons, which is the same result as
-  # removing the line, and it needs no guessing about upstream's naming.
+  # The icon theme line is left alone: halcora-icons-fluent is a hard dependency
+  # of this package, so the name the theme gives resolves to something real.
   sed -i -e '/^ColorScheme=/d' -e '/^cursorTheme=/d' "$lf/contents/defaults"
 
   # Point the decoration at the HyperOS-recoloured one from
