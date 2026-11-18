@@ -20,7 +20,13 @@ pkgdesc='Halcora identity: os-release and Calamares branding (not yet used by th
 arch=('any')
 url='https://github.com/Ron-warrior/halcora'
 license=('GPL-3.0-or-later')
-depends=('calamares')
+# No depends on calamares on purpose. Calamares is not in any pacman
+# repository — CI builds it from Codeberg — so a dependency on it could never be
+# satisfied by pacman, and `pacman -U` would refuse the package even on a machine
+# where Calamares is installed from our own build. The branding is inert without
+# Calamares, which is a weaker guarantee than a dependency and the only honest
+# one available.
+depends=()
 source=()
 sha256sums=()
 

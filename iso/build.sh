@@ -95,7 +95,11 @@ if [[ -n ${HALCORA_REPO:-} ]]; then
         printf 'SigLevel = Optional TrustAll\n'
         printf 'Server = file://%s\n' "$HALCORA_REPO"
     } >>"$PROFILE/pacman.conf"
-    printf 'halcora-lookandfeel-win\nhalcora-lookandfeel-macos\nhalcora-layout\n' \
+    # Everything the image needs from our repository. Branding is deliberately
+    # absent: it is written but not wired into Calamares yet, and an image that
+    # shows it would say the installer had been rebranded when settings.conf
+    # still says `branding: default`.
+    printf 'halcora-theme-hyperos\nhalcora-defaults\nhalcora-lookandfeel-win\nhalcora-lookandfeel-macos\nhalcora-layout\n' \
         >>"$PROFILE/packages.x86_64"
 else
     printf '==> HALCORA_REPO unset: no Halcora packages in this image\n'
