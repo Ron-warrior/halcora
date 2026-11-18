@@ -446,6 +446,22 @@ jobs:
           printf 'checked %s package name(s)\n' "$(printf '%s\n' $names | wc -l)"
           exit "$status"
 
+      # The other direction: a package that exists but is in no image is a
+      # package nobody will ever install. branding is deliberately absent from
+      # the image — see the note in iso/build.sh — so it is exempt by name.
+      - name: Every package except branding is in the image
+        run: |
+          status=0
+          for dir in packages/*/; do
+            name=$(basename "$dir")
+            [ "$name" = halcora-branding ] && continue
+            if ! grep -qx "$name" iso/build.sh; then
+              printf '::error file=iso/build.sh::package %s exists but is not in the image\n' "$name"
+              status=1
+            fi
+          done
+          exit "$status"
+
       # The Windows layout's contents/defaults names an Aurorae decoration, and
       # the HyperOS theme installs one. If the two names drift apart KWin falls
       # back to a stock decoration and the window buttons stop matching the
