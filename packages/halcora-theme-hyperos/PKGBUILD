@@ -124,7 +124,14 @@ package() {
   local changed=0 svg
   while IFS= read -r svgz; do
     svg="$srcdir/recolour.svg"
-    gunzip -c "$svgz" >"$svg"
+    # A file that is not actually gzip would abort the build under errexit.
+    # Skip it: an unconvertible file is not a recolour failure, it is upstream
+    # having shipped something unexpected, and the count below still notices if
+    # that happened to all of them.
+    if ! gunzip -c "$svgz" >"$svg" 2>/dev/null; then
+      rm -f "$svg"
+      continue
+    fi
     if grep -qiE '#0078D4|#444444|#F5F5F5|#f2f2f2|#0057AE' "$svg"; then
       sed -i \
         -e 's/#F5F5F5/#F7F7FA/g' \
