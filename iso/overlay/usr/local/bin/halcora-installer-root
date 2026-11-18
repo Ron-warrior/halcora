@@ -1,0 +1,14 @@
+#!/bin/sh
+# Runs as root, from pkexec, via the polkit rule in
+# /etc/polkit-1/rules.d/49-halcora-live.rules.
+#
+# It exists so that pkexec's program is a stable path the polkit rule can name.
+# Calling `pkexec env QT_QPA_PLATFORM=xcb calamares` would make the program "/usr/bin/env",
+# which no rule can distinguish from any other use of env — and granting env root
+# would be a very large hole to open for one environment variable.
+set -eu
+
+QT_QPA_PLATFORM=xcb
+export QT_QPA_PLATFORM
+
+exec calamares

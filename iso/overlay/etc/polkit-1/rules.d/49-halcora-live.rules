@@ -6,8 +6,8 @@
 // indistinguishable from a broken image.
 //
 // The grant is as narrow as polkit allows: one user, one action, and only when
-// the program path mentions calamares. Everything else still needs a real
-// password, which the live account does not have.
+// the program is the installer's root helper — a fixed path, not `/usr/bin/env`,
+// which is why the helper exists.
 //
 // This file is one of the live-session leftovers the installer has to remove
 // (iso/README gap 5).
@@ -20,7 +20,7 @@ polkit.addRule(function (action, subject) {
         return null;
     }
     var program = action.lookup("program");
-    if (program && program.indexOf("calamares") !== -1) {
+    if (program === "/usr/local/bin/halcora-installer-root") {
         return polkit.Result.YES;
     }
     return null;
