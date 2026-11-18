@@ -44,7 +44,10 @@ Do these in order. After each, note the result — the failures are the useful p
 1. Boot the USB stick. UEFI first; if it will not, try the BIOS/legacy entry.
 2. Does the boot menu appear? How many entries, and what do they say?
 3. Does it reach a graphical login, and does it log in by itself to a `live`
-   session without asking for a password?
+   session without asking for a password? The live session is **X11 on purpose**,
+   not Wayland: the installer runs as root through pkexec, and a root Qt
+   application cannot reach a user's Wayland socket. The installed system is
+   unaffected.
 4. Does the Plasma desktop appear? Is it the stock blue Plasma look (expected) or
    something broken?
 5. Right-click the desktop → does the application launcher open?

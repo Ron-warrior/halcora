@@ -2,7 +2,10 @@
 Type=Application
 Name=Install Halcora
 Comment=Install Halcora on this computer
-Exec=pkexec calamares
+# QT_QPA_PLATFORM is pinned to xcb as well as the session being X11: pkexec's
+# environment sanitising is the kind of thing that differs between systems, and
+# the installer not opening is indistinguishable from the installer being broken.
+Exec=pkexec env QT_QPA_PLATFORM=xcb calamares
 Icon=calamares
 Terminal=false
 Categories=System;
