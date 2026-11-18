@@ -47,7 +47,7 @@ The theme packages, and the layout switcher finally has something to switch to:
   a dependency rather than a build.
 - `halcora-branding` — our own wallpapers, Plymouth splash, Calamares branding.
 
-As of the `themes/lookandfeel` branch, everything in this list except the
+As of the `themes/lookandfeel` merge, everything in this list except the
 branding's Calamares wiring exists as a package, and **none of it has been
 built**. The theme is a palette, a window decoration, a Kvantum config and a
 self-verifying Plasma style recolour; the icons and cursors exist; the first-run

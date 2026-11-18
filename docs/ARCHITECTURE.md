@@ -36,8 +36,8 @@ Thin pacman packages. None of them compile anything; each downloads an upstream
 tree at a pinned commit and installs its files, or installs files that are
 already in this repository.
 
-**Status:** the first five exist as recipes on `themes/lookandfeel` and none has
-ever been built. The rest are unwritten.
+**Status:** every package in this layer exists as a recipe on `main`, and none of
+them has ever been built.
 
 - `halcora-lookandfeel-win` — Windows layout, wrapping `Fluent-kde`. Renamed to
   `org.halcora.lookandfeel.win` so the switcher names a layout, not an author.

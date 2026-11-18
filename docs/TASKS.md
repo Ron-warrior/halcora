@@ -54,7 +54,7 @@ re-test the same thing.
 
 ## TASK-4 — AGENT: the two layout packages (on a branch)
 
-- [ ] PKGBUILDs written, never built. Branch: `themes/lookandfeel`.
+- [ ] PKGBUILDs written, never built. Merged to `main` in `8767d41`.
 
 Write the PKGBUILDs that `packages/README.md` describes:
 

@@ -82,13 +82,13 @@ can read the repository and nothing else.
 
 ---
 
-## Working on a branch
+## Picking up the packages
 
-    The work on branch `themes/lookandfeel` has never been built or booted. Read
-    its entry in docs/STATE.md first.
+    The packages on main have never been built. Read docs/STATE.md first.
 
-    `iso.yml` does not run on branch pushes, so anything under iso/ there is
-    unbuilt rather than unchanged. Say which it is.
+    `packages/build.sh` has never completed. Everything on `main` under iso/ is
+    built by CI; nothing under packages/ is. Say which you mean when you say
+    "verified".
 
-    Do not merge it to main without telling me first.
+    Do not merge or rewrite history without telling me first.
 

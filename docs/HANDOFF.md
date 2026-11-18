@@ -212,10 +212,9 @@ trust it.
 
 It will have. Check, in this order:
 
-1. `git log --oneline -15` — what happened since `33fee82`.
-2. `git branch -a` — unmerged work. `themes/lookandfeel` holds the two layout
-   packages and `packages/build.sh`; read its `docs/STATE.md` entry before
-   assuming it is finished.
+1. `git log --oneline -15` — what happened since `8767d41`, the merge that first
+   put the packages on `main`.
+2. `docs/STATE.md` — does anything say it is built? If not, nothing is.
 2. `docs/STATE.md` — the previous agent's verified state. Trust its *dates*, not
    its optimism.
 3. `docs/TASKS.md` — which checkboxes are ticked. The first untutored one is yours.
