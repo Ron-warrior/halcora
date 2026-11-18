@@ -110,3 +110,18 @@ The pinning rule is the AnduinOS one: **never track a branch, always a commit.**
    GNOME bundle. We build it, lazily, by recolouring Fluent-kde.
 2. Wallpapers — Xiaomi's are not ours. We author our own in the same idiom.
 3. `halcora-migrate` — the Windows import flow, reusing migratepc's lists.
+
+
+## Pinned upstream commits
+
+`packages/README.md` explains why every pin is a commit rather than a branch or
+a tag. The current pins:
+
+- `vinceliuice/Fluent-kde` — `44794f29c89de994b0179aebabd2f5776c90d236` (2025-11-10)
+- `vinceliuice/WhiteSur-kde` — `cf4df59ce91004f7ea39358b1b8ff917d5c329f7` (2026-08-07)
+- `vinceliuice/Fluent-icon-theme` — `c8a244f571ef8fb47812bdc9dbce76546cedce69` (2026-08-30)
+- `vinceliuice/WhiteSur-icon-theme` — `73d8040da51a9ed74e47c7366e7e9ff437601a5c` (2026-09-10)
+- `vinceliuice/WhiteSur-cursors` — `e190baf618ed95ee217d2fd45589bd309b37672b` (2025-04-05), **not packaged**: it generates cursors with `xcursorgen` and clones an unpinned helper repository at build time, so it is a real build rather than a wrapper
+
+`scripts/fetch-themes.sh` prints the current HEAD of each, so a bump is a
+copy-paste into `source=` **and** `pkgver` — never one without the other.

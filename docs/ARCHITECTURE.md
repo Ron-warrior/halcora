@@ -46,8 +46,10 @@ ever been built. The rest are unwritten.
   mark. Deliberately not wired into `settings.conf` yet.
 - `halcora-defaults` — `/etc/skel/.config/kdeglobals`, five lines: the HyperOS
   palette as the system default, and double-click.
-- `halcora-icons-*`, `halcora-cursors-*` — Fluent and WhiteSur icon and cursor
-  sets, so a layout switch never leaves a mismatched icon set. Not written.
+- `halcora-icons-fluent`, `halcora-icons-whitesur` — the icon themes the two
+  layouts' Global Themes name. Both written, neither built. Cursors are not
+  packaged: generating them needs `xcursorgen` and a build-time clone of an
+  unpinned helper repository, so they are a build rather than a wrapper.
 - `halcora-migrate` — the Windows import tool. See below. Not written.
 
 ## Layer 3 — Glue we actually write
