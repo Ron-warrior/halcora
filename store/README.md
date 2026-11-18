@@ -5,7 +5,7 @@ single configuration file plus one JSON document. No code, no custom storefront.
 
 ## The mechanism
 
-`/usr/share/discover/featuredurlrc`, shipped by `tessera-branding` and dropped
+`/usr/share/discover/featuredurlrc`, shipped by `halcora-branding` and dropped
 into the ISO via `airootfs`:
 
     [Software]

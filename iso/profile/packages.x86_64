@@ -1,7 +1,12 @@
-# Tessera live image package set.
-# One package per line. Comments are supported.
-# Mandatory for archiso: mkinitcpio, mkinitcpio-archiso, arch-install-scripts.
-# Note: archinstall is deliberately absent; we ship Calamares (see ../README.md).
+# Halcora live image package set.
+#
+# This list ends up BOTH in the live session and, because the installer unpacks
+# the live squashfs, on the installed system. There is no separate target list,
+# so anything a user needs after installing has to be here.
+#
+# Deliberately absent: archinstall (we ship Calamares) and releng's rescue
+# toolchain (irssi, nmap, testdisk, clonezilla and ~40 others). zsh is absent
+# too, which is why /etc/passwd does not point root at it.
 
 # --- base system ---
 base
@@ -12,8 +17,6 @@ mkinitcpio-archiso
 arch-install-scripts
 sudo
 nano
-vim
-openssh
 
 # --- filesystems and partitioning ---
 btrfs-progs
@@ -23,6 +26,7 @@ exfatprogs
 ntfsprogs
 parted
 gptfdisk
+squashfs-tools
 
 # --- boot ---
 grub
@@ -30,7 +34,6 @@ efibootmgr
 
 # --- networking ---
 networkmanager
-plasma-nm
 iwd
 wpa_supplicant
 
@@ -42,17 +45,19 @@ pipewire-jack
 wireplumber
 
 # --- desktop ---
+# plasma-meta pulls plasma-nm, plasma-pa, discover, print-manager, spectacle,
+# xdg-desktop-portal-kde, kscreenlocker and the rest of the Plasma set, so only
+# the extras are listed explicitly.
 plasma-meta
 sddm
-xdg-desktop-portal-kde
 xdg-user-dirs
+xdg-utils
 konsole
 dolphin
 kate
 ark
 gwenview
 okular
-spectacle
 kcalc
 udisks2
 gvfs
@@ -65,26 +70,29 @@ bluez-obex
 
 # --- printing ---
 cups
-print-manager
 
 # --- applications ---
 firefox
-xdg-utils
 
 # --- fonts ---
 noto-fonts
 noto-fonts-emoji
 ttf-liberation
+inter-font
 
 # --- store ---
-discover
 flatpak
 packagekit-qt6
 
-# --- tessera ---
-tessera-defaults
-tessera-fonts
-tessera-branding
-tessera-lookandfeel-win
-tessera-lookandfeel-macos
-tessera-theme-hyperos
+# --- installer ---
+# Calamares is not in the Arch repositories, so CI builds it and iso/build.sh
+# overlays it. These are the libraries it links against at runtime, plus polkit
+# so it can elevate with pkexec.
+polkit
+kcoreaddons
+kpmcore
+libpwquality
+qt6-declarative
+qt6-svg
+qt6-translations
+yaml-cpp

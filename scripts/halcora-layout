@@ -1,18 +1,17 @@
 #!/bin/sh
-# tessera-layout — switch the desktop layout.
+# halcora-layout — switch the desktop layout.
 #
 # This is the whole feature. Plasma's Global Theme machinery already installs
 # several layouts side by side and swaps them non-interactively, so we
-# orchestrate rather than implement. Roughly thirty lines is the entire cost of
-# what competing distributions advertise as their headline feature.
+# orchestrate rather than implement.
 #
-#   tessera-layout win     Windows-style layout (the default)
-#   tessera-layout macos   macOS-style layout
-#   tessera-layout --list  list installed Global Themes
+#   halcora-layout win     Windows-style layout (the default)
+#   halcora-layout macos   macOS-style layout
+#   halcora-layout --list  list installed Global Themes
 set -eu
 
-win_id=org.tessera.lookandfeel.win
-macos_id=org.tessera.lookandfeel.macos
+win_id=org.halcora.lookandfeel.win
+macos_id=org.halcora.lookandfeel.macos
 
 apply=plasma-apply-lookandfeel
 if ! command -v "$apply" >/dev/null 2>&1; then

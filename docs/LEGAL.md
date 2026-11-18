@@ -55,16 +55,23 @@ package `PKGBUILD` and in the shipped `/usr/share/licenses/` entry.
 
 ## Naming
 
-The working name **Tessera** is a placeholder. Before anything public, check that
-it is not an existing OS, distribution, company or registered mark in the
-relevant classes. It is cheap now and expensive later.
+The product is **Halcora**: coined, not a word in any language we know of, and a
+GitHub search for it returns no repositories, so it is as unclaimed as a name
+gets. That does not establish a trademark position. GitHub says nothing about
+registries, so before anything ships publicly the name needs a search of the
+relevant trademark classes in the markets we would ship to. That is cheap now
+and expensive later.
+
+The rule we control without a lawyer: familiarity with Windows is fine, and the
+word "Windows" never appears in the product, the ISO label, the package prefix
+or the marketing.
 
 ## Open questions to close before a public release
 
 - WhiteSur-cursors licence.
 - NVIDIA redistribution terms for a preinstalled driver.
 - Whether the HyperOS-derived theme's GPL-3.0 obligation is satisfied by
-  publishing `tessera-theme-hyperos` source in this repository (it is, but state
+  publishing `halcora-theme-hyperos` source in this repository (it is, but state
   it in the package).
 - Whether the MiSans download link is Xiaomi-permitted to link from a third-party
   OS. Linking is normally fine; confirm the terms do not prohibit it.

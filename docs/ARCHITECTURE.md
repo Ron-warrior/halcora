@@ -30,30 +30,30 @@ Derived from the archiso `releng` profile. `mkarchiso` itself is never edited.
 Thin pacman packages. None of them compile anything; each downloads an upstream
 tree at a pinned commit and installs its files.
 
-- `tessera-lookandfeel-win` — the Windows layout. Wraps `Fluent-kde`.
-- `tessera-lookandfeel-macos` — the macOS layout. Wraps `WhiteSur-kde`.
-- `tessera-icons-*`, `tessera-cursors-*` — Fluent and WhiteSur icon and cursor
+- `halcora-lookandfeel-win` — the Windows layout. Wraps `Fluent-kde`.
+- `halcora-lookandfeel-macos` — the macOS layout. Wraps `WhiteSur-kde`.
+- `halcora-icons-*`, `halcora-cursors-*` — Fluent and WhiteSur icon and cursor
   sets, repackaged so a layout switch never leaves a mismatched icon set.
-- `tessera-theme-hyperos` — **the only theme we author.** Forked from
+- `halcora-theme-hyperos` — **the only theme we author.** Forked from
   Fluent-kde's geometry, recoloured to the HyperOS palette, Inter as the UI
   face, our own wallpapers. See `DESIGN.md`.
-- `tessera-fonts` — Inter (OFL-1.1). MiSans is *not* included; see `LEGAL.md`.
-- `tessera-branding` — os-release, Plymouth splash, SDDM theme, Calamares
+- `halcora-fonts` — Inter (OFL-1.1). MiSans is *not* included; see `LEGAL.md`.
+- `halcora-branding` — os-release, Plymouth splash, SDDM theme, Calamares
   branding, wallpaper set.
-- `tessera-defaults` — `/etc/skel`: Plasma defaults, window rules, keybinds we
+- `halcora-defaults` — `/etc/skel`: Plasma defaults, window rules, keybinds we
   deliberately leave alone, first-run state.
-- `tessera-migrate` — the Windows import tool. See below.
+- `halcora-migrate` — the Windows import tool. See below.
 
 ## Layer 3 — Glue we actually write
 
 This should stay small. If it grows past a few hundred lines outside
-`tessera-theme-hyperos` and `tessera-migrate`, something is wrong.
+`halcora-theme-hyperos` and `halcora-migrate`, something is wrong.
 
-- `scripts/tessera-layout` — the layout switcher. Two ids, one
+- `scripts/halcora-layout` — the layout switcher. Two ids, one
   `plasma-apply-lookandfeel` call, one KWin reconfigure.
 - `scripts/fetch-themes.sh` — resolves upstream commits so packages pin rather
   than track. Build-time only, never shipped.
-- `tessera-migrate` — a Calamares module plus an import script. Mounts the
+- `halcora-migrate` — a Calamares module plus an import script. Mounts the
   Windows volume **read-only**, refuses dirty volumes rather than forcing them
   (Fast Startup leaves them dirty and `ntfs3` has no fsck), copies user data
   from a list, and defers browser profile import to the browsers' own first-run

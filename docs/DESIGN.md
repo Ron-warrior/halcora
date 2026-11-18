@@ -47,7 +47,7 @@ captures during implementation rather than guessed here. The shape of the answer
 HyperOS is a warm, slightly desaturated light surface with a vivid blue accent,
 plus a dark scheme that is a genuine redesign rather than an inversion. The
 implementation rule is that the palette lives **only** in
-`tessera-theme-hyperos`'s colour schemes and Plasma Style SVGs — nowhere else, so
+`halcora-theme-hyperos`'s colour schemes and Plasma Style SVGs — nowhere else, so
 the macOS layout can adopt it without touching layout code.
 
 ## Component mapping, layout by layout
@@ -72,7 +72,7 @@ HyperOS pills. GNOME 43's quick settings is the existing midpoint to study.
 drawn as HyperOS circular pills), always on the right in the Windows layout.
 Ergonomics from the owning skeleton, material from HyperOS. Button geometry is
 `kwinrc` configuration, so it is one of the few places a switch must change
-KWin settings — `scripts/tessera-layout` reloads KWin for exactly this reason.
+KWin settings — `scripts/halcora-layout` reloads KWin for exactly this reason.
 
 **Recents and workspaces.** Mission Control in the macOS layout (horizontal card
 stack). Windows' task view in the Windows layout. Do not use the other one's

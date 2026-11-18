@@ -1,65 +1,60 @@
-# iso — the live image
+# iso
 
-An archiso profile, in the shape of archiso's own `configs/releng`.
+The live image, built by `build.sh` in CI.
 
-## What is copied rather than written
+## The shape of it
 
-Everything except the five files listed below comes from
-`archlinux/archiso` at tag `v92` (package `archiso` 92-1):
+The profile is a **delta over archiso's own `releng` profile**, not a vendored
+copy of it. `build.sh` copies whatever `releng` ships with the installed
+`archiso` package, then overlays only what we change:
 
-    configs/releng/airootfs/
-    configs/releng/efiboot/loader/
-    configs/releng/grub/
-    configs/releng/syslinux/
-    configs/releng/bootstrap_packages
-    configs/releng/pacman.conf
+- `profile/profiledef.sh` — naming and `file_permissions`. Mirrors upstream with
+  the minimum possible divergence.
+- `profile/packages.x86_64` — the package set. This is also the installed
+  system's package set, because the installer unpacks the live squashfs.
+- `overlay/` — everything added to the live root: the live account, SDDM
+  autologin, the Calamares configuration, the installer's desktop entry.
 
-## What we change
-
-- `profiledef.sh` — name, label, publisher, boot modes, squashfs options,
-  `file_permissions`.
-- `packages.x86_64` — the package set. `mkinitcpio`, `mkinitcpio-archiso` and
-  `arch-install-scripts` are mandatory; everything else is policy.
-- `pacman.conf` — Arch mirrors plus our own repository, in that order. This is
-  the *build-time* config; the live system's own `pacman.conf` lives in
-  `airootfs/etc/pacman.conf` and is separate.
-- `airootfs/` — the overlay. What goes in it:
-  - `etc/os-release`, `etc/lsb-release`
-  - `etc/skel/` — the Plasma defaults a new user gets
-  - `etc/systemd/system/getty@tty1.service.d/autologin.conf` and the equivalent
-    for SDDM, so the live session opens without a login
-  - `etc/systemd/system/multi-user.target.wants/NetworkManager.service`
-  - `etc/calamares/` — the installer configuration (phase 3)
-  - `etc/xdg/*` — Plasma defaults, so the live session is already skinned
-  - `usr/share/discover/featuredurlrc` — points at our featured listing
-  - `root/.automated_script.sh` — the live-session bootstrap
-- Boot entries, only if we change them. Two are planned: the default entry on
-  nouveau, and a second explicit entry that blacklists nouveau and loads
-  `nvidia`, following the pattern EndeavourOS ships (`Only RTX GPUs, Turing, or
-  later`). `%ARCHISO_LABEL%`, `%INSTALL_DIR%`, `%ARCH%` and `%KERNEL_PARAMS%` are
-  substituted by archiso; do not hardcode them.
-
-`mkarchiso` itself is never edited.
+Projects that vendor the whole profile have to pin an archiso version and go
+stale when Arch moves. Tracking it means an archiso upgrade cannot leave us with
+a dead mkinitcpio hook path.
 
 ## Build
 
-    mkarchiso -v -w work -o out .
+Locally, on Arch, as root:
 
-## Test
+    sudo pacman -S archiso
+    sudo ./iso/build.sh
 
-    run_archiso -i out/tessera-*.iso
+In CI, `.github/workflows/iso.yml` does the same thing in a privileged Arch
+container, plus the one step that cannot come from the package list: building
+Calamares from source (it is AUR-only) and staging it for `build.sh` to overlay.
 
-## Open items
+Nothing can be built or tested on the user's device, so **CI is the only real
+build host and the only real test loop.** An ISO that has not been through the
+workflow has not been built.
 
-- **Calamares is AUR-only on Arch.** `calamares` does not exist in `core` or
-  `extra`; it must be built (AUR `calamares` 3.4.2, upstream 3.4.3 on Codeberg
-  after the GitHub repo was archived in August 2025). It goes into the live
-  image from our repository, not from Arch.
-- **`chwd`** is packaged for plain Arch from CachyOS's repositories. Either add
-  their repository or vendor the package into ours. Not yet decided.
-- **NVIDIA driver in the image.** Prefer downloading it during installation over
-  preinstalling it, pending a read of NVIDIA's redistribution terms
-  (`docs/LEGAL.md`). The live NVIDIA entry therefore needs the driver shipped,
-  which is exactly the tension to resolve.
-- `archinstall` (in `releng`'s package list) is not wanted; we ship Calamares
-  instead. Remove it when copying the list.
+## What is in the first image
+
+- Plasma 6 on Wayland, SDDM autologin to a `live` account, Firefox, Dolphin.
+- NetworkManager for wired and wireless; `systemd-networkd` is disabled so the
+  two cannot fight over a link.
+- Calamares, offline, unpacking the live image to disk. Erase-disk only.
+- **No Halcora skin yet.** The theme packages do not exist, so this image looks
+  like stock Plasma. It is a boot-and-install test, not a design test.
+
+## Known gaps, roughly in the order they bite
+
+1. **Calamares has never been run.** The sequence in
+   `overlay/etc/calamares/settings.conf` uses only stock modules and is derived
+   from ALCI's working sequence, but "stock modules, correct order" is exactly
+   the kind of claim that is wrong in a way only a real install reveals.
+2. **The installer is unbranded.** `branding: default` until there is a Halcora
+   brand worth showing.
+3. **No NVIDIA path yet.** The live session uses nouveau; the open kernel
+   modules and the second boot entry are next.
+4. **Erase-disk only.** No install-alongside, so a test machine's Windows install
+   is not safe from a careless click.
+5. **The installed system carries live-session leftovers** — the `live` account,
+   the installer's desktop entry, the SDDM autologin. A Calamares `shellprocess`
+   cleanup step is the fix, and it is not written yet.

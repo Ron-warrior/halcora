@@ -105,8 +105,8 @@ The pinning rule is the AnduinOS one: **never track a branch, always a commit.**
 
 ## What genuinely has no upstream, and must be authored
 
-1. `tessera-theme-hyperos` — no HyperOS global theme exists for KDE Plasma. The
+1. `halcora-theme-hyperos` — no HyperOS global theme exists for KDE Plasma. The
    KDE Store and GitHub contain only Android theme packages and one unlicensed
    GNOME bundle. We build it, lazily, by recolouring Fluent-kde.
 2. Wallpapers — Xiaomi's are not ours. We author our own in the same idiom.
-3. `tessera-migrate` — the Windows import flow, reusing migratepc's lists.
+3. `halcora-migrate` — the Windows import flow, reusing migratepc's lists.

@@ -1,0 +1,95 @@
+name: ISO
+
+# Nothing is built on the user's device, and an Arch ISO cannot be built in the
+# web chat, so CI is the real build host and the real test loop. Every change to
+# iso/ lands here before it can be called working.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'iso/**'
+      - '.github/workflows/iso.yml'
+  pull_request:
+    paths:
+      - 'iso/**'
+      - '.github/workflows/iso.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build live ISO
+    runs-on: ubuntu-latest
+    # mkarchiso mounts filesystems and uses loop devices, so the job container
+    # has to be privileged. There is no unprivileged path.
+    container:
+      image: archlinux:latest
+      options: --privileged
+    timeout-minutes: 180
+
+    steps:
+      - name: Install git
+        run: pacman -Sy --noconfirm --needed git
+
+      - uses: actions/checkout@v4
+
+      - name: Refresh keyring and upgrade
+        run: |
+          pacman -S --noconfirm archlinux-keyring
+          pacman -Syu --noconfirm
+
+      - name: Install build dependencies
+        run: |
+          pacman -S --noconfirm --needed \
+            archiso \
+            base-devel \
+            cmake \
+            ninja \
+            extra-cmake-modules \
+            kcoreaddons \
+            kpmcore \
+            libpwquality \
+            qt6-declarative \
+            qt6-svg \
+            qt6-tools \
+            qt6-translations \
+            yaml-cpp
+
+      # Calamares is AUR-only on Arch, so it is built from its upstream tag. The
+      # dependency list mirrors the AUR recipe (calamares 3.4.2, which builds
+      # 3.4.3 upstream); if a future release adds a dependency, the configure
+      # step fails loudly rather than producing a broken installer.
+      - name: Build Calamares
+        run: |
+          git clone --depth 1 --branch v3.4.3 \
+            https://codeberg.org/Calamares/calamares.git /tmp/calamares
+          # INSTALL_CONFIG=OFF: upstream's default /etc/calamares must not be
+          # staged, or it would overwrite our own configuration in the overlay.
+          cmake -S /tmp/calamares -B /tmp/calamares/build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/usr \
+            -DINSTALL_CONFIG=OFF
+          cmake --build /tmp/calamares/build
+          DESTDIR="$PWD/calamares-stage" cmake --install /tmp/calamares/build
+          test -x "$PWD/calamares-stage/usr/bin/calamares"
+          # Only usr/ is ours to take from the stage. Anything under etc/ here
+          # would be upstream's default configuration.
+          test ! -e "$PWD/calamares-stage/etc" || rm -rf "$PWD/calamares-stage/etc"
+
+      - name: Build ISO
+        env:
+          CALAMARES_STAGE: ${{ github.workspace }}/calamares-stage
+        run: ./iso/build.sh
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: halcora-iso
+          path: |
+            out/*.iso
+            out/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 14

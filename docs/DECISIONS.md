@@ -3,6 +3,17 @@
 Architecture decision records, in the order they were settled. Each one closes a
 door; the closed door is stated so it does not get re-litigated.
 
+## ADR-0 — ISO first, then the skin
+
+**Decision:** the first deliverable is a bootable live ISO with a working
+installer. The HyperOS skin and the layout packages come after it.
+**Why:** the project's real risk is in the image and the installer. A skin that
+looks right inside a machine that cannot install is a demo. The skin is also
+where the design work is, and it is the part most likely to change once the
+image exists and people have tried it.
+**Closed off:** designing the shell in isolation before there is an installable
+image to put it in.
+
 ## ADR-1 — Arch Linux as the base, with glibc
 
 **Decision:** Arch, pacman, glibc.
@@ -38,7 +49,7 @@ taskbar.
 
 ## ADR-4 — Build the HyperOS theme by recolouring Fluent-kde
 
-**Decision:** `tessera-theme-hyperos` starts as a fork of Fluent-kde's geometry
+**Decision:** `halcora-theme-hyperos` starts as a fork of Fluent-kde's geometry
 and KVantum/Aurorae SVG scaffolding, recoloured to the HyperOS palette, not
 authored from zero.
 **Why:** No HyperOS theme exists for KDE Plasma — the stores contain only Android

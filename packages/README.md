@@ -6,24 +6,24 @@ nothing.**
 
 ## The set
 
-- `tessera-lookandfeel-win` — the Windows layout. Wraps `Fluent-kde`:
+- `halcora-lookandfeel-win` — the Windows layout. Wraps `Fluent-kde`:
   its Plasma global theme, Aurorae decoration, Kvantum style and colour schemes,
   plus `Fluent-icon-theme` and a cursor set, installed as
-  `org.tessera.lookandfeel.win`.
-- `tessera-lookandfeel-macos` — the macOS layout. Wraps `WhiteSur-kde` the same
+  `org.halcora.lookandfeel.win`.
+- `halcora-lookandfeel-macos` — the macOS layout. Wraps `WhiteSur-kde` the same
   way, plus `WhiteSur-icon-theme`, `WhiteSur-cursors`, and optionally
-  `WhiteSur-gtk-theme`, installed as `org.tessera.lookandfeel.macos`.
-- `tessera-theme-hyperos` — the authored skin, worn by both layouts. Plasma
+  `WhiteSur-gtk-theme`, installed as `org.halcora.lookandfeel.macos`.
+- `halcora-theme-hyperos` — the authored skin, worn by both layouts. Plasma
   style, colour schemes (light and dark), Aurorae decoration, Kvantum style,
   Inter references. Derived from `Fluent-kde`, so GPL-3.0 (ADR-4).
-- `tessera-fonts` — Inter (OFL-1.1). Nothing else. MiSans is never packaged.
-- `tessera-branding` — os-release, Plymouth, SDDM theme, Calamares branding,
+- `halcora-fonts` — Inter (OFL-1.1). Nothing else. MiSans is never packaged.
+- `halcora-branding` — os-release, Plymouth, SDDM theme, Calamares branding,
   wallpapers (our own, not Xiaomi's).
-- `tessera-defaults` — `/etc/skel`: Plasma defaults, window rules, the
+- `halcora-defaults` — `/etc/skel`: Plasma defaults, window rules, the
   deliberately-untouched keybinds, first-run state.
-- `tessera-layout` — installs `scripts/tessera-layout` to `/usr/local/bin` plus
+- `halcora-layout` — installs `scripts/halcora-layout` to `/usr/local/bin` plus
   a `.desktop` entry in Settings.
-- `tessera-migrate` — the Windows import tool and its Calamares module
+- `halcora-migrate` — the Windows import tool and its Calamares module
   (phase 4).
 
 ## The pinning convention
@@ -40,9 +40,9 @@ being written).
 
 ## Build order
 
-Themes first, then `tessera-branding`, then `tessera-defaults`, then
-`tessera-layout`. `iso/profile/packages.x86_64` expects all of them plus
-`tessera-theme-hyperos` to exist in our repository before an image will build.
+Themes first, then `halcora-branding`, then `halcora-defaults`, then
+`halcora-layout`. `iso/profile/packages.x86_64` expects all of them plus
+`halcora-theme-hyperos` to exist in our repository before an image will build.
 
 ## Repository
 
