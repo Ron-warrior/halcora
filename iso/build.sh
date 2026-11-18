@@ -124,12 +124,34 @@ ln -sf /dev/null "$SYSTEMD/multi-user.target.wants/systemd-networkd.service"
 # classic self-inflicted outage, so the networkd .network files go.
 rm -f "$PROFILE"/airootfs/etc/systemd/network/*.network
 
-# 8. The live user's home. The account itself comes from sysusers.d, which is
+# 8. A second UEFI boot entry for NVIDIA.
+#
+#    ADR-8: the default entry keeps nouveau, and a second one blacklists it so the
+#    proprietary driver can take the card. On a machine with an RTX 2060 the
+#    default entry is the safe one and the second is the one that will be used;
+#    on anything else the first still works.
+#
+#    The entries are derived from releng's own rather than written out, so a
+#    change to archiso's kernel command line is inherited instead of copied.
+#    `&` in the sed replacement is the whole matched title line.
+printf '==> adding the NVIDIA boot entries\n'
+for entry in "$PROFILE"/efiboot/loader/entries/*.conf; do
+    [ -f "$entry" ] || continue
+    case "$entry" in *-nvidia.conf) continue ;; esac
+    sed -e 's/^title[[:space:]].*/& (NVIDIA)/' \
+        -e 's/^options[[:space:]]/options module_blacklist=nouveau,nouveau_drm nouveau.modeset=0 /' \
+        "$entry" >"${entry%.conf}-nvidia.conf"
+done
+# Only the UEFI entries get a variant. releng's syslinux menus are a different
+# format and editing them is a second job for a path nobody has needed; the
+# BIOS entry therefore has one entry, which is correct on old hardware.
+
+# 9. The live user's home. The account itself comes from sysusers.d, which is
 #    declarative and creates the matching group for us.
 printf '==> creating /home/live\n'
 install -d -o 1000 -g 1000 -m 750 "$PROFILE/airootfs/home/live"
 
-# 9. Build.
+# 10. Build.
 printf '==> mkarchiso\n'
 mkarchiso -v -w "$WORK/work" -o "$OUT" "$PROFILE"
 

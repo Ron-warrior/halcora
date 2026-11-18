@@ -75,8 +75,11 @@ message rather than letting the upload fail as an opaque 422.
    the kind of claim that is wrong in a way only a real install reveals.
 2. **The installer is unbranded.** `branding: default` until there is a Halcora
    brand worth showing.
-3. **No NVIDIA path yet.** The live session uses nouveau; the open kernel
-   modules and the second boot entry are next.
+3. **No NVIDIA driver in the image.** The live session uses nouveau. A second
+   UEFI boot entry that blacklists nouveau now exists (ADR-8), but it boots the
+   same kernel with the same missing proprietary driver, so it changes nothing
+   until `chwd` runs at install time. It is the entry point for that work, not
+   the work.
 4. **Erase-disk only.** No install-alongside, so a test machine's Windows install
    is not safe from a careless click.
 5. **The installed system carries live-session leftovers** — the `live` account,
