@@ -60,12 +60,17 @@ message rather than letting the upload fail as an opaque 422.
 
 ## What is in the first image
 
-- Plasma 6 on Wayland, SDDM autologin to a `live` account, Firefox, Dolphin.
+- Plasma 6 on **X11**, SDDM autologin to a `live` account, Firefox, Dolphin. X11
+  because the installer runs as root through pkexec, and a root Qt application
+  cannot open a Wayland socket.
 - NetworkManager for wired and wireless; `systemd-networkd` is disabled so the
   two cannot fight over a link.
-- Calamares, offline, unpacking the live image to disk. Erase-disk only.
-- **No Halcora skin yet.** The theme packages do not exist, so this image looks
-  like stock Plasma. It is a boot-and-install test, not a design test.
+- Calamares, offline, unpacking the live image to disk. The partitioning page
+  opens on erase-disk.
+- An installer launcher that grants root X access for the duration of the
+  install, and a polkit rule letting the passwordless live account start it.
+- **No Halcora skin.** The packages exist but this image does not install them —
+  that needs `HALCORA_REPO`. It is a boot-and-install test, not a design test.
 
 ## Known gaps, roughly in the order they bite
 
