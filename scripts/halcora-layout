@@ -18,6 +18,10 @@ if ! command -v "$apply" >/dev/null 2>&1; then
     # Plasma 6 still ships the legacy binary name alongside the new one.
     apply=lookandfeeltool
 fi
+if ! command -v "$apply" >/dev/null 2>&1; then
+    printf 'no plasma-apply-lookandfeel or lookandfeeltool found — is Plasma installed?\n' >&2
+    exit 1
+fi
 
 case "${1:-}" in
     win|windows)
@@ -34,6 +38,23 @@ case "${1:-}" in
         exit 2
         ;;
 esac
+
+# Check the id is actually installed before asking Plasma to apply it. Without
+# this the only symptom is a KDE warning on a terminal the user may not have
+# open, and "the layout did nothing" is indistinguishable from a broken script.
+found=
+for dir in /usr/share/plasma/look-and-feel "$HOME/.local/share/plasma/look-and-feel"; do
+    if [ -d "$dir/$id" ]; then
+        found=1
+        break
+    fi
+done
+if [ -z "$found" ]; then
+    printf 'layout %s is not installed.\n' "$id" >&2
+    printf 'Install the package that provides it (halcora-lookandfeel-win or\n' >&2
+    printf 'halcora-lookandfeel-macos), or run %s --list to see what is.\n' "${0##*/}" >&2
+    exit 1
+fi
 
 # --resetLayout replaces the panel layout with the one inside the theme package.
 # Without it, plasma-apply-lookandfeel deliberately leaves the user's own panels
