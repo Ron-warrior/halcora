@@ -16,8 +16,10 @@ on:
       - '.github/workflows/iso.yml'
   workflow_dispatch:
 
+# The release step needs to create a tag and upload assets. Everything else
+# here only reads.
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -82,7 +84,10 @@ jobs:
       - name: Build ISO
         env:
           CALAMARES_STAGE: ${{ github.workspace }}/calamares-stage
-        run: ./iso/build.sh
+        # Invoked through bash rather than executed directly. The script's
+        # executable bit does not survive every checkout, and a bare
+        # "./iso/build.sh" was this workflow's first failure (exit 126).
+        run: bash ./iso/build.sh
 
       - name: Upload ISO
         uses: actions/upload-artifact@v4
@@ -93,3 +98,51 @@ jobs:
             out/SHA256SUMS
           if-no-files-found: error
           retention-days: 14
+
+      # GitHub caps a single release asset at 2 GiB. Whether a Plasma ISO fits
+      # under that is unknown until one exists, so it is measured rather than
+      # assumed, and the failure says so plainly instead of arriving as a 422
+      # from the upload API.
+      - name: Check the ISO fits a release asset
+        if: github.ref == 'refs/heads/main'
+        run: |
+          shopt -s nullglob
+          isos=(out/*.iso)
+          if (( ${#isos[@]} != 1 )); then
+            printf '::error::expected one ISO in out/, found %d\n' "${#isos[@]}"
+            exit 1
+          fi
+          size=$(stat -c %s "${isos[0]}")
+          printf '%s is %s bytes\n' "${isos[0]}" "$size"
+          if (( size > 2147483648 )); then
+            printf '::error::%s exceeds the 2 GiB release asset limit\n' "${isos[0]}"
+            exit 1
+          fi
+
+      # One moving prealpha rather than accumulating versions: a version number
+      # on an image nobody has booted would claim more than it has earned.
+      - name: Publish prealpha release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: prealpha
+          name: Halcora prealpha
+          prerelease: true
+          body: |
+            Built from ${{ github.sha }}.
+
+            An untested image. Nothing in this repository has been booted on
+            real hardware, and the installer has never completed an install.
+
+            What it is: stock Plasma 6 on Wayland with SDDM autologin,
+            NetworkManager, and Calamares unpacking the live squashfs to disk.
+            No Halcora skin — the theme packages do not exist yet, so this is a
+            boot-and-install test, not a design test.
+
+            What it is not: safe for a machine holding another operating
+            system. The installer is erase-disk only.
+
+            Known gaps: iso/README.md.
+          files: |
+            out/*.iso
+            out/SHA256SUMS

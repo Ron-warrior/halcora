@@ -24,7 +24,11 @@ a dead mkinitcpio hook path.
 Locally, on Arch, as root:
 
     sudo pacman -S archiso
-    sudo ./iso/build.sh
+    sudo bash ./iso/build.sh
+
+It is invoked through `bash` rather than executed directly, because the
+executable bit does not survive every checkout — that mismatch was the
+workflow's first failure (exit 126).
 
 In CI, `.github/workflows/iso.yml` does the same thing in a privileged Arch
 container, plus the one step that cannot come from the package list: building
@@ -33,6 +37,17 @@ Calamares from source (it is AUR-only) and staging it for `build.sh` to overlay.
 Nothing can be built or tested on the user's device, so **CI is the only real
 build host and the only real test loop.** An ISO that has not been through the
 workflow has not been built.
+
+## Releases
+
+Every green build on `main` publishes a GitHub release tagged `prealpha`, marked
+as a pre-release, carrying the ISO and `SHA256SUMS`. It is replaced on each
+successful build rather than accumulating versions, because a version number on
+an image nobody has booted would claim more than it has earned.
+
+GitHub caps a release asset at 2 GiB. Whether a Plasma ISO lands under that is
+unknown until one exists, so the workflow measures it and fails with a plain
+message rather than letting the upload fail as an opaque 422.
 
 ## What is in the first image
 
