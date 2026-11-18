@@ -17,9 +17,10 @@ the commands in `docs/HANDOFF.md` before trusting them.
 ## What actually exists
 
 - **Repository**: https://github.com/Ron-warrior/halcora — public, GPL-3.0.
-- **Six commits** on `main`, all pushed, working tree clean.
-- **Branch `themes/lookandfeel`** (not merged, nothing on it built): eleven
-  packages and a repository builder.
+- **`main` carries everything** as of the merge of `themes/lookandfeel`
+  (`8767d41`): eleven packages, a repository builder, and the live-image fixes.
+  The branch existed because none of it had been built; it was merged once the
+  installer fixes were worth getting into a downloadable image.
   - `halcora-lookandfeel-win` wraps Fluent-kde at `44794f2`, `-macos` wraps
     WhiteSur-kde at `cf4df59`. Each renames its Global Theme to
     `org.halcora.lookandfeel.win` / `.macos` so the ids the switcher asks for
