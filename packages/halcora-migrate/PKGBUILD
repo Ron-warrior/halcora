@@ -1,0 +1,28 @@
+# Maintainer: Halcora <noreply@github.com/Ron-warrior>
+#
+# The Windows import tool. ADR-10 is the specification: mount read-only, refuse a
+# dirty volume, never write to the Windows side.
+#
+# A Calamares module wrapping this is phase 4 and would run at install time; the
+# script works on its own from a terminal, which is the version that can be
+# iterated on without an installer that has never completed an install.
+#
+# Nothing in this file has been built.
+
+pkgname=halcora-migrate
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Copy a Windows user's files onto Halcora, read-only"
+arch=('any')
+url='https://github.com/Ron-warrior/halcora'
+license=('GPL-3.0-or-later')
+# ntfsprogs provides ntfsfix, which is how the dirty-volume check is made.
+# util-linux provides lsblk and mount and is already in the base system; it is
+# named so the dependency is a claim rather than an assumption.
+depends=('ntfs-3g' 'ntfsprogs' 'rsync' 'util-linux')
+source=()
+sha256sums=()
+
+package() {
+  install -Dm755 "$startdir/migrate.sh" "$pkgdir/usr/bin/halcora-migrate"
+}

@@ -61,8 +61,13 @@ nothing.**
   Writes a marker before asking, because being asked again at every login is
   worse than a question that was skipped. In `/etc/skel/.config/autostart`, so it
   is per account and the user can delete it.
-- `halcora-migrate` — the Windows import tool and its Calamares module
-  (phase 4). **Not written.**
+- `halcora-migrate` — **written, never built.** Copies Documents, Desktop,
+  Downloads, Pictures, Music and Videos from a Windows profile into
+  `~/Imported from Windows`. ADR-10's rules are the whole design: mount
+  read-only, refuse a volume Windows did not shut down cleanly, never write to
+  the Windows side. A Calamares module wrapping it is phase 4; the script works
+  on its own, which is the version that can be improved without an installer
+  that has never completed an install.
 
 ## The pinning convention
 
