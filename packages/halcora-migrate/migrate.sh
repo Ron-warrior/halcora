@@ -13,6 +13,30 @@
 # corrupt what it reads.
 set -eu
 
+# Mounting needs root, but the files must end up owned by the person who ran it.
+# Re-running under sudo would otherwise resolve $HOME to /root and drop the
+# user's documents into root's home, so the target is read from SUDO_UID instead.
+if [ "$(id -u)" -ne 0 ]; then
+    echo "This has to mount a disk read-only, which needs root. Run it as:" >&2
+    echo "  sudo $0 ${1:-}" >&2
+    exit 1
+fi
+
+if [ -z "${SUDO_USER:-}" ] || [ "$SUDO_USER" = root ]; then
+    echo "Run this through sudo, not as root directly: it needs to know which" >&2
+    echo "account the files should end up belonging to." >&2
+    exit 1
+fi
+
+target_home=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+if [ -z "$target_home" ] || [ ! -d "$target_home" ]; then
+    echo "Could not find the home directory for $SUDO_USER." >&2
+    exit 1
+fi
+
+target_uid=$(id -u "$SUDO_USER")
+target_gid=$(id -g "$SUDO_USER")
+
 usage() {
     cat <<'EOF'
 usage: halcora-migrate [DEVICE]
@@ -142,8 +166,9 @@ fi
 
 # --- copy --------------------------------------------------------------------
 
-dest="${HOME}/Imported from Windows"
+dest="${target_home}/Imported from Windows"
 mkdir -p "$dest"
+chown "$target_uid:$target_gid" "$dest"
 
 echo "Copying from $source"
 echo "          to $dest"
@@ -171,6 +196,10 @@ if [ "$found" -eq 0 ]; then
     echo "None of the usual folders exist in that profile." >&2
     exit 1
 fi
+
+# rsync ran as root, so everything it created belongs to root. Files a user
+# cannot open are indistinguishable from files that were never copied.
+chown -R "$target_uid:$target_gid" "$dest"
 
 cat <<EOF
 
