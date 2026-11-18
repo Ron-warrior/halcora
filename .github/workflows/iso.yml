@@ -149,6 +149,9 @@ jobs:
             The partitioning page opens on erase-disk.
 
             Known gaps: iso/README.md.
+
+            Verify the download against SHA256SUMS before writing it to a stick;
+            a truncated ISO fails in ways that look like a broken installer.
           files: |
             out/*.iso
             out/SHA256SUMS
