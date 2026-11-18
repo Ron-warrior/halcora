@@ -20,7 +20,7 @@ license=('GPL-3.0-or-later')
 # Both layouts are dependencies rather than options: a switcher that offers one
 # choice is not a switcher, and plasma-apply-lookandfeel exits non-zero on an id
 # it cannot find.
-depends=('plasma-workspace' 'halcora-lookandfeel-win' 'halcora-lookandfeel-macos')
+depends=('plasma-workspace' 'qt6-tools' 'halcora-lookandfeel-win' 'halcora-lookandfeel-macos')
 source=()
 sha256sums=()
 
