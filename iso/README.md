@@ -83,8 +83,11 @@ message rather than letting the upload fail as an opaque 422.
 4. **Erase-disk only.** No install-alongside, so a test machine's Windows install
    is not safe from a careless click.
 5. **The installed system carries live-session leftovers** — the `live` account,
-   the installer's desktop entry, the SDDM autologin. A Calamares `shellprocess`
-   cleanup step is the fix, and it is not written yet.
+   the installer's desktop entry, the SDDM autologin, the logind drop-in that
+   ignores the lid switch, and the copy of `halcora-layout` in `/usr/local/bin`.
+   A Calamares `shellprocess` cleanup step is the fix, and it is not written yet.
+   The lid-switch one matters most on a laptop: an installed system that never
+   suspends looks broken rather than configured.
 6. **Some Calamares keys are unverified.** `initialPartitioningChoice` and
    `autologinGroup` are documented keys and are now set deliberately, but
    `efiBootLoader: grub` with `efiSystemPartition: "/boot"` implies a `kernel:`
