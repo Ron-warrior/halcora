@@ -18,34 +18,45 @@ the commands in `docs/HANDOFF.md` before trusting them.
 
 - **Repository**: https://github.com/Ron-warrior/halcora — public, GPL-3.0.
 - **Six commits** on `main`, all pushed, working tree clean.
-- **Branch `themes/lookandfeel`** (not merged, not built): three `PKGBUILD`s and
-  a repository builder.
+- **Branch `themes/lookandfeel`** (not merged, nothing on it built): eleven
+  packages and a repository builder.
   - `halcora-lookandfeel-win` wraps Fluent-kde at `44794f2`, `-macos` wraps
     WhiteSur-kde at `cf4df59`. Each renames its Global Theme to
-    `org.halcora.lookandfeel.win` / `.macos`, so the ids the switcher asks for
-    exist, and strips the palette and cursor lines from `contents/defaults` so a
-    layout switch is not also a light/dark switch.
-  - `halcora-layout` ships the switcher to `/usr/bin` and depends on both.
-  - `halcora-theme-hyperos` ships two hand-authored colour schemes. **Palette
-    only** — no Plasma style, Kvantum style or Aurorae decoration yet, so a
-    desktop with these colours has Fluent's or Breeze's shapes. The values are a
-    considered first approximation, not device-sampled (each file says so).
-  - `halcora-defaults` puts that palette in `/etc/skel` as the system default
-    and sets double-click, because a layout package deliberately does not set a
-    colour scheme.
-  - `halcora-icons-fluent` wraps Fluent-icon-theme, so the Windows layout's
-    Global Theme stops naming an icon theme that does not exist.
-  - `halcora-branding` provides `os-release` and a Calamares branding directory.
-    **Not wired in**: `settings.conf` still says `branding: default`, because
-    changing the installer's appearance before the first boot test would blur
-    that test.
+    `org.halcora.lookandfeel.win` / `.macos` so the ids the switcher asks for
+    exist, strips the palette and cursor lines from `contents/defaults` so a
+    layout switch is not also a light/dark switch, and depends on its icon theme
+    because its Global Theme names one.
+  - `halcora-layout` ships the switcher to `/usr/bin`, depends on both layouts,
+    and now says which package to install when an id is missing.
+  - `halcora-theme-hyperos` ships two hand-authored colour schemes (a first
+    approximation, not device-sampled — each file says so), an Aurorae
+    decoration recoloured from literals read in upstream's `close.svg`, a
+    Kvantum config recoloured from its `GeneralColors`, and a Plasma style
+    recoloured by decompressing its `.svgz` files. **The Plasma style
+    self-verifies**: if no file matched the map it is skipped with a build-log
+    note rather than shipped in Fluent's colours.
+  - `halcora-defaults` puts that palette in `/etc/skel` and sets double-click.
+  - `halcora-icons-fluent`, `halcora-icons-whitesur` (the latter passes `-p` so
+    the Apple logo never ships) and `halcora-cursors-whitesur` (the only package
+    that compiles anything).
+  - `halcora-branding` has `os-release`, Calamares branding with a placeholder
+    mark, and two authored SVG wallpapers. **Not wired in**: `settings.conf`
+    still says `branding: default`.
+  - `halcora-first-run` asks one question at first login, then never again.
+  - `halcora-migrate` copies a Windows profile's six user folders, read-only,
+    refusing a dirty volume (ADR-10).
   - `packages/build.sh` runs `makepkg` then `repo-add` into `packages/repo`.
   - **No `makepkg` run has been attempted** and there is no pacman repository in
-    the tree. CI checks only that the packages parse as shell, that each
-    `pkgname` matches its directory, and that every layout id the switcher names
-    is present in some package.
+    the tree. CI checks that the packages parse as shell, that each `pkgname`
+    matches its directory, that every layout id the switcher names is present,
+    that each git source alias matches the directory its build uses, that the
+    `.colors` files are well formed, that the palette exists nowhere else, that
+    the default scheme exists, that no Calamares module config is orphaned, and
+    that every SVG parses.
   - `iso/build.sh` can consume `packages/repo` through `HALCORA_REPO`; with it
-    unset, which is what CI does, the image is unchanged.
+    unset, which is what CI does, the image is unchanged. It also adds a second
+    UEFI boot entry that blacklists nouveau (ADR-8) — an entry point for the
+    NVIDIA work, not the work.
 - **A downloadable ISO**, published as a pre-release:
   - Tag: `prealpha` (a single moving pre-release, replaced on each green build)
   - Asset: `halcora-2026.11.18-x86_64.iso`
