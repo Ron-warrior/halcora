@@ -126,4 +126,22 @@ package() {
   # skipped at build time — see halcora-theme-hyperos — Plasma falls back to
   # Breeze rather than to nothing.
   sed -i 's/^name=.*/name=HalcoraHyperOS/' "$lf/contents/defaults"
+
+  # The seds above are silent when they match nothing, which is what an upstream
+  # rename looks like: the package still builds and the layout quietly keeps
+  # Fluent's palette, buttons and surface. Assert the result instead.
+  local defaults="$lf/contents/defaults"
+  if grep -q '^ColorScheme=' "$defaults" || grep -q '^cursorTheme=' "$defaults"; then
+    printf 'ERROR: %s still sets a colour scheme or cursor theme\n' "$defaults" >&2
+    return 1
+  fi
+  if ! grep -q '^name=HalcoraHyperOS$' "$defaults"; then
+    printf 'ERROR: %s does not name the HalcoraHyperOS desktop theme\n' "$defaults" >&2
+    printf 'Upstream likely renamed the [plasmarc][Theme] key. Fix the sed, not this check.\n' >&2
+    return 1
+  fi
+  if ! grep -q '^theme=__aurorae__svg__HalcoraHyperOS$' "$defaults"; then
+    printf 'ERROR: %s does not name the HalcoraHyperOS decoration\n' "$defaults" >&2
+    return 1
+  fi
 }

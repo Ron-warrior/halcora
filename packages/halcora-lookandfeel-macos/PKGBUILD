@@ -85,6 +85,20 @@ package() {
   # surface both layouts are meant to share.
   sed -i 's/^name=.*/name=HalcoraHyperOS/' "$lf/contents/defaults"
 
+  # Assertions, because every sed above is silent when it matches nothing and an
+  # unchanged layout still builds. That failure mode looks like "the theme did
+  # not apply" and costs a session to find.
+  local defaults="$lf/contents/defaults"
+  if grep -q '^ColorScheme=' "$defaults" || grep -q '^cursorTheme=' "$defaults"; then
+    printf 'ERROR: %s still sets a colour scheme or cursor theme\n' "$defaults" >&2
+    return 1
+  fi
+  if ! grep -q '^name=HalcoraHyperOS$' "$defaults"; then
+    printf 'ERROR: %s does not name the HalcoraHyperOS desktop theme\n' "$defaults" >&2
+    printf 'Upstream likely renamed the [plasmarc][Theme] key. Fix the sed, not this check.\n' >&2
+    return 1
+  fi
+
   # Colour schemes are deliberately not installed. Every one upstream ships
   # belongs to a WhiteSur variant, and Halcora's palette is HyperOS's job; a
   # user picking a WhiteSur scheme from System Settings would be picking a
