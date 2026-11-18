@@ -1,0 +1,85 @@
+# Maintainer: Halcora <noreply@github.com/Ron-warrior>
+#
+# WhiteSur's cursor theme. Unlike the icon packages this is a real build, not a
+# wrapper: upstream has no install script, only a build.sh that rasterises SVGs
+# with rsvg-convert and packs them with xcursorgen.
+#
+# Upstream's build.sh is not used directly, for two reasons:
+#
+#   1. It runs `git clone` of jinliu/svg-cursor, unpinned, to generate a second
+#      "scalable" cursor set. An unpinned clone in a build is exactly what
+#      packages/README.md forbids, so this package does not produce that set.
+#      Raster cursors at four sizes are what every desktop uses anyway.
+#   2. It installs packages with `sudo` if a tool is missing. A PKGBUILD must
+#      declare its tools and fail, not mutate the build host.
+#
+# Nothing in this file has been built.
+
+pkgname=halcora-cursors-whitesur
+pkgver=20250405.e190baf
+pkgrel=1
+pkgdesc='WhiteSur cursor theme for the Halcora macOS layout (built from source)'
+arch=('any')
+url='https://github.com/Ron-warrior/halcora'
+license=('GPL-3.0-or-later')
+depends=()
+makedepends=(
+  'xorg-xcursorgen'
+  'librsvg'
+)
+source=("whitesur-cursors::git+https://github.com/vinceliuice/WhiteSur-cursors.git#commit=e190baf618ed95ee217d2fd45589bd309b37672b")
+sha256sums=('SKIP')
+
+build() {
+  cd "$srcdir/WhiteSur-cursors"
+
+  local src="$PWD/src"
+  local dist="$srcdir/dist"
+
+  # The four scale directories are named by upstream's config/*.cursor files, so
+  # the names are part of the format: x1 is 1x, x1_25 is 1.25x, and so on. The
+  # sizes below are upstream's.
+  for d in x1 x1_25 x1_5 x2; do
+    install -d "$src/$d"
+  done
+
+  (
+    cd "$src/svg"
+    find . -name '*.svg' -exec sh -c \
+      'rsvg-convert -w 32 -h 32 "$0" -o "../x1/$(basename "$0" .svg).png"' {} \;
+    find . -name '*.svg' -exec sh -c \
+      'rsvg-convert -w 40 -h 40 "$0" -o "../x1_25/$(basename "$0" .svg).png"' {} \;
+    find . -name '*.svg' -exec sh -c \
+      'rsvg-convert -w 48 -h 48 "$0" -o "../x1_5/$(basename "$0" .svg).png"' {} \;
+    find . -name '*.svg' -exec sh -c \
+      'rsvg-convert -w 64 -h 64 "$0" -o "../x2/$(basename "$0" .svg).png"' {} \;
+  )
+
+  install -d "$dist/cursors"
+  for cur in "$src"/config/*.cursor; do
+    xcursorgen "$cur" "$dist/cursors/$(basename "$cur" .cursor)"
+  done
+
+  # Aliases: one line per pair, "alias target". Upstream skips a pair when the
+  # alias already exists, which this does too, or it would fail on its own output.
+  (
+    cd "$dist/cursors"
+    while read -r line; do
+      [ -n "$line" ] || continue
+      from=${line#* }
+      to=${line% *}
+      [ -e "$to" ] && continue
+      ln -sr "$from" "$to"
+    done <"$src/cursorList"
+  )
+
+  printf '[Icon Theme]\nName=WhiteSur Cursors\n' >"$dist/index.theme"
+}
+
+package() {
+  # The theme directory name is what a desktop references, so it has to be the
+  # name upstream's own generated index.theme advertises and the name anyone
+  # looking for this theme would type.
+  install -d "$pkgdir/usr/share/icons/WhiteSur-cursors"
+  cp -a "$srcdir/dist/." "$pkgdir/usr/share/icons/WhiteSur-cursors/"
+}
