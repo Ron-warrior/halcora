@@ -1,0 +1,14 @@
+[
+    "appstream://org.mozilla.firefox.desktop",
+    "appstream://org.mozilla.thunderbird.desktop",
+    "appstream://org.videolan.VLC",
+    "appstream://org.libreoffice.LibreOffice",
+    "appstream://org.gimp.GIMP",
+    "appstream://org.kde.kdenlive.desktop",
+    "appstream://com.spotify.Client",
+    "appstream://com.valvesoftware.Steam",
+    "appstream://com.discordapp.Discord",
+    "appstream://org.signal.Signal",
+    "appstream://org.telegram.desktop",
+    "appstream://com.obsproject.Studio"
+]

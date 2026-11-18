@@ -36,6 +36,15 @@ which is a content problem, not a code problem.
 
 ## Not yet written
 
-`featured.json`. The schema has to be read from the reference URL above rather
-than guessed, and the "not yet" here is deliberate: invented JSON that does not
-parse wastes a debugging cycle for whoever builds it next.
+Nothing — but nothing is verified either. `featured.json` and `featuredurlrc`
+exist, modelled on KDE's own live listing
+(`https://autoconfig.kde.org/discover/featured-5.9.json`), which is a plain JSON
+array of `appstream://` ids. Nobody has loaded them in Discover.
+
+The URL is `file:///usr/share/halcora/featured.json`, so no hosting is needed.
+That works only because the file ships with `halcora-branding`; if the list ever
+needs to change without a package update, it has to move to a URL and be hosted.
+
+The twelve entries are chosen for recognisability rather than completeness: a
+Windows user should see names they know. Every id assumes a Flatpak remote is
+enabled, which is Discover's job and not this file's.

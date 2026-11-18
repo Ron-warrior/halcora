@@ -48,4 +48,14 @@ package() {
   install -m644 "$startdir/wallpapers/halcora-light.svg" \
     "$startdir/wallpapers/halcora-dark.svg" \
     "$pkgdir/usr/share/backgrounds/halcora/"
+
+  # The featured listing Discover shows as "Editor's Choice". The JSON is
+  # store/featured.json at the repository root, because it is content rather
+  # than part of this package, and the URL points at the installed copy so no
+  # hosting is needed. /etc/xdg is the override location, so discovering this
+  # file does not conflict with one the discover package might ship.
+  install -Dm644 "$startdir/../../store/featured.json" \
+    "$pkgdir/usr/share/halcora/featured.json"
+  install -Dm644 "$startdir/../../store/featuredurlrc" \
+    "$pkgdir/etc/xdg/featuredurlrc"
 }
