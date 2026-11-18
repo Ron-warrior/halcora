@@ -105,4 +105,54 @@ package() {
   if [ -f "$kv/FluentDark.svg" ]; then
     mv "$kv/FluentDark.svg" "$kv/HalcoraHyperOSDark.svg"
   fi
+  mv "$kv/Fluent.kvconfig" "$kv/HalcoraHyperOS.kvconfig"
+
+  # The Plasma style: the shapes of panels, menus and popups.
+  #
+  # These files are .svgz — gzipped SVG — so a sed over them matches nothing and
+  # a naive recolour would ship Fluent's colours under our name. Each is
+  # decompressed, recoloured and recompressed.
+  #
+  # The colour literals inside them have never been read, which is the one thing
+  # this package cannot verify from the repository. So it verifies itself instead:
+  # if not a single file contained a mapped colour, the style is not installed and
+  # the build log says why. Shipping an unmodified copy would be worse than
+  # shipping nothing, because it would look like the theme had been applied.
+  local st="$pkgdir/usr/share/plasma/desktoptheme/HalcoraHyperOS"
+  cp -a "$srcdir/Fluent-kde/plasma/desktoptheme/Fluent" "$st"
+
+  local changed=0 svg
+  while IFS= read -r svgz; do
+    svg="$srcdir/recolour.svg"
+    gunzip -c "$svgz" >"$svg"
+    if grep -qiE '#0078D4|#444444|#F5F5F5|#f2f2f2|#0057AE' "$svg"; then
+      sed -i \
+        -e 's/#F5F5F5/#F7F7FA/g' \
+        -e 's/#f5f5f5/#f7f7fa/g' \
+        -e 's/#f2f2f2/#F2F2F6/g' \
+        -e 's/#0078D4/#3482FF/g' \
+        -e 's/#0078d4/#3482ff/g' \
+        -e 's/#444444/#1C1C1E/g' \
+        -e 's/#0057AE/#3482FF/g' \
+        "$svg"
+      changed=$((changed + 1))
+    fi
+    gzip -c "$svg" >"$svgz"
+    rm -f "$svg"
+  done <<EOF
+$(find "$st" -name '*.svgz' -type f)
+EOF
+
+  if [ "$changed" -eq 0 ]; then
+    rm -rf "$st"
+    printf '\n'
+    printf 'NOTE: the Plasma style was NOT installed.\n'
+    printf 'No Fluent style file contained any of the colours this package maps.\n'
+    printf 'The literals in those .svgz files have never been read; until someone\n'
+    printf 'decompresses one and corrects the map in this PKGBUILD, shipping the\n'
+    printf 'style unmodified would put Fluent colours under the Halcora name.\n'
+    printf 'The palette, decoration and Kvantum config are installed as normal.\n\n'
+  else
+    sed -i -e 's/^Name=.*/Name=HalcoraHyperOS/' "$st/metadata.desktop"
+  fi
 }
