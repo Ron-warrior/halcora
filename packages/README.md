@@ -14,8 +14,11 @@ nothing.**
 - `halcora-theme-hyperos` — the authored skin, worn by both layouts. Plasma
   style, colour schemes (light and dark), Aurorae decoration, Kvantum style,
   Inter references. Derived from `Fluent-kde`, so GPL-3.0 (ADR-4). **Not written.**
-- `halcora-fonts` — Inter (OFL-1.1). Nothing else. MiSans is never packaged.
-  **Not written.**
+- `halcora-fonts` — **probably unnecessary.** Inter (OFL-1.1), and nothing else;
+  MiSans is never packaged. But `inter-font` is already an Arch package and is
+  already in `iso/profile/packages.x86_64`, so a wrapper would be a dependency
+  with our name on it and nothing else. Delete this entry rather than write it
+  unless a real reason appears.
 - `halcora-branding` — os-release, Plymouth, SDDM theme, Calamares branding,
   wallpapers (our own, not Xiaomi's). **Not written.**
 - `halcora-defaults` — `/etc/skel`: Plasma defaults, window rules, the

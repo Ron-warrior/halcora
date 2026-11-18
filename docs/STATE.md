@@ -18,13 +18,19 @@ the commands in `docs/HANDOFF.md` before trusting them.
 
 - **Repository**: https://github.com/Ron-warrior/halcora — public, GPL-3.0.
 - **Six commits** on `main`, all pushed, working tree clean.
-- **Branch `themes/lookandfeel`** (not merged, not built): two layout
-  `PKGBUILD`s, `halcora-lookandfeel-win` and `halcora-lookandfeel-macos`. They
-  wrap Fluent-kde at `44794f2` and WhiteSur-kde at `cf4df59`, rename each Global
-  Theme to `org.halcora.lookandfeel.*` so the switcher's ids exist, and strip
-  the palette and cursor lines from `contents/defaults` so switching layout does
-  not also switch colour scheme. No `makepkg` run has been attempted; there is no
-  pacman repository to build against yet.
+- **Branch `themes/lookandfeel`** (not merged, not built): three `PKGBUILD`s and
+  a repository builder.
+  - `halcora-lookandfeel-win` wraps Fluent-kde at `44794f2`, `-macos` wraps
+    WhiteSur-kde at `cf4df59`. Each renames its Global Theme to
+    `org.halcora.lookandfeel.win` / `.macos`, so the ids the switcher asks for
+    exist, and strips the palette and cursor lines from `contents/defaults` so a
+    layout switch is not also a light/dark switch.
+  - `halcora-layout` ships the switcher to `/usr/bin` and depends on both.
+  - `packages/build.sh` runs `makepkg` then `repo-add` into `packages/repo`.
+  - **No `makepkg` run has been attempted** and there is no pacman repository in
+    the tree. CI checks only that the recipes parse, that `pkgname` matches the
+    directory, and that every layout id the switcher names is produced by some
+    package.
 - **A downloadable ISO**, published as a pre-release:
   - Tag: `prealpha` (a single moving pre-release, replaced on each green build)
   - Asset: `halcora-2026.11.18-x86_64.iso`
