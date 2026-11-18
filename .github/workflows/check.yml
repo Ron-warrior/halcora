@@ -227,6 +227,26 @@ jobs:
           fi
           exit "$status"
 
+      # halcora-defaults names a colour scheme in /etc/skel. If that scheme is
+      # missing — renamed, or the theme package not installed — a new account
+      # silently gets Breeze blue and never sees HyperOS, with no error anywhere.
+      - name: Every colour scheme a default names exists
+        run: |
+          status=0
+          refs=$(grep -rhoE '^ColorScheme=[^[:space:]]+' packages/*/skel/ 2>/dev/null \
+                 | cut -d= -f2 || true)
+          if [ -z "$refs" ]; then
+            echo '::warning::no ColorScheme found in any skel; nothing to check'
+            exit 0
+          fi
+          for ref in $refs; do
+            if ! grep -rqs "^Name=$ref\$" packages/*/color-schemes/; then
+              printf '::error::a default names colour scheme %s and no package provides it\n' "$ref"
+              status=1
+            fi
+          done
+          exit "$status"
+
       - name: Calamares configuration parses
         run: |
           python - <<'PY'
