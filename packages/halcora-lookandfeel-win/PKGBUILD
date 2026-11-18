@@ -24,11 +24,13 @@ pkgdesc='Windows-shaped Plasma Global Theme for Halcora (wraps Fluent-kde)'
 arch=('any')
 url='https://github.com/Ron-warrior/halcora'
 license=('GPL-3.0-or-later')
-depends=('plasma-workspace')
+# The icon theme is a hard dependency, not an option: the Global Theme names
+# Theme=Fluent-dark, and a theme that points at an absent icon set is the failure
+# this package was written to fix.
+depends=('plasma-workspace' 'halcora-icons-fluent')
 optdepends=(
   'kwin: Aurorae window decorations, without which the buttons are stock'
   'kvantum: the Kvantum widget style the theme sets for Qt applications'
-  'halcora-icons-fluent: the Fluent icon theme this Global Theme names'
 )
 # The source alias is deliberately spelled exactly like the upstream repository,
 # because it is also the directory makepkg checks the tree out into. A shorter or

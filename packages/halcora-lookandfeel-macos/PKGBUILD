@@ -15,11 +15,12 @@ pkgdesc='macOS-shaped Plasma Global Theme for Halcora (wraps WhiteSur-kde)'
 arch=('any')
 url='https://github.com/Ron-warrior/halcora'
 license=('GPL-3.0-or-later')
-depends=('plasma-workspace')
+# The icon theme is a hard dependency for the same reason as the Windows layout:
+# the Global Theme names Theme=WhiteSur-dark.
+depends=('plasma-workspace' 'halcora-icons-whitesur')
 optdepends=(
   'kwin: Aurorae window decorations, which put the buttons on the left'
   'kvantum: the Kvantum widget style the theme sets for Qt applications'
-  'halcora-icons-whitesur: the WhiteSur icon theme this Global Theme names'
 )
 # Alias spelled as the upstream repository, because it is also the checkout
 # directory makepkg uses.
