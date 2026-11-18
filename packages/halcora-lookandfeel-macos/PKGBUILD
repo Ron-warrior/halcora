@@ -1,0 +1,83 @@
+# Maintainer: Halcora <noreply@github.com/Ron-warrior>
+#
+# Wraps vinceliuice/WhiteSur-kde as Halcora's macOS-shaped layout.
+#
+# Same two deliberate deviations from packages/README.md as the win package: a
+# commit-pinned git source instead of a checksummed tarball, and a Global Theme
+# renamed to Halcora's own id. Both are explained there and in that file.
+#
+# Nothing in this file has been built. makepkg has never run it.
+
+pkgname=halcora-lookandfeel-macos
+pkgver=20260807.cf4df59
+pkgrel=1
+pkgdesc='macOS-shaped Plasma Global Theme for Halcora (wraps WhiteSur-kde)'
+arch=('any')
+url='https://github.com/Ron-warrior/halcora'
+license=('GPL-3.0-or-later')
+depends=('plasma-workspace')
+optdepends=(
+  'kwin: Aurorae window decorations, which put the buttons on the left'
+  'kvantum: the Kvantum widget style the theme sets for Qt applications'
+)
+source=("whitesur-kde::git+https://github.com/vinceliuice/WhiteSur-kde.git#commit=cf4df59ce91004f7ea39358b1b8ff917d5c329f7")
+sha256sums=('SKIP')
+
+# Must match the id in scripts/halcora-layout; the CI check fails otherwise.
+_id=org.halcora.lookandfeel.macos
+_display_name='Halcora macOS'
+_upstream_theme='WhiteSur-dark'
+
+build() {
+  cd "$srcdir/WhiteSur-kde"
+
+  # Staged through $HOME for the same reason as the win package: upstream's
+  # installer picks its destination from whether it is running as root, and
+  # this must never write to the build machine's /usr/share.
+  #
+  # -c dark limits it to the dark variant. Upstream also installs a "Liquid"
+  # variant and five HiDPI scales of every Aurorae decoration unconditionally,
+  # which is why package() copies named items rather than whole directories.
+  HOME="$srcdir/stage" bash ./install.sh -c dark
+}
+
+package() {
+  local share="$srcdir/stage/.local/share"
+  local out="$pkgdir/usr/share"
+
+  install -d \
+    "$out/aurorae/themes" \
+    "$out/plasma/desktoptheme" \
+    "$out/plasma/look-and-feel" \
+    "$out/wallpapers" \
+    "$out/Kvantum"
+
+  cp -a "$share/aurorae/themes/$_upstream_theme"      "$out/aurorae/themes/"
+  cp -a "$share/plasma/desktoptheme/$_upstream_theme" "$out/plasma/desktoptheme/"
+  cp -a "$share/wallpapers/WhiteSur"*                 "$out/wallpapers/"
+  cp -a "$srcdir/stage/.config/Kvantum/WhiteSur"      "$out/Kvantum/"
+
+  # The Global Theme, under our id. Its contents/defaults is where the buttons
+  # land on the left (ButtonsOnLeft=XAI) — the one behaviour that genuinely
+  # differs from the Windows layout rather than merely looking different.
+  local lf="$out/plasma/look-and-feel/$_id"
+  cp -a "$share/plasma/look-and-feel/com.github.vinceliuice.$_upstream_theme" "$lf"
+
+  sed -i \
+    -e "s|\"Id\": \"com.github.vinceliuice.$_upstream_theme\"|\"Id\": \"$_id\"|" \
+    -e "s|\"Name\": \"$_upstream_theme\"|\"Name\": \"$_display_name\"|" \
+    "$lf/metadata.json"
+  sed -i \
+    -e "s|^X-KDE-PluginInfo-Name=.*|X-KDE-PluginInfo-Name=$_id|" \
+    -e "s|^Name=.*|Name=$_display_name|" \
+    "$lf/metadata.desktop"
+
+  # Same removals as the win package, for the same reasons: the palette belongs
+  # to halcora-theme-hyperos, and the cursor theme named here is not shipped.
+  sed -i -e '/^ColorScheme=/d' -e '/^cursorTheme=/d' "$lf/contents/defaults"
+
+  # Colour schemes are deliberately not installed. Every one upstream ships
+  # belongs to a WhiteSur variant, and Halcora's palette is HyperOS's job; a
+  # user picking a WhiteSur scheme from System Settings would be picking a
+  # palette this project has decided not to have.
+}

@@ -1,0 +1,110 @@
+# Maintainer: Halcora <noreply@github.com/Ron-warrior>
+#
+# Wraps vinceliuice/Fluent-kde as Halcora's Windows-shaped layout.
+#
+# The rule this follows is in packages/README.md: download an upstream tree at a
+# pinned commit, install its files, compile nothing. Two deviations from that
+# README are deliberate and described there:
+#
+#   1. The source is a git checkout pinned by #commit= rather than an archive
+#      tarball. A tarball needs a sha256sum, and the device this repository is
+#      maintained from has no shell to compute one with. A commit-pinned git
+#      source is reproducible without that number; a guessed checksum would not
+#      be reproducible at all.
+#   2. The Global Theme is renamed to Halcora's own id, so that
+#      scripts/halcora-layout names a layout instead of naming an upstream
+#      theme. That is what lets the upstream theme be swapped later.
+#
+# Nothing in this file has been built. makepkg has never run it.
+
+pkgname=halcora-lookandfeel-win
+pkgver=20251110.44794f2
+pkgrel=1
+pkgdesc='Windows-shaped Plasma Global Theme for Halcora (wraps Fluent-kde)'
+arch=('any')
+url='https://github.com/Ron-warrior/halcora'
+license=('GPL-3.0-or-later')
+depends=('plasma-workspace')
+optdepends=(
+  'kwin: Aurorae window decorations, without which the buttons are stock'
+  'kvantum: the Kvantum widget style the theme sets for Qt applications'
+)
+source=("fluent-kde::git+https://github.com/vinceliuice/Fluent-kde.git#commit=44794f29c89de994b0179aebabd2f5776c90d236")
+sha256sums=('SKIP')
+
+# Must match the id in scripts/halcora-layout. The CI check in
+# .github/workflows/check.yml fails if no package produces an id the switcher
+# asks for, because that failure is otherwise invisible until a user runs it.
+_id=org.halcora.lookandfeel.win
+_display_name='Halcora Windows'
+_upstream_theme='Fluent-dark'
+
+build() {
+  cd "$srcdir/Fluent-kde"
+
+  # install.sh writes to /usr/share when run as root and to $HOME otherwise, so
+  # HOME is pointed at a staging directory and nothing outside it can be
+  # touched. This is cheap and survives upstream changing its file layout;
+  # patching its hard-coded /usr paths would not.
+  #
+  # It also means this build must not run as root. makepkg refuses to by
+  # default, and that refusal is load-bearing here.
+  #
+  # -t default -c dark produces one variant: the default accent, dark colour.
+  # A layout package is not the place to decide light versus dark (see
+  # docs/DESIGN.md), so only one variant is built and its colour scheme is
+  # stripped below.
+  HOME="$srcdir/stage" bash ./install.sh -t default -c dark
+}
+
+package() {
+  local share="$srcdir/stage/.local/share"
+  local out="$pkgdir/usr/share"
+
+  install -d \
+    "$out/aurorae/themes" \
+    "$out/color-schemes" \
+    "$out/plasma/desktoptheme" \
+    "$out/plasma/look-and-feel" \
+    "$out/plasma/plasmoids" \
+    "$out/plasma/layout-templates" \
+    "$out/wallpapers" \
+    "$out/Kvantum"
+
+  cp -a "$share/aurorae/themes/$_upstream_theme"  "$out/aurorae/themes/"
+  cp -a "$share/plasma/desktoptheme/$_upstream_theme" "$out/plasma/desktoptheme/"
+  cp -a "$share/plasma/plasmoids/."               "$out/plasma/plasmoids/"
+  cp -a "$share/plasma/layout-templates/."        "$out/plasma/layout-templates/"
+  cp -a "$share/wallpapers/Fluent"                "$out/wallpapers/"
+  cp -a "$srcdir/stage/.config/Kvantum/Fluent"    "$out/Kvantum/"
+
+  # The Global Theme itself, under our id. Its contents/layouts directory is
+  # what plasma-apply-lookandfeel --resetLayout actually reads, and both
+  # upstream themes ship one, which is the whole reason this project does not
+  # need to author a panel layout.
+  local lf="$out/plasma/look-and-feel/$_id"
+  cp -a "$share/plasma/look-and-feel/com.github.vinceliuice.$_upstream_theme" "$lf"
+
+  sed -i \
+    -e "s|\"Id\": \"com.github.vinceliuice.$_upstream_theme\"|\"Id\": \"$_id\"|" \
+    -e "s|\"Name\": \"$_upstream_theme\"|\"Name\": \"$_display_name\"|" \
+    "$lf/metadata.json"
+  sed -i \
+    -e "s|^X-KDE-PluginInfo-Name=.*|X-KDE-PluginInfo-Name=$_id|" \
+    -e "s|^Name=.*|Name=$_display_name|" \
+    "$lf/metadata.desktop"
+
+  # Two upstream defaults are removed on purpose:
+  #
+  #   ColorScheme  the palette belongs to halcora-theme-hyperos and to nothing
+  #                else (docs/DESIGN.md), or the macOS layout could not wear it
+  #                without editing layout code. Leaving it here would also make
+  #                switching layout silently switch light/dark.
+  #   cursorTheme  points at a cursor set this package does not ship, so the
+  #                line would be a promise the system cannot keep.
+  #
+  # The icon theme line is left alone even though the icon theme is not shipped
+  # yet: Plasma falls back to the system icons, which is the same result as
+  # removing the line, and it needs no guessing about upstream's naming.
+  sed -i -e '/^ColorScheme=/d' -e '/^cursorTheme=/d' "$lf/contents/defaults"
+}

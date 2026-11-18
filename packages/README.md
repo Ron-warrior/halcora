@@ -6,52 +6,85 @@ nothing.**
 
 ## The set
 
-- `halcora-lookandfeel-win` — the Windows layout. Wraps `Fluent-kde`:
-  its Plasma global theme, Aurorae decoration, Kvantum style and colour schemes,
-  plus `Fluent-icon-theme` and a cursor set, installed as
-  `org.halcora.lookandfeel.win`.
-- `halcora-lookandfeel-macos` — the macOS layout. Wraps `WhiteSur-kde` the same
-  way, plus `WhiteSur-icon-theme`, `WhiteSur-cursors`, and optionally
-  `WhiteSur-gtk-theme`, installed as `org.halcora.lookandfeel.macos`.
+- `halcora-lookandfeel-win` — **written, never built.** Wraps `Fluent-kde`: its
+  Plasma desktop theme, Aurorae decoration, Kvantum style and wallpapers,
+  installed as the Global Theme `org.halcora.lookandfeel.win`.
+- `halcora-lookandfeel-macos` — **written, never built.** Wraps `WhiteSur-kde`
+  the same way, installed as `org.halcora.lookandfeel.macos`.
 - `halcora-theme-hyperos` — the authored skin, worn by both layouts. Plasma
   style, colour schemes (light and dark), Aurorae decoration, Kvantum style,
-  Inter references. Derived from `Fluent-kde`, so GPL-3.0 (ADR-4).
+  Inter references. Derived from `Fluent-kde`, so GPL-3.0 (ADR-4). **Not written.**
 - `halcora-fonts` — Inter (OFL-1.1). Nothing else. MiSans is never packaged.
+  **Not written.**
 - `halcora-branding` — os-release, Plymouth, SDDM theme, Calamares branding,
-  wallpapers (our own, not Xiaomi's).
+  wallpapers (our own, not Xiaomi's). **Not written.**
 - `halcora-defaults` — `/etc/skel`: Plasma defaults, window rules, the
-  deliberately-untouched keybinds, first-run state.
+  deliberately-untouched keybinds, first-run state. **Not written.**
 - `halcora-layout` — installs `scripts/halcora-layout` to `/usr/local/bin` plus
-  a `.desktop` entry in Settings.
+  a `.desktop` entry in Settings. **Not written.**
 - `halcora-migrate` — the Windows import tool and its Calamares module
-  (phase 4).
+  (phase 4). **Not written.**
 
 ## The pinning convention
 
-`source=` points at `https://github.com/<owner>/<repo>/archive/<commit>.tar.gz`,
-never at a branch or a tag. `scripts/fetch-themes.sh` prints the current HEAD of
-each upstream so a version bump is a copy-paste, and `pkgver` carries the short
-commit so the built package says what it actually contains.
+`source=` names an upstream tree at a **commit**, never a branch or a tag.
+`scripts/fetch-themes.sh` prints the current HEAD of each upstream so a version
+bump is a copy-paste, and `pkgver` carries the date and short commit so the
+built package says what it actually contains.
 
-This is AnduinOS's technique, adopted wholesale because it is correct: a package
-that tracks a branch breaks its own reproducibility, and upstream themes are
-actively developed (all of the ones we use were pushed within months of this
-being written).
+Two forms are allowed, and the difference is the checksum:
+
+- **git source** — `name::git+https://…/repo.git#commit=<sha>`, with
+  `sha256sums=('SKIP')`. Reproducible because the commit is pinned, and no
+  checksum is required. Use this when no machine has been able to run
+  `updpkgsums`.
+- **archive source** — `https://…/repo/archive/<sha>.tar.gz`, with a real
+  `sha256sums` entry. Lighter to download. Use this once a checksum has actually
+  been computed by a machine that can compute one.
+
+The two layout packages use the git form, because this repository is maintained
+from a device with no shell: writing a checksum that nothing has verified would
+be worse than not having one.
+
+## Package ids are a contract
+
+`scripts/halcora-layout` asks for `org.halcora.lookandfeel.win` and
+`org.halcora.lookandfeel.macos`. Those ids have to exist, or the switcher does
+nothing. The check workflow therefore fails when a layout id in the switcher is
+produced by no package, because that mistake is invisible until a user runs the
+command.
+
+The layout packages rename upstream's Global Theme to our id rather than exposing
+`com.github.vinceliuice.…` directly. That is the point of the wrapper: the layout
+is ours, the theme providing it is replaceable.
+
+## What a layout package deliberately does not own
+
+- **The palette.** `ColorScheme=` is removed from the theme's `contents/defaults`
+  (docs/DESIGN.md: the palette lives only in `halcora-theme-hyperos`). Otherwise
+  switching layout would also switch light/dark.
+- **Cursors.** `cursorTheme=` is removed; upstream's cursor set is not shipped.
+- **Colour schemes.** Upstream's `.colors` files are not installed, for the same
+  reason as the palette.
+- **Icons.** Not shipped yet — the icon theme line is left in place and Plasma
+  falls back to system icons. Folding `Fluent-icon-theme` and `WhiteSur-cursors`
+  in is follow-up work, not a silent assumption.
 
 ## Build order
 
 Themes first, then `halcora-branding`, then `halcora-defaults`, then
-`halcora-layout`. `iso/profile/packages.x86_64` expects all of them plus
-`halcora-theme-hyperos` to exist in our repository before an image will build.
+`halcora-layout`. `iso/profile/packages.x86_64` expects all of them to exist in
+our repository before an image will build.
 
 ## Repository
 
 A local pacman repository, built with `repo-add`, served over HTTP or from a
 mounted path. Not yet set up; standing it up is the last step of phase 1.
 
-## Not yet written
+## What has not been done
 
-Every `PKGBUILD`. They are the next real artefact after Phase 0's design verdict,
-and they are deliberately not guessed at here — the install step of each upstream
-theme (`install.sh` conventions, which subdirectories to keep) has to be read
-from the source rather than assumed. See `docs/ROADMAP.md`, phase 1.
+Nothing here has been built. No `makepkg` run has been attempted, in CI or
+anywhere else, and there is no pacman repository to build against yet. The two
+`PKGBUILD`s are written from upstream's `install.sh` — which was read, not
+guessed at — but "read the installer carefully" and "the package builds" are
+different claims. `docs/TASKS.md` TASK-4 says what done looks like.

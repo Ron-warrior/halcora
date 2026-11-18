@@ -13,6 +13,7 @@ on:
     paths:
       - 'iso/**'
       - 'scripts/**'
+      - 'packages/**'
       - '.github/workflows/**'
   pull_request:
   workflow_dispatch:
@@ -90,6 +91,47 @@ jobs:
             [ -f "$f" ] || continue
             shellcheck --format=gcc --severity=warning "$f" || true
           done
+
+      # A PKGBUILD is shell, so it can be syntax-checked for free. Whether it
+      # *builds* needs a real makepkg run against a real pacman repository, which
+      # does not exist yet, so this deliberately claims much less than that.
+      - name: Package recipes parse and match their directory
+        run: |
+          status=0
+          for f in packages/*/PKGBUILD; do
+            [ -f "$f" ] || continue
+            if ! bash -n "$f"; then
+              printf '::error file=%s::does not parse as shell\n' "$f"
+              status=1
+            fi
+            dir=$(basename "$(dirname "$f")")
+            name=$(sed -n 's/^pkgname=//p' "$f" | head -n1)
+            if [ "$name" != "$dir" ]; then
+              printf '::error file=%s::pkgname %s does not match directory %s\n' \
+                "$f" "$name" "$dir"
+              status=1
+            fi
+          done
+          exit "$status"
+
+      # The layout switcher names Global Theme ids. A package that forgets to
+      # install one of them, or renames it, leaves the flagship feature doing
+      # nothing — and nothing else in CI would notice.
+      - name: Every layout id the switcher asks for is produced
+        run: |
+          status=0
+          ids=$(sed -n 's/^\(win\|macos\)_id=//p' scripts/halcora-layout)
+          if [ -z "$ids" ]; then
+            echo '::error file=scripts/halcora-layout::no layout ids found'
+            exit 1
+          fi
+          for id in $ids; do
+            if ! grep -rqs "_id=$id" packages/; then
+              printf '::error file=scripts/halcora-layout::no package produces %s\n' "$id"
+              status=1
+            fi
+          done
+          exit "$status"
 
       - name: Calamares configuration parses
         run: |

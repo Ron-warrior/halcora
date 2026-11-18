@@ -54,7 +54,7 @@ re-test the same thing.
 
 ## TASK-4 — AGENT: the two layout packages (on a branch)
 
-- [ ] Not started. Branch: `themes/lookandfeel`.
+- [ ] PKGBUILDs written, never built. Branch: `themes/lookandfeel`.
 
 Write the PKGBUILDs that `packages/README.md` describes:
 
@@ -67,7 +67,14 @@ current HEADs. Read each upstream's `install.sh` before using it; do not assume
 its flags.
 
 **Done looks like:** `makepkg` builds both packages on Arch without network
-tricks, and `packages/README.md`'s "Not yet written" section is true no longer.
+tricks. This has **not** happened. What exists is two recipes written against
+upstream's actual installers, and CI that checks they parse, that each `pkgname`
+matches its directory, and that every layout id the switcher asks for is
+produced by some package.
+
+**Still missing, deliberately:** icon and cursor themes (upstream's
+`Fluent-icon-theme`, `WhiteSur-icon-theme`, `WhiteSur-cursors`), and a pacman
+repository to build against. `packages/README.md` lists both.
 
 **Branch, not `main`:** these are unverified and would be baked into the next ISO.
 

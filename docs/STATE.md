@@ -17,7 +17,14 @@ the commands in `docs/HANDOFF.md` before trusting them.
 ## What actually exists
 
 - **Repository**: https://github.com/Ron-warrior/halcora — public, GPL-3.0.
-- **Six commits**, all pushed, working tree clean.
+- **Six commits** on `main`, all pushed, working tree clean.
+- **Branch `themes/lookandfeel`** (not merged, not built): two layout
+  `PKGBUILD`s, `halcora-lookandfeel-win` and `halcora-lookandfeel-macos`. They
+  wrap Fluent-kde at `44794f2` and WhiteSur-kde at `cf4df59`, rename each Global
+  Theme to `org.halcora.lookandfeel.*` so the switcher's ids exist, and strip
+  the palette and cursor lines from `contents/defaults` so switching layout does
+  not also switch colour scheme. No `makepkg` run has been attempted; there is no
+  pacman repository to build against yet.
 - **A downloadable ISO**, published as a pre-release:
   - Tag: `prealpha` (a single moving pre-release, replaced on each green build)
   - Asset: `halcora-2026.11.18-x86_64.iso`
