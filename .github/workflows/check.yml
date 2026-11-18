@@ -372,6 +372,32 @@ jobs:
           sys.exit(bad)
           PY
 
+      # KPackage metadata and the featured listing are JSON that Plasma and
+      # Discover read silently: a stray comma makes a theme or a wallpaper simply
+      # not appear, with nothing in any log to say why.
+      - name: JSON files parse
+        run: |
+          python - <<'PY'
+          import glob
+          import json
+          import sys
+
+          bad = 0
+          files = sorted(glob.glob("packages/**/*.json", recursive=True)
+                         + glob.glob("store/*.json"))
+          if not files:
+              print("::warning::no JSON files found")
+              sys.exit(0)
+          for path in files:
+              try:
+                  json.load(open(path))
+              except Exception as exc:  # noqa: BLE001 - report anything
+                  print(f"::error file={path}::{exc}")
+                  bad = 1
+          print(f"parsed {len(files)} JSON file(s)")
+          sys.exit(bad)
+          PY
+
       # Discover ignores a listing it cannot parse, so a malformed featured.json
       # means an empty "Editor's Choice" section and nothing in any log.
       - name: Featured listing is a list of appstream ids
