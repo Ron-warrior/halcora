@@ -27,7 +27,9 @@ makedepends=(
   'xorg-xcursorgen'
   'librsvg'
 )
-source=("whitesur-cursors::git+https://github.com/vinceliuice/WhiteSur-cursors.git#commit=e190baf618ed95ee217d2fd45589bd309b37672b")
+# Alias spelled as the upstream repository, because it is also the checkout
+# directory makepkg uses.
+source=("WhiteSur-cursors::git+https://github.com/vinceliuice/WhiteSur-cursors.git#commit=e190baf618ed95ee217d2fd45589bd309b37672b")
 sha256sums=('SKIP')
 
 build() {

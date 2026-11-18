@@ -24,7 +24,9 @@ depends=()
 # missing binary rather than anything to do with icons. Fluent's installer has
 # `|| true` on the same call, which is why only this package needs it.
 makedepends=('gtk-update-icon-cache')
-source=("whitesur-icon-theme::git+https://github.com/vinceliuice/WhiteSur-icon-theme.git#commit=73d8040da51a9ed74e47c7366e7e9ff437601a5c")
+# Alias spelled as the upstream repository, because it is also the checkout
+# directory makepkg uses.
+source=("WhiteSur-icon-theme::git+https://github.com/vinceliuice/WhiteSur-icon-theme.git#commit=73d8040da51a9ed74e47c7366e7e9ff437601a5c")
 sha256sums=('SKIP')
 
 build() {

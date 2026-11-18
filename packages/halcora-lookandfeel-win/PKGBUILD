@@ -30,7 +30,10 @@ optdepends=(
   'kvantum: the Kvantum widget style the theme sets for Qt applications'
   'halcora-icons-fluent: the Fluent icon theme this Global Theme names'
 )
-source=("fluent-kde::git+https://github.com/vinceliuice/Fluent-kde.git#commit=44794f29c89de994b0179aebabd2f5776c90d236")
+# The source alias is deliberately spelled exactly like the upstream repository,
+# because it is also the directory makepkg checks the tree out into. A shorter or
+# friendlier alias would leave `cd "$srcdir/Fluent-kde"` pointing at nothing.
+source=("Fluent-kde::git+https://github.com/vinceliuice/Fluent-kde.git#commit=44794f29c89de994b0179aebabd2f5776c90d236")
 sha256sums=('SKIP')
 
 # Must match the id in scripts/halcora-layout. The CI check in
@@ -108,4 +111,12 @@ package() {
   # yet: Plasma falls back to the system icons, which is the same result as
   # removing the line, and it needs no guessing about upstream's naming.
   sed -i -e '/^ColorScheme=/d' -e '/^cursorTheme=/d' "$lf/contents/defaults"
+
+  # Point the decoration at the HyperOS-recoloured one from
+  # halcora-theme-hyperos. Only this layout does so: Fluent's decoration geometry
+  # is built for buttons on the right, which is this layout's convention and not
+  # the macOS one's. Without the package installed the reference is a miss and
+  # KWin falls back, which is the same behaviour as naming any absent theme.
+  sed -i 's/^theme=__aurorae__svg__Fluent-dark$/theme=__aurorae__svg__HalcoraHyperOS/' \
+    "$lf/contents/defaults"
 }

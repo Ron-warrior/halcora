@@ -133,6 +133,25 @@ jobs:
           done
           exit "$status"
 
+      # For a git source, makepkg checks the tree out into a directory named after
+      # the source's alias. A friendly alias ("fluent-kde" for Fluent-kde) then
+      # leaves `cd "$srcdir/Fluent-kde"` pointing at nothing, and the build fails
+      # on a missing directory rather than on anything to do with the package.
+      - name: Source alias matches the directory the build uses
+        run: |
+          status=0
+          for f in packages/*/PKGBUILD; do
+            [ -f "$f" ] || continue
+            alias=$(sed -n 's/^source=("\([^:]*\)::.*/\1/p' "$f" | head -n1)
+            [ -n "$alias" ] || continue
+            if ! grep -q "srcdir/$alias" "$f"; then
+              printf '::error file=%s::source alias %s is never used as $srcdir/%s\n' \
+                "$f" "$alias" "$alias"
+              status=1
+            fi
+          done
+          exit "$status"
+
       # A malformed .colors file does not fail a build: KDE simply ignores it
       # and the desktop falls back to Breeze, so the first symptom is a user
       # saying "the theme did nothing". KConfig's format is not quite INI —

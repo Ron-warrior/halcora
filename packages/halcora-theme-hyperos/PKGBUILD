@@ -30,8 +30,9 @@ arch=('any')
 url='https://github.com/Ron-warrior/halcora'
 license=('GPL-3.0-or-later')
 depends=('plasma-workspace')
-source=()
-sha256sums=()
+optdepends=('kwin: the Aurorae window decoration installed here')
+source=("Fluent-kde::git+https://github.com/vinceliuice/Fluent-kde.git#commit=44794f29c89de994b0179aebabd2f5776c90d236")
+sha256sums=('SKIP')
 
 package() {
   # Installed from the repository rather than through source=: these files are
@@ -42,4 +43,30 @@ package() {
     "$pkgdir/usr/share/color-schemes/"
   install -m644 "$startdir/color-schemes/HalcoraHyperOSDark.colors" \
     "$pkgdir/usr/share/color-schemes/"
+
+  # The window decoration, recoloured from Fluent's. This is the one part of the
+  # shape language that can be done without decompressing anything: Aurorae's
+  # SVGs are plain, and their literals were read from upstream rather than
+  # guessed — #dedede for the glyph, #ff8080 and #d35f5f for hover and press.
+  #
+  # The theme is renamed, not overwritten: writing over aurorae/Fluent-dark would
+  # change any other desktop using Fluent, and would be undone by the next
+  # package upgrade.
+  local aur="$pkgdir/usr/share/aurorae/themes/HalcoraHyperOS"
+  install -d "$(dirname "$aur")"
+  cp -a "$srcdir/Fluent-kde/aurorae/Fluent-dark" "$aur"
+
+  # Aurorae requires the rc file to be named after its directory.
+  mv "$aur/Fluent-darkrc" "$aur/HalcoraHyperOSrc"
+
+  sed -i \
+    -e 's/#dedede/#ededf0/g' \
+    -e 's/#ff8080/#d82d3a/g' \
+    -e 's/#d35f5f/#b02430/g' \
+    "$aur"/*.svg
+
+  sed -i \
+    -e 's/^Name=.*/Name=HalcoraHyperOS/' \
+    -e 's/Fluent-dark/HalcoraHyperOS/g' \
+    "$aur/metadata.desktop"
 }

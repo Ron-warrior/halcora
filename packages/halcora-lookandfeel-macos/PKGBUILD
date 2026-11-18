@@ -21,7 +21,9 @@ optdepends=(
   'kvantum: the Kvantum widget style the theme sets for Qt applications'
   'halcora-icons-whitesur: the WhiteSur icon theme this Global Theme names'
 )
-source=("whitesur-kde::git+https://github.com/vinceliuice/WhiteSur-kde.git#commit=cf4df59ce91004f7ea39358b1b8ff917d5c329f7")
+# Alias spelled as the upstream repository, because it is also the checkout
+# directory makepkg uses.
+source=("WhiteSur-kde::git+https://github.com/vinceliuice/WhiteSur-kde.git#commit=cf4df59ce91004f7ea39358b1b8ff917d5c329f7")
 sha256sums=('SKIP')
 
 # Must match the id in scripts/halcora-layout; the CI check fails otherwise.

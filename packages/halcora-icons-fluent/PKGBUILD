@@ -23,7 +23,9 @@ license=('GPL-3.0-or-later')
 # No dependency on gtk-update-icon-cache: upstream calls it opportunistically and
 # tolerates it missing. Plasma builds its own cache.
 depends=()
-source=("fluent-icon-theme::git+https://github.com/vinceliuice/Fluent-icon-theme.git#commit=c8a244f571ef8fb47812bdc9dbce76546cedce69")
+# Alias spelled as the upstream repository, because it is also the checkout
+# directory makepkg uses.
+source=("Fluent-icon-theme::git+https://github.com/vinceliuice/Fluent-icon-theme.git#commit=c8a244f571ef8fb47812bdc9dbce76546cedce69")
 sha256sums=('SKIP')
 
 build() {
