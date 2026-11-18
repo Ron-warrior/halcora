@@ -28,21 +28,27 @@ Derived from the archiso `releng` profile. `mkarchiso` itself is never edited.
 ## Layer 2 — Packages we publish
 
 Thin pacman packages. None of them compile anything; each downloads an upstream
-tree at a pinned commit and installs its files.
+tree at a pinned commit and installs its files, or installs files that are
+already in this repository.
 
-- `halcora-lookandfeel-win` — the Windows layout. Wraps `Fluent-kde`.
-- `halcora-lookandfeel-macos` — the macOS layout. Wraps `WhiteSur-kde`.
+**Status:** the first five exist as recipes on `themes/lookandfeel` and none has
+ever been built. The rest are unwritten.
+
+- `halcora-lookandfeel-win` — Windows layout, wrapping `Fluent-kde`. Renamed to
+  `org.halcora.lookandfeel.win` so the switcher names a layout, not an author.
+- `halcora-lookandfeel-macos` — macOS layout, wrapping `WhiteSur-kde`.
+- `halcora-layout` — installs `scripts/halcora-layout`; depends on both layouts.
+- `halcora-theme-hyperos` — **the half of the design we author that exists.**
+  Two colour schemes, hand-written. The Plasma style, Kvantum style and Aurorae
+  decoration that ADR-4 describes are still to come: today this is a palette,
+  not a shape language.
+- `halcora-branding` — `os-release` and Calamares branding, with a placeholder
+  mark. Deliberately not wired into `settings.conf` yet.
+- `halcora-defaults` — `/etc/skel/.config/kdeglobals`, five lines: the HyperOS
+  palette as the system default, and double-click.
 - `halcora-icons-*`, `halcora-cursors-*` — Fluent and WhiteSur icon and cursor
-  sets, repackaged so a layout switch never leaves a mismatched icon set.
-- `halcora-theme-hyperos` — **the only theme we author.** Forked from
-  Fluent-kde's geometry, recoloured to the HyperOS palette, Inter as the UI
-  face, our own wallpapers. See `DESIGN.md`.
-- `halcora-fonts` — Inter (OFL-1.1). MiSans is *not* included; see `LEGAL.md`.
-- `halcora-branding` — os-release, Plymouth splash, SDDM theme, Calamares
-  branding, wallpaper set.
-- `halcora-defaults` — `/etc/skel`: Plasma defaults, window rules, keybinds we
-  deliberately leave alone, first-run state.
-- `halcora-migrate` — the Windows import tool. See below.
+  sets, so a layout switch never leaves a mismatched icon set. Not written.
+- `halcora-migrate` — the Windows import tool. See below. Not written.
 
 ## Layer 3 — Glue we actually write
 
