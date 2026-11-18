@@ -94,6 +94,13 @@ trust it.
 4. If a layout package builds, `plasma-apply-lookandfeel --list` on a Plasma 6
    machine should show `org.halcora.lookandfeel.win` and `.macos`. That is the
    check that the rename worked, and no CI job can do it.
+5. Once the repository builds, an image that contains the packages is one
+   environment variable away:
+
+       sudo HALCORA_STAGE=… HALCORA_REPO=… ./iso/build.sh
+
+   Without `HALCORA_REPO` the ISO is unchanged, which is why CI can keep
+   building it before any of this works.
 
 ---
 

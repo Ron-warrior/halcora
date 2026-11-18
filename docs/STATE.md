@@ -28,9 +28,11 @@ the commands in `docs/HANDOFF.md` before trusting them.
   - `halcora-layout` ships the switcher to `/usr/bin` and depends on both.
   - `packages/build.sh` runs `makepkg` then `repo-add` into `packages/repo`.
   - **No `makepkg` run has been attempted** and there is no pacman repository in
-    the tree. CI checks only that the recipes parse, that `pkgname` matches the
-    directory, and that every layout id the switcher names is produced by some
-    package.
+    the tree. CI checks only that the packages parse as shell, that each
+    `pkgname` matches its directory, and that every layout id the switcher names
+    is present in some package.
+  - `iso/build.sh` can consume `packages/repo` through `HALCORA_REPO`; with it
+    unset, which is what CI does, the image is unchanged.
 - **A downloadable ISO**, published as a pre-release:
   - Tag: `prealpha` (a single moving pre-release, replaced on each green build)
   - Asset: `halcora-2026.11.18-x86_64.iso`
