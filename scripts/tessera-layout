@@ -1,0 +1,52 @@
+#!/bin/sh
+# tessera-layout — switch the desktop layout.
+#
+# This is the whole feature. Plasma's Global Theme machinery already installs
+# several layouts side by side and swaps them non-interactively, so we
+# orchestrate rather than implement. Roughly thirty lines is the entire cost of
+# what competing distributions advertise as their headline feature.
+#
+#   tessera-layout win     Windows-style layout (the default)
+#   tessera-layout macos   macOS-style layout
+#   tessera-layout --list  list installed Global Themes
+set -eu
+
+win_id=org.tessera.lookandfeel.win
+macos_id=org.tessera.lookandfeel.macos
+
+apply=plasma-apply-lookandfeel
+if ! command -v "$apply" >/dev/null 2>&1; then
+    # Plasma 6 still ships the legacy binary name alongside the new one.
+    apply=lookandfeeltool
+fi
+
+case "${1:-}" in
+    win|windows)
+        id=$win_id
+        ;;
+    macos|mac)
+        id=$macos_id
+        ;;
+    --list|-l|list)
+        exec "$apply" --list
+        ;;
+    *)
+        printf 'usage: %s win|macos|--list\n' "${0##*/}" >&2
+        exit 2
+        ;;
+esac
+
+# --resetLayout replaces the panel layout with the one inside the theme package.
+# Without it, plasma-apply-lookandfeel deliberately leaves the user's own panels
+# alone — correct for browsing themes, wrong for switching layouts.
+"$apply" --apply "$id" --resetLayout
+
+# Window decoration and button positions live in kwinrc, so KWin has to re-read
+# its configuration before the change is actually visible.
+if command -v qdbus6 >/dev/null 2>&1; then
+    qdbus6 org.kde.KWin /KWin reconfigure >/dev/null 2>&1 || true
+elif command -v qdbus >/dev/null 2>&1; then
+    qdbus org.kde.KWin /KWin reconfigure >/dev/null 2>&1 || true
+fi
+
+printf 'Layout: %s\n' "$id"

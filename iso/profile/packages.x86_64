@@ -1,0 +1,90 @@
+# Tessera live image package set.
+# One package per line. Comments are supported.
+# Mandatory for archiso: mkinitcpio, mkinitcpio-archiso, arch-install-scripts.
+# Note: archinstall is deliberately absent; we ship Calamares (see ../README.md).
+
+# --- base system ---
+base
+linux
+linux-firmware
+mkinitcpio
+mkinitcpio-archiso
+arch-install-scripts
+sudo
+nano
+vim
+openssh
+
+# --- filesystems and partitioning ---
+btrfs-progs
+dosfstools
+e2fsprogs
+exfatprogs
+ntfsprogs
+parted
+gptfdisk
+
+# --- boot ---
+grub
+efibootmgr
+
+# --- networking ---
+networkmanager
+plasma-nm
+iwd
+wpa_supplicant
+
+# --- audio ---
+pipewire
+pipewire-alsa
+pipewire-pulse
+pipewire-jack
+wireplumber
+
+# --- desktop ---
+plasma-meta
+sddm
+xdg-desktop-portal-kde
+xdg-user-dirs
+konsole
+dolphin
+kate
+ark
+gwenview
+okular
+spectacle
+kcalc
+udisks2
+gvfs
+gvfs-mtp
+
+# --- bluetooth ---
+bluez
+bluez-utils
+bluez-obex
+
+# --- printing ---
+cups
+print-manager
+
+# --- applications ---
+firefox
+xdg-utils
+
+# --- fonts ---
+noto-fonts
+noto-fonts-emoji
+ttf-liberation
+
+# --- store ---
+discover
+flatpak
+packagekit-qt6
+
+# --- tessera ---
+tessera-defaults
+tessera-fonts
+tessera-branding
+tessera-lookandfeel-win
+tessera-lookandfeel-macos
+tessera-theme-hyperos

@@ -1,0 +1,21 @@
+Tessera is licensed under the GNU General Public License, version 3 or (at your
+option) any later version.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+The full text of the GPL-3.0 is not reproduced in this file. It is available at:
+
+    https://www.gnu.org/licenses/gpl-3.0.txt
+
+TODO(phase-1): vendor the verbatim GPL-3.0 text into this file, since we
+distribute modified GPL-3.0 theme packages (Fluent-kde, WhiteSur-kde) and the
+license requires the text to travel with the work.
+
+Note on the rest of the tree, which is NOT all GPL-3.0:
+
+  - Theme packages we repackage keep their upstream licenses (GPL-3.0 for
+    Fluent-kde, WhiteSur-kde, WhiteSur-icon-theme; MIT for WhiteSur-gtk-theme).
+    See docs/LEGAL.md.
+  - The Inter typeface is SIL Open Font License 1.1.
+  - Nothing from Microsoft, Apple or Xiaomi's own asset libraries is
+    redistributed by this project.

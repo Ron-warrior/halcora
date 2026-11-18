@@ -1,0 +1,22 @@
+# Build output
+out/
+work/
+src/
+pkg/
+*.iso
+*.iso.sha512
+*.iso.sig
+
+# Pacman package artefacts
+*.pkg.tar.zst
+*.pkg.tar.zst.sig
+*.src.tar.gz
+
+# Vendored upstream checkouts (fetched, never committed)
+themes/
+vendor/
+
+# Editor and OS noise
+*.swp
+*~
+.DS_Store
