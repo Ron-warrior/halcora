@@ -17,6 +17,11 @@ nothing.**
   three visible themes on top of hidden `.Fluent*-base` directories joined by
   relative symlinks; `cp -a` preserves those, and copying only the visible
   directories would leave every link broken.
+- `halcora-icons-whitesur` — **written, never built.** The same for the macOS
+  layout (`Theme=WhiteSur-dark`). It passes upstream's `-p` flag
+  unconditionally, which swaps its Apple-logo icon for the KDE Plasma one —
+  without it the tree contains Apple's mark. `docs/LEGAL.md` treats that flag as
+  load-bearing, not cosmetic.
 - `halcora-theme-hyperos` — **palette written, style not.** Two colour schemes,
   light and dark, authored by hand from a first approximation of HyperOS (not
   device-sampled — see the header in each file). The Plasma style, Aurorae

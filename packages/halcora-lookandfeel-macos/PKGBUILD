@@ -19,6 +19,7 @@ depends=('plasma-workspace')
 optdepends=(
   'kwin: Aurorae window decorations, which put the buttons on the left'
   'kvantum: the Kvantum widget style the theme sets for Qt applications'
+  'halcora-icons-whitesur: the WhiteSur icon theme this Global Theme names'
 )
 source=("whitesur-kde::git+https://github.com/vinceliuice/WhiteSur-kde.git#commit=cf4df59ce91004f7ea39358b1b8ff917d5c329f7")
 sha256sums=('SKIP')

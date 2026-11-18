@@ -1,0 +1,41 @@
+# Maintainer: Halcora <noreply@github.com/Ron-warrior>
+#
+# WhiteSur's icon theme, so the macOS layout's Global Theme stops naming an icon
+# theme that does not exist (Theme=WhiteSur-dark in its contents/defaults).
+#
+# -p/--kde-plasma is NOT optional here. Upstream's installer can replace its
+# Apple-logo icon with the KDE Plasma logo, and shipping Apple's logo would be
+# exactly the kind of asset docs/LEGAL.md puts out of bounds. The flag is used
+# unconditionally, and a tree without it would be a legal problem rather than a
+# cosmetic one.
+#
+# Nothing in this file has been built.
+
+pkgname=halcora-icons-whitesur
+pkgver=20260910.73d8040
+pkgrel=1
+pkgdesc='WhiteSur icon theme for the Halcora macOS layout (wraps WhiteSur-icon-theme)'
+arch=('any')
+url='https://github.com/Ron-warrior/halcora'
+license=('GPL-3.0-or-later')
+depends=()
+source=("whitesur-icon-theme::git+https://github.com/vinceliuice/WhiteSur-icon-theme.git#commit=73d8040da51a9ed74e47c7366e7e9ff437601a5c")
+sha256sums=('SKIP')
+
+build() {
+  cd "$srcdir/WhiteSur-icon-theme"
+  # -d stages outside $HOME and outside /usr/share, so nothing on the build
+  # machine is touched. The default variant installs WhiteSur, WhiteSur-light and
+  # WhiteSur-dark; the macOS layout's Global Theme names the dark one.
+  #
+  # No -a (alt icons) and no -w equivalents: one look, not a menu.
+  bash ./install.sh -d "$srcdir/stage/icons" -p
+}
+
+package() {
+  install -d "$pkgdir/usr/share/icons"
+  # Themes are joined by relative symlinks between the three variants, and the
+  # @2x aliases inside each. cp -a preserves both; selecting directories by hand
+  # would break them.
+  cp -a "$srcdir/stage/icons/." "$pkgdir/usr/share/icons/"
+}

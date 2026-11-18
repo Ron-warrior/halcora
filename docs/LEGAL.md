@@ -68,6 +68,11 @@ or the marketing.
 
 ## Open questions to close before a public release
 
+- **Apple's logo inside WhiteSur's icons.** Upstream's icon installer can
+  substitute the KDE Plasma logo for its Apple-logo icon (`-p`, `--kde-plasma`),
+  and `halcora-icons-whitesur` passes that flag unconditionally. **Never remove
+  it.** A WhiteSur tree without `-p` contains Apple's mark, which is the one
+  asset family this project must not ship.
 - WhiteSur-cursors licence.
 - NVIDIA redistribution terms for a preinstalled driver.
 - Whether the HyperOS-derived theme's GPL-3.0 obligation is satisfied by
