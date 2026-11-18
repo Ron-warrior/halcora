@@ -134,13 +134,19 @@ jobs:
             An untested image. Nothing in this repository has been booted on
             real hardware, and the installer has never completed an install.
 
-            What it is: stock Plasma 6 on Wayland with SDDM autologin,
-            NetworkManager, and Calamares unpacking the live squashfs to disk.
-            No Halcora skin — the theme packages do not exist yet, so this is a
-            boot-and-install test, not a design test.
+            What it is: Plasma 6 on **X11** (the live session is X11 on purpose —
+            the installer runs as root and a root Qt application cannot reach a
+            Wayland socket), SDDM autologin, NetworkManager, and Calamares
+            unpacking the live squashfs to disk. The installer can be started
+            from its launcher without a password, which the previous prealpha
+            could not do.
 
-            What it is not: safe for a machine holding another operating
-            system. The installer is erase-disk only.
+            No Halcora skin: the packages are written but this image does not
+            install them, so it looks like stock Plasma. Building one that does
+            means running `packages/build.sh` and setting `HALCORA_REPO`.
+
+            What it is not: safe for a machine holding another operating system.
+            The partitioning page opens on erase-disk.
 
             Known gaps: iso/README.md.
           files: |
