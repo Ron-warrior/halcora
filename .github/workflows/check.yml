@@ -293,6 +293,42 @@ jobs:
           sys.exit(bad)
           PY
 
+      # The same class of failure as the ISO package list, one level down: a
+      # dependency name that does not exist is only discovered when pacman tries
+      # to resolve it, which is after the sources have been fetched. Our own
+      # packages are skipped, since they are not in the repositories yet.
+      - name: Package dependencies exist
+        run: |
+          python - <<'PY'
+          import glob
+          import re
+          import subprocess
+          import sys
+
+          names = set()
+          for path in sorted(glob.glob("packages/*/PKGBUILD")):
+              text = open(path).read()
+              for field in ("depends", "makedepends", "optdepends"):
+                  for block in re.findall(rf"^{field}=\((.*?)\)", text, re.S | re.M):
+                      for entry in re.findall(r"'([^']+)'", block):
+                          name = entry.split(":")[0].strip()
+                          if name.startswith("halcora-"):
+                              continue
+                          if name:
+                              names.add((name, path))
+
+          missing = 0
+          for name, path in sorted(names):
+              result = subprocess.run(["pacman", "-Si", name],
+                                      stdout=subprocess.DEVNULL,
+                                      stderr=subprocess.DEVNULL)
+              if result.returncode != 0:
+                  print(f"::error file={path}::no such package in the repositories: {name}")
+                  missing = 1
+          print(f"checked {len(names)} dependenc{'y' if len(names) == 1 else 'ies'}")
+          sys.exit(missing)
+          PY
+
       # A module config that settings.conf never names is a typo: Calamares loads
       # modules by the names in its sequence, and a misspelled entry silently
       # runs nothing while its .conf sits there looking correct.
