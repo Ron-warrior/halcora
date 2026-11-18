@@ -22,13 +22,14 @@ nothing.**
   unconditionally, which swaps its Apple-logo icon for the KDE Plasma one —
   without it the tree contains Apple's mark. `docs/LEGAL.md` treats that flag as
   load-bearing, not cosmetic.
-- `halcora-theme-hyperos` — **palette written, style not.** Two colour schemes,
-  light and dark, authored by hand from a first approximation of HyperOS (not
-  device-sampled — see the header in each file). The Plasma style, Aurorae
-  decoration and Kvantum style that ADR-4 describes are still to come: a desktop
-  wearing these colours has Fluent's or Breeze's shapes, not HyperOS's. That
-  distinction is the honest state of "the HyperOS theme" and should stay in the
-  docs until the shapes exist.
+- `halcora-theme-hyperos` — **palette and window decoration written, style not.**
+  Two colour schemes, light and dark, authored by hand from a first approximation
+  of HyperOS (not device-sampled — see the header in each file), plus an Aurorae
+  window decoration recoloured from Fluent's. The literals for that were read from
+  upstream's own `close.svg`, so it is evidence rather than a guess. The Plasma
+  style and Kvantum style that ADR-4 also describes are still to come: a desktop
+  wearing these colours still has Fluent's or Breeze's shapes in its panels and
+  menus.
 - `halcora-fonts` — **probably unnecessary.** Inter (OFL-1.1), and nothing else;
   MiSans is never packaged. But `inter-font` is already an Arch package and is
   already in `iso/profile/packages.x86_64`, so a wrapper would be a dependency

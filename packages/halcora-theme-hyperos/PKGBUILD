@@ -7,12 +7,12 @@
 # packages strip ColorScheme= from their Global Themes and this package provides
 # the schemes instead.
 #
-# Scope, stated plainly: this installs colour schemes. It does NOT yet ship a
-# Plasma style or Kvantum style, so a desktop wearing these colours still has
-# Fluent's (or Breeze's) shapes. ADR-4 says this package starts as a recolour of
-# Fluent-kde's geometry; that recolouring is the next step and is not pretended
-# to exist here. Claiming otherwise would make "the HyperOS theme" a lie in the
-# only place a user could check it.
+# Scope, stated plainly: this installs the palette and a recoloured window
+# decoration. It does NOT yet ship a Plasma style or Kvantum style, so a desktop
+# wearing these colours still has Fluent's (or Breeze's) shapes for its panels,
+# menus and Qt widgets. ADR-4 says this package starts as a recolour of Fluent's
+# geometry; that is done for the decoration and not for the rest, and the docs say
+# so rather than letting "the HyperOS theme" imply more than it is.
 #
 # When it is attempted: Fluent's Plasma style lives in
 # plasma/desktoptheme/Fluent/ (the `Fluent-dark` name is made by install.sh) and
@@ -25,7 +25,7 @@
 pkgname=halcora-theme-hyperos
 pkgver=0.1.0
 pkgrel=1
-pkgdesc='Halcora HyperOS colour schemes (palette only; Plasma style not yet)'
+pkgdesc='Halcora HyperOS palette and window decoration (Plasma style still to come)'
 arch=('any')
 url='https://github.com/Ron-warrior/halcora'
 license=('GPL-3.0-or-later')
