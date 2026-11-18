@@ -1,0 +1,39 @@
+# Maintainer: Halcora <noreply@github.com/Ron-warrior>
+#
+# The HyperOS palette: two colour schemes, and nothing else yet.
+#
+# docs/DESIGN.md says the palette lives only here, so that both layouts wear it
+# without either layout package carrying a colour. That is why the layout
+# packages strip ColorScheme= from their Global Themes and this package provides
+# the schemes instead.
+#
+# Scope, stated plainly: this installs colour schemes. It does NOT yet ship a
+# Plasma style or Kvantum style, so a desktop wearing these colours still has
+# Fluent's (or Breeze's) shapes. ADR-4 says this package starts as a recolour of
+# Fluent-kde's geometry; that recolouring is the next step and is not pretended
+# to exist here. Claiming otherwise would make "the HyperOS theme" a lie in the
+# only place a user could check it.
+#
+# Nothing in this file has been built.
+
+pkgname=halcora-theme-hyperos
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Halcora HyperOS colour schemes (palette only; Plasma style not yet)'
+arch=('any')
+url='https://github.com/Ron-warrior/halcora'
+license=('GPL-3.0-or-later')
+depends=('plasma-workspace')
+source=()
+sha256sums=()
+
+package() {
+  # Installed from the repository rather than through source=: these files are
+  # ours, not a download, and a checksum of a file sitting next to the PKGBUILD
+  # verifies nothing. Same reasoning as halcora-layout.
+  install -d "$pkgdir/usr/share/color-schemes"
+  install -m644 "$startdir/color-schemes/HalcoraHyperOSLight.colors" \
+    "$pkgdir/usr/share/color-schemes/"
+  install -m644 "$startdir/color-schemes/HalcoraHyperOSDark.colors" \
+    "$pkgdir/usr/share/color-schemes/"
+}

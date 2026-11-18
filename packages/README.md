@@ -11,9 +11,13 @@ nothing.**
   installed as the Global Theme `org.halcora.lookandfeel.win`.
 - `halcora-lookandfeel-macos` — **written, never built.** Wraps `WhiteSur-kde`
   the same way, installed as `org.halcora.lookandfeel.macos`.
-- `halcora-theme-hyperos` — the authored skin, worn by both layouts. Plasma
-  style, colour schemes (light and dark), Aurorae decoration, Kvantum style,
-  Inter references. Derived from `Fluent-kde`, so GPL-3.0 (ADR-4). **Not written.**
+- `halcora-theme-hyperos` — **palette written, style not.** Two colour schemes,
+  light and dark, authored by hand from a first approximation of HyperOS (not
+  device-sampled — see the header in each file). The Plasma style, Aurorae
+  decoration and Kvantum style that ADR-4 describes are still to come: a desktop
+  wearing these colours has Fluent's or Breeze's shapes, not HyperOS's. That
+  distinction is the honest state of "the HyperOS theme" and should stay in the
+  docs until the shapes exist.
 - `halcora-fonts` — **probably unnecessary.** Inter (OFL-1.1), and nothing else;
   MiSans is never packaged. But `inter-font` is already an Arch package and is
   already in `iso/profile/packages.x86_64`, so a wrapper would be a dependency

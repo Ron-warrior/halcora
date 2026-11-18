@@ -96,11 +96,20 @@ that has never run makes the next failure harder to attribute, not easier.
 
 ## TASK-6 — the HyperOS theme
 
-- [ ] Not started.
+- [ ] Palette written; shapes not started.
 
 The only authored design work. Fork Fluent-kde's geometry, recolour to the
 HyperOS palette, Inter as the UI face. `docs/DESIGN.md` has the rules and
 `docs/DECISIONS.md` ADR-4 has the reasoning.
+
+**Done so far:** `packages/halcora-theme-hyperos/color-schemes/*.colors` —
+light and dark, hand-authored, checked by CI for required keys and R,G,B values.
+That is the half DESIGN.md allows to live outside a layout package, and it means
+both layouts can wear HyperOS colour the moment they ship.
+
+**Still open:** the Plasma style, Kvantum style and Aurorae decoration — the
+shapes. Until they exist this is a palette, not a theme, and the release notes
+must keep saying so.
 
 **Honest expectation:** it will look like recoloured Fluent long before it looks
 like HyperOS. That is expected. Do not stall the queue waiting for beauty.

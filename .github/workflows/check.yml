@@ -133,6 +133,95 @@ jobs:
           done
           exit "$status"
 
+      # A malformed .colors file does not fail a build: KDE simply ignores it
+      # and the desktop falls back to Breeze, so the first symptom is a user
+      # saying "the theme did nothing". KConfig's format is not quite INI —
+      # [Colors:Header][Inactive] is a real section name — so this parses it by
+      # hand rather than with configparser, which would mangle that.
+      - name: Colour schemes are well formed
+        run: |
+          python - <<'PY'
+          import glob
+          import re
+          import sys
+
+          required = ("BackgroundNormal", "DecorationFocus", "DecorationHover",
+                      "ForegroundNormal")
+
+          bad = 0
+          files = sorted(glob.glob("packages/*/color-schemes/*.colors"))
+          if not files:
+              print("::error::no .colors files found")
+              sys.exit(1)
+
+          for path in files:
+              sections = {}
+              current = None
+              for number, raw in enumerate(open(path), 1):
+                  line = raw.strip()
+                  if not line or line.startswith("#") or line.startswith(";"):
+                      continue
+                  if line.startswith("[") and line.endswith("]"):
+                      current = line[1:-1]
+                      sections.setdefault(current, {})
+                      continue
+                  if "=" not in line:
+                      print(f"::error file={path},line={number}::not a key=value line")
+                      bad = 1
+                      continue
+                  key, value = line.split("=", 1)
+                  if current is None:
+                      print(f"::error file={path},line={number}::key outside a section")
+                      bad = 1
+                      continue
+                  sections[current][key.strip()] = value.strip()
+
+              for name in ("General", "Colors:Window", "Colors:View",
+                           "Colors:Button", "Colors:Selection"):
+                  if name not in sections:
+                      print(f"::error file={path}::missing section [{name}]")
+                      bad = 1
+
+              for name, keys in sections.items():
+                  if not name.startswith("Colors:"):
+                      continue
+                  for key in required:
+                      if key not in keys:
+                          print(f"::error file={path}::[{name}] missing {key}")
+                          bad = 1
+                  for key, value in keys.items():
+                      if not re.fullmatch(r"\d+,\d+,\d+(,\d+)?", value):
+                          print(f"::error file={path}::[{name}] {key}={value} is not "
+                                f"an R,G,B triple")
+                          bad = 1
+
+              general = sections.get("General", {})
+              if "Name" not in general:
+                  print(f"::error file={path}::[General] has no Name")
+                  bad = 1
+
+          print(f"checked {len(files)} colour scheme(s)")
+          sys.exit(bad)
+          PY
+
+      # docs/DESIGN.md: the palette lives in halcora-theme-hyperos and nowhere
+      # else, or a layout could not wear it without layout code changing. This is
+      # the cheapest possible guard for that rule: no literal #rrggbb outside the
+      # one directory allowed to have them.
+      - name: The palette lives only in the HyperOS theme
+        run: |
+          status=0
+          found=$(grep -rIlE '#[0-9A-Fa-f]{6}' \
+                    iso packages scripts 2>/dev/null \
+                  | grep -v '^packages/halcora-theme-hyperos/' || true)
+          if [ -n "$found" ]; then
+            for f in $found; do
+              printf '::error file=%s::hard-coded colour outside halcora-theme-hyperos\n' "$f"
+              status=1
+            done
+          fi
+          exit "$status"
+
       - name: Calamares configuration parses
         run: |
           python - <<'PY'
