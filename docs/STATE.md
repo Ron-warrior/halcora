@@ -135,3 +135,27 @@ Three real CI failures so far, all instructive:
 
 Both were caught by CI, not by reading carefully. That is the expected shape of
 progress here: push, read the log, fix the named thing.
+
+
+## Fixed by reading, never by running
+
+Four things in the live image were wrong in ways that would have looked like "it
+just doesn't work". All four fixes are unverified:
+
+1. **The installer could not open.** The live session was Wayland, and Calamares
+   runs as root through pkexec, which cannot reach a user's Wayland socket. The
+   live session is X11 now, and `halcora-installer` grants root X access for the
+   installer's lifetime and revokes it after.
+2. **pkexec had no password to ask for.** The live account has none. A polkit rule
+   allows that one user to run calamares, and nothing else.
+3. **The locale did not exist.** `LANG` was `en_GB.UTF-8`; archiso's releng
+   profile generates only `en_US`.
+4. **Partitioning did not default to erase.** The comment said it did; nothing set
+   it. `initialPartitioningChoice` now does.
+
+Plus two smaller ones: the autologin group the Calamares `users` module requires
+did not exist, and `halcora-layout` was shipped twice with `/usr/local/bin`
+shadowing the packaged copy.
+
+Every one of these is a claim from reading, not from a boot. `docs/TESTING.md` is
+how they get proven.
