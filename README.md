@@ -76,14 +76,30 @@ current list of known gaps are in `iso/README.md`.
 
 ## Where to read next
 
+**If you are an AI agent picking this up:** start at `AGENTS.md`, then
+`docs/STATE.md` and `docs/TASKS.md`. Those three exist precisely so you do not
+have to reconstruct the situation from the rest of the tree.
+
+- `AGENTS.md` — rules for agents, and the loop you are working in
+- `docs/STATE.md` — verified current state, with dates. Update it when you finish
+- `docs/TASKS.md` — the ordered queue; do the first unfinished task only
+- `docs/HANDOFF.md` — procedures, failure-to-action table, glossary
+- `docs/TESTING.md` — the human's boot and install protocol
+- `docs/PROMPTS.md` — copy-paste prompts for starting a session
 - `docs/VISION.md` — who it is for and what "friendly" concretely means
 - `docs/ARCHITECTURE.md` — the layers, and which upstream owns each
 - `docs/REUSE.md` — the borrow ledger: every component, its licence, its pin
 - `docs/DESIGN.md` — the visual spec and layout component mapping
 - `docs/DECISIONS.md` — the settled decisions and why, including what was closed off
-- `docs/ROADMAP.md` — phases, rewritten around the ISO-first order
+- `docs/ROADMAP.md` — phases, ordered ISO-first
 - `docs/LEGAL.md` — what we may redistribute, and the three things we may not
 - `iso/README.md` — how the image is built and what is still missing from it
+
+## Status
+
+An ISO is published as a moving `prealpha` pre-release and can be downloaded.
+**It has never been booted.** See `docs/STATE.md` for what that does and does not
+mean, and `docs/TESTING.md` if you are the person who can change that.
 
 ## License
 
