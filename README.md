@@ -85,6 +85,7 @@ have to reconstruct the situation from the rest of the tree.
 
 - `AGENTS.md` — rules for agents, and the loop you are working in
 - `docs/STATE.md` — verified current state, with dates. Update it when you finish
+- `docs/BUILDING.md` — the four steps from clone to a desktop, in order
 - `docs/TASKS.md` — the ordered queue; do the first unfinished task only
 - `docs/HANDOFF.md` — procedures, failure-to-action table, glossary
 - `docs/TESTING.md` — the human's boot and install protocol
