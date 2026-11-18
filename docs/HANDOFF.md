@@ -90,6 +90,11 @@ trust it.
   fixed by invoking `bash ./iso/build.sh`. Do not re-add a bare `./`.
 - **`error: target not found: NAME`** — that package name does not exist or is
   misspelled. Check on archlinux.org. Do not guess a near-miss.
+- **`error: target not found` for a package that certainly exists, and the job
+  dies in about ten seconds** — you are in the `Check` workflow and it ran a
+  `pacman -S` before a `pacman -Sy`. `archlinux:latest` ships no package
+  databases at all. The first pacman command in that workflow must sync them.
+  Do not "fix" this by adding the package to a list.
 - **`No such file: /…` in `file_permissions`** — you listed a path that is not in
   the profile. Add the file, or drop the entry.
 - **`syslinux.cfg`/BIOS boot errors** — `bootmodes` includes `bios.syslinux`, so

@@ -29,11 +29,17 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      # Same keyring dance as the ISO workflow. A bare "pacman -Sy" against a
-      # stale keyring is a partial upgrade and fails on signatures.
+      # archlinux:latest ships no package databases, so the first command has to
+      # sync them. Without -Sy, "archlinux-keyring" is not merely stale, it is
+      # "error: target not found", and the job dies in twelve seconds before
+      # checking anything. That was this workflow's first failure.
+      #
+      # The order after that also matters: syncing and then scattering installs
+      # is a partial upgrade that fails on signatures, so the keyring is updated
+      # first and the full upgrade follows.
       - name: Install tools
         run: |
-          pacman -S --noconfirm archlinux-keyring
+          pacman -Sy --noconfirm --needed archlinux-keyring
           pacman -Syu --noconfirm
           pacman -S --noconfirm --needed git python-yaml shellcheck
 

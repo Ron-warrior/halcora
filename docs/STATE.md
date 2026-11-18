@@ -7,8 +7,9 @@ If you are an agent reading this and the numbers look stale, re-verify them with
 the commands in `docs/HANDOFF.md` before trusting them.
 
     Last verified: 2026-11-18
-    Commit:        33fee82  (Add syslinux to ISO package list)
-    Verified by:   reading git status/log and the GitHub releases API
+    Commit:        the one containing this file
+    Last commit with a known-green ISO: 33fee82
+    Verified by:   git log/status, the GitHub Actions API, one job log
     Tested by anyone: NO
 
 ---
@@ -16,15 +17,21 @@ the commands in `docs/HANDOFF.md` before trusting them.
 ## What actually exists
 
 - **Repository**: https://github.com/Ron-warrior/halcora — public, GPL-3.0.
-- **Four commits**, all pushed, working tree clean.
+- **Six commits**, all pushed, working tree clean.
 - **A downloadable ISO**, published as a pre-release:
   - Tag: `prealpha` (a single moving pre-release, replaced on each green build)
   - Asset: `halcora-2026.11.18-x86_64.iso`
   - Size: 2,024,570,880 bytes (1.885 GiB)
   - SHA-256: `52e6eb90b8c492c5b2584ea339b11c7c3aab001d012185c3d8c50367a97811d1`
   - Built from commit `33fee82`
-- **CI**: `.github/workflows/iso.yml`, 148 lines. Builds Calamares from source on
-  Arch, then `mkarchiso`, then publishes the release. Green as of `33fee82`.
+- **CI, build**: `.github/workflows/iso.yml`, 148 lines. Builds Calamares from
+  source on Arch, then `mkarchiso`, then publishes the release. Green as of
+  `33fee82`.
+- **CI, guard**: `.github/workflows/check.yml`, 131 lines. Unprivileged, about
+  two minutes: every package name exists, the scripts parse, the Calamares YAML
+  loads, and `install_dir` matches `unpackfs.conf`. It failed on its first run —
+  `archlinux:latest` ships no pacman databases — and that is fixed. Expected to
+  go green, not yet observed green.
 
 ## What has never happened
 
@@ -71,12 +78,16 @@ the fast check workflow. Anything else risks muddying the first real test.
 
 ## Failure history
 
-Two real CI failures so far, both instructive:
+Three real CI failures so far, all instructive:
 
 1. `./iso/build.sh` exited 126: the executable bit does not survive checkout.
    Fixed by invoking `bash ./iso/build.sh`.
 2. The ISO build failed because `syslinux` was missing from the package list:
    `bootmodes` includes `bios.syslinux`. Fixed in `33fee82`.
+3. The `Check` workflow failed in twelve seconds with `error: target not found:
+   archlinux-keyring` — a package that obviously exists. `archlinux:latest`
+   ships no pacman databases, and the step ran `pacman -S` before any `pacman
+   -Sy`. Fixed by syncing first.
 
 Both were caught by CI, not by reading carefully. That is the expected shape of
 progress here: push, read the log, fix the named thing.
