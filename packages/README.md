@@ -36,11 +36,18 @@ nothing.**
   with our name on it and nothing else. Delete this entry rather than write it
   unless a real reason appears.
 - `halcora-branding` — **written, never built, not wired in.** `os-release`, a
-  Calamares branding directory with a placeholder mark, and two authored vector
-  wallpapers. `settings.conf` still says `branding: default` on purpose:
-  changing what the installer looks like before the first boot test would blur
-  that test's result, and installing this package would also change
-  `/etc/os-release`.
+  Calamares branding directory with a placeholder mark, two authored vector
+  wallpapers, and the store's featured listing. `settings.conf` still says
+  `branding: default` on purpose: changing what the installer looks like before
+  the first boot test would blur that test's result, and installing this package
+  would also change `/etc/os-release`.
+
+  **No Plymouth splash, deliberately.** One was written and then deleted: a
+  splash theme is boot-critical — a mistake is a black screen where a boot message
+  should be — and Plymouth's script API is not something that can be got right
+  without watching it boot once. Writing it blind would have been the one place in
+  this repository where an unverified guess could cost a machine its ability to
+  report an error.
 - `halcora-cursors-whitesur` — **written, never built.** The only package here
   that compiles anything: upstream has no install script, only a `build.sh` that
   rasterises SVGs with `rsvg-convert` and packs them with `xcursorgen`. Upstream's
