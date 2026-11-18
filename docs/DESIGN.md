@@ -108,3 +108,8 @@ it is the highest-effort, lowest-visibility work in the project.
 Xiaomi's wallpapers are not ours to redistribute. Author our own in the same
 idiom: soft gradients, a single focal object, no text, no logos. Six images
 minimum (two per layout, light and dark).
+
+Two exist, in `packages/halcora-branding/wallpapers/`: `halcora-light.svg` and
+`halcora-dark.svg`. They are vector, so they re-render at any resolution and can
+be edited as text. The other four are layout-specific and there is nothing yet to
+differentiate them by, so they wait for the layouts to actually be visible.

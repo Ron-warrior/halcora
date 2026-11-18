@@ -34,10 +34,17 @@ nothing.**
   already in `iso/profile/packages.x86_64`, so a wrapper would be a dependency
   with our name on it and nothing else. Delete this entry rather than write it
   unless a real reason appears.
-- `halcora-branding` — **written, never built, not wired in.** `os-release` and
-  a Calamares branding directory with a placeholder mark. `settings.conf` still
-  says `branding: default` on purpose: changing what the installer looks like
-  before the first boot test would blur that test's result.
+- `halcora-branding` — **written, never built, not wired in.** `os-release`, a
+  Calamares branding directory with a placeholder mark, and two authored vector
+  wallpapers. `settings.conf` still says `branding: default` on purpose:
+  changing what the installer looks like before the first boot test would blur
+  that test's result, and installing this package would also change
+  `/etc/os-release`.
+- `halcora-cursors-whitesur` — **written, never built.** The only package here
+  that compiles anything: upstream has no install script, only a `build.sh` that
+  rasterises SVGs with `rsvg-convert` and packs them with `xcursorgen`. Upstream's
+  script is reimplemented rather than called, because it clones an unpinned
+  helper repository and `sudo`-installs missing tools.
 - `halcora-defaults` — **written, never built.** `/etc/skel/.config/kdeglobals`
   with two keys and no more: the HyperOS colour scheme (because the layout
   packages carry no palette), and double-click, stated explicitly because it is
