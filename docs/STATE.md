@@ -152,10 +152,17 @@ just doesn't work". All four fixes are unverified:
    profile generates only `en_US`.
 4. **Partitioning did not default to erase.** The comment said it did; nothing set
    it. `initialPartitioningChoice` now does.
+5. **The switcher's KWin reload did nothing.** It calls `qdbus6`, and `qt6-tools`
+   — which provides it — was in no package list. The call is guarded by `|| true`,
+   so the window buttons kept the old decoration until the next login.
+6. **The first-run dialog could abort the script.** Under `set -e`, closing the
+   window returned 1 from a test that was the last command of its branch.
 
-Plus two smaller ones: the autologin group the Calamares `users` module requires
-did not exist, and `halcora-layout` was shipped twice with `/usr/local/bin`
-shadowing the packaged copy.
+Plus three smaller ones: the autologin group the Calamares `users` module
+requires did not exist, the migration tool mounted a disk as a non-root user,
+`halcora-layout` was shipped twice with `/usr/local/bin` shadowing the packaged
+copy, and the polkit rule would have granted root to `/usr/bin/env` rather than to
+the installer.
 
 Every one of these is a claim from reading, not from a boot. `docs/TESTING.md` is
 how they get proven.
