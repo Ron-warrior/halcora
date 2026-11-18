@@ -16,7 +16,15 @@ information out of it rather than "it didn't work".
 - A USB stick, 4 GB or more.
 - The ISO: https://github.com/Ron-warrior/halcora/releases/tag/prealpha
 - Optional but very useful: a phone camera.
-- If you can, note the machine's GPU and whether it has Secure Boot enabled.
+- Note the machine's GPU, and **check whether Secure Boot is on**.
+
+On Secure Boot: this image is not signed, so with Secure Boot enabled the
+firmware will refuse to boot it at all and you will get the machine's own "no
+bootable device" or "security violation" message rather than anything from
+Halcora. That is not a Halcora bug and there is nothing to debug. Turn it off
+in the firmware settings (often `Secure Boot`, `Security`, or `Boot`), or expect
+to stop at that message. Report which of the two happened; it is genuinely
+useful.
 
 Verify the download first:
 
@@ -62,6 +70,33 @@ Only on a sacrificial disk.
 6. If **not** bootable: is there a GRUB menu at all, or a black screen, or
    `grub>`? That distinction is the single most valuable thing in the report.
 
+## If it does not boot at all
+
+The shape of the failure is worth more than the failure. These four are
+different problems with different fixes, and telling them apart takes one
+sentence:
+
+1. **The firmware message, no boot menu.** Nothing from Halcora appears. Suspect
+   Secure Boot first (above), then how the stick was written (Rufus must be in
+   DD mode).
+2. **The boot menu appears, then the screen goes black or the machine restarts.**
+   Boot the second menu entry instead and photograph the last lines of text
+   before it dies.
+3. **It reaches `archiso#` or a login prompt on a black screen.** This is the
+   *most informative* outcome: the live system works and the graphical session
+   did not start. Photograph that screen. It means the kernel, the squashfs and
+   the accounts are all fine and the problem is small.
+4. **The menu appears and nothing is selectable, or the menu never times out.**
+   Say so; that is the bootloader configuration, not the hardware.
+
+If you can get a shell at any point — outcome 3 gives you one — this single
+command is the most useful thing you can send back:
+
+    journalctl -b -p err --no-pager
+
+Copy the output, or photograph the screen. It is worth more than the rest of the
+report put together.
+
 ## Report template
 
 Copy this, fill it in, send it back verbatim. Skim-reading a vague description
@@ -78,6 +113,7 @@ costs the agent a 40-minute build cycle.
     Sound:          (yes/no)
     Dolphin:        (opens? home shown?)
     Installer:      (opens? which screen did it stop on?)
+    journalctl -b -p err:  (paste, or "no shell available")
 
     First thing that went wrong:
     Exact text of any error, if there is one:
