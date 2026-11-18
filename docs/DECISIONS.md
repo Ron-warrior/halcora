@@ -181,3 +181,34 @@ a checksum, so `SKIP` is the honest value rather than a shortcut. When a machine
 that can run `updpkgsums` exists, switch to the archive form, which is lighter to
 download.
 **Closed off:** tracking a branch or a tag, and any checksum written by hand.
+
+
+## ADR-16 — An offline installer cannot fetch a driver
+
+**Decision:** no automatic driver installation at install time. The second UEFI
+boot entry exists, the NVIDIA packages stay out of the image, and installing the
+proprietary driver is a documented step after first boot until there is a way to
+pay for it.
+
+**Why:** ADR-8 said "install `nvidia-open` via `chwd` during installation". That
+assumes the installer can fetch packages. Ours cannot: Calamares unpacks the live
+squashfs and downloads nothing, which is the property `iso/README.md` and
+`ADR-0` both lean on. The three ways out, none of them free:
+
+- **Put the driver in the image.** `nvidia-open` plus `nvidia-utils` is a few
+  hundred megabytes, and the ISO has 117 MiB of headroom under GitHub's 2 GiB
+  release-asset limit. It would also ship the driver to every user, including the
+  ones whose hardware must keep nouveau.
+- **Make that one step network-dependent.** Honest, but it breaks "an offline
+  install is the least surprising thing an installer can do", and it fails on the
+  machine with a Broadcom or Realtek Wi-Fi card and no wired network — which is
+  exactly the machine a Windows refugee has.
+- **A second ISO variant** with the driver included. Doubles the build and the
+  release surface, and doubles what has to be tested.
+
+**Closed off:** quietly adding `nvidia-open` to the package list because the
+target machine happens to have an RTX 2060. The image is for everyone.
+
+**Open:** which of the three to take. It should be decided after a first install
+succeeds, because the answer depends on how the installer behaves on the target
+machine, and nothing about that is known yet.
