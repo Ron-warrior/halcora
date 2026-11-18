@@ -65,6 +65,13 @@ package() {
     -e 's/#d35f5f/#b02430/g' \
     "$aur"/*.svg
 
+  # A sed that matches nothing leaves Fluent's greys in place and the package
+  # still builds. Assert that the literals actually changed.
+  if grep -q '#dedede' "$aur"/*.svg; then
+    printf 'ERROR: the decoration still contains Fluent %s\n' '#dedede' >&2
+    return 1
+  fi
+
   sed -i \
     -e 's/^Name=.*/Name=HalcoraHyperOS/' \
     -e 's/Fluent-dark/HalcoraHyperOS/g' \
@@ -106,6 +113,14 @@ package() {
     mv "$kv/FluentDark.svg" "$kv/HalcoraHyperOSDark.svg"
   fi
   mv "$kv/Fluent.kvconfig" "$kv/HalcoraHyperOS.kvconfig"
+
+  # Same assertion as the decoration: the accent is the one colour that must have
+  # changed, and a silent no-op here means Qt applications keep Fluent's blue.
+  if ! grep -q '#3482FF' "$kv/HalcoraHyperOS.kvconfig"; then
+    printf 'ERROR: the Kvantum config has no #3482FF; the recolour matched nothing\n' >&2
+    printf 'Upstream likely changed its GeneralColors values. Fix the sed, not this check.\n' >&2
+    return 1
+  fi
 
   # The Plasma style: the shapes of panels, menus and popups.
   #
