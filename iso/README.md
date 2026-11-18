@@ -85,3 +85,10 @@ message rather than letting the upload fail as an opaque 422.
 5. **The installed system carries live-session leftovers** — the `live` account,
    the installer's desktop entry, the SDDM autologin. A Calamares `shellprocess`
    cleanup step is the fix, and it is not written yet.
+6. **Some Calamares keys are unverified.** `initialPartitioningChoice` and
+   `autologinGroup` are documented keys and are now set deliberately, but
+   `efiBootLoader: grub` with `efiSystemPartition: "/boot"` implies a `kernel:`
+   path that depends on where the ESP is mounted, and that combination has never
+   been run. If the first install produces a disk that boots to `grub>`, look
+   there first: the kernel path is right for one of `/boot` and `/efi` and wrong
+   for the other, and nobody has seen which.
