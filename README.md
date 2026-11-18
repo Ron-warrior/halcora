@@ -41,10 +41,11 @@ for why that matters and what still needs checking before anything is public.
   image tooling, app store, two of the three visual themes, the GPU detection
   tool, the file manager, the migration logic. Enumerated with licences and
   pinning strategy in `docs/REUSE.md`.
-- **Authored:** one theme (HyperOS — no Plasma version exists), our own
-  wallpapers and branding, a migration assistant, and the thin glue between
-  them. Right now: two shell scripts, one archiso profile delta, and the
-  Calamares configuration.
+- **Authored:** the HyperOS palette, a recoloured window decoration and Kvantum
+  configuration, two wallpapers, one first-run question, the migration assistant
+  (not yet written), and the thin glue between all of it. Right now: two shell
+  scripts, the palette, the decoration, two SVG wallpapers and the Calamares
+  configuration.
 
 ## The three visual identities, stacked rather than mixed
 

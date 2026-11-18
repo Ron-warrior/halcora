@@ -39,9 +39,11 @@ ever been built. The rest are unwritten.
 - `halcora-lookandfeel-macos` — macOS layout, wrapping `WhiteSur-kde`.
 - `halcora-layout` — installs `scripts/halcora-layout`; depends on both layouts.
 - `halcora-theme-hyperos` — **the half of the design we author that exists.**
-  Two colour schemes, hand-written. The Plasma style, Kvantum style and Aurorae
-  decoration that ADR-4 describes are still to come: today this is a palette,
-  not a shape language.
+  Two colour schemes, a recoloured Aurorae decoration and a recoloured Kvantum
+  configuration, all hand-written from upstream values that were read rather than
+  guessed. The Plasma style — the shapes of panels and menus — is still Fluent's:
+  its files are gzipped, so recolouring it needs a machine that can decompress
+  them.
 - `halcora-branding` — `os-release` and Calamares branding, with a placeholder
   mark. Deliberately not wired into `settings.conf` yet.
 - `halcora-defaults` — `/etc/skel/.config/kdeglobals`, five lines: the HyperOS
