@@ -5,8 +5,9 @@ A Linux desktop distribution that **looks like Xiaomi HyperOS**, ships a
 and is built to be unthreatening to people arriving from Windows.
 
 Status: **the live ISO builds in CI and is downloadable, and has never been
-booted.** The installer has never completed an install. The theme packages exist
-as recipes on the `themes/lookandfeel` branch and have never been built, so the
+booted.** The installer has never completed an install. Eleven packages exist on
+`main` — the layouts, the HyperOS theme, icons, cursors, branding, a first-run
+question and a migration tool — and **none of them has been built**, so the
 current image is a boot-and-install test, not a design test.
 
 ---
