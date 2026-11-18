@@ -211,7 +211,9 @@ jobs:
       #
       # halcora-branding is allowed because a logo's own colours are brand
       # assets, not a themeable palette — there is nothing to re-skin there.
-      # Every other hex belongs in the theme package.
+      # os-release's ANSI_COLOR is an escape sequence for terminal prompts, not a
+      # UI colour, so it is outside this guard by design. Every #rrggbb belongs
+      # in the theme package.
       - name: The palette lives only in the HyperOS theme
         run: |
           status=0
