@@ -66,8 +66,10 @@ This should stay small. If it grows past a few hundred lines outside
 - `halcora-migrate` — a Calamares module plus an import script. Mounts the
   Windows volume **read-only**, refuses dirty volumes rather than forcing them
   (Fast Startup leaves them dirty and `ntfs3` has no fsck), copies user data
-  from a list, and defers browser profile import to the browsers' own first-run
-  importers. The rsync lists are lifted from `jackjumpinc/migratepc`.
+  from a fixed list of six folders, and defers browser profile import to the
+  browsers' own first-run importers. The script exists and works alone; the
+  Calamares module around it does not. No code is lifted from `migratepc` —
+  what was borrowed is the read-only discipline, not its file lists.
 
 ## Deliberate absences
 
