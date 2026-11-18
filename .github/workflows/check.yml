@@ -426,6 +426,26 @@ jobs:
           sys.exit(bad)
           PY
 
+      # iso/build.sh appends a hard-coded list of our packages to the profile. A
+      # renamed or removed package there fails at pacman time, forty minutes in,
+      # naming a package that no longer exists.
+      - name: The image's package list matches packages that exist
+        run: |
+          status=0
+          names=$(grep -oE 'halcora-[a-z0-9-]+' iso/build.sh | sort -u)
+          if [ -z "$names" ]; then
+            echo '::warning::no halcora packages named in iso/build.sh'
+            exit 0
+          fi
+          for name in $names; do
+            if [ ! -f "packages/$name/PKGBUILD" ]; then
+              printf '::error file=iso/build.sh::no such package directory: %s\n' "$name"
+              status=1
+            fi
+          done
+          printf 'checked %s package name(s)\n' "$(printf '%s\n' $names | wc -l)"
+          exit "$status"
+
       # install_dir is duplicated into unpackfs.conf by hand. If they diverge,
       # every install produces an unbootable disk and the error surfaces only
       # after a reboot on real hardware.
