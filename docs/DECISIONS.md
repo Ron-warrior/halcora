@@ -139,3 +139,45 @@ product names may not.
 proves they can be shipped. Windows wallpapers, icons, logos and the word
 "Windows" in the product are a legal and reputational hazard — see `LEGAL.md`.
 **Closed off:** any "Windows-compatible" marketing, in any wording.
+
+
+## ADR-13 — A layout is our id wrapped around someone else's theme
+
+**Decision:** `halcora-lookandfeel-win` and `-macos` rename upstream's Global
+Theme to `org.halcora.lookandfeel.win` / `.macos`, rather than exposing
+`com.github.vinceliuice.…` and pointing the switcher at that.
+**Why:** `scripts/halcora-layout` is the product's flagship feature and it should
+name a *layout*, not a theme author. With our ids, the upstream theme providing a
+layout can be replaced — Fluent replaced by a HyperOS-flavoured fork, or by
+something better later — without touching the switcher, the docs, or anything a
+user has saved. It also keeps the two packages interchangeable rather than making
+one of them the one true Windows theme.
+**Closed off:** pointing the switcher at upstream ids directly.
+
+## ADR-14 — A layout package carries no palette
+
+**Decision:** the layout packages delete `ColorScheme=` and `cursorTheme=` from
+the Global Theme's `contents/defaults`, and do not install upstream's `.colors`
+files at all.
+**Why:** `DESIGN.md` gives the palette to `halcora-theme-hyperos` exclusively, so
+that the macOS layout can wear it without layout code changing. A Global Theme
+that also sets a colour scheme silently makes "switch layout" mean "switch
+light/dark", which is exactly the averaged behaviour the design rules forbid. The
+cursor line is removed for a narrower reason: it names a cursor set these packages
+do not ship, so it would be a promise the system cannot keep.
+**Open:** the icon theme line is left in place and Plasma falls back. Folding
+`Fluent-icon-theme` and `WhiteSur-cursors` in is follow-up work.
+**Closed off:** bundling a palette into a layout.
+
+## ADR-15 — Pin a commit; a checksum is optional, a guess is not
+
+**Decision:** every package pins an upstream commit. The source may be a git
+repository at `#commit=<sha>` with `sha256sums=('SKIP')`, or an archive tarball
+with a real checksum — whichever the maintainer can actually verify.
+**Why:** this repository is maintained from a device with no shell. A tarball
+`source=` requires a `sha256sums` entry, and inventing one is worse than not
+having one: it looks verified. A commit-pinned git source is reproducible without
+a checksum, so `SKIP` is the honest value rather than a shortcut. When a machine
+that can run `updpkgsums` exists, switch to the archive form, which is lighter to
+download.
+**Closed off:** tracking a branch or a tag, and any checksum written by hand.
