@@ -24,9 +24,8 @@ fi
 mkdir -p "$(dirname "$marker")"
 : >"$marker"
 
-if kdialog --title 'Welcome to Halcora' --yesno \
-    'Start with the Windows-style layout?\n\nChoose No for the macOS-style layout. You can switch at any time with halcora-layout.' \
-    --yes-label 'Windows' --no-label 'macOS'
+if kdialog --title 'Welcome to Halcora' --yes-label 'Windows' --no-label 'macOS' --yesno \
+    'Start with the Windows-style layout?\n\nChoose No for the macOS-style layout. You can switch at any time with halcora-layout.'
 then
     halcora-layout win || true
 else

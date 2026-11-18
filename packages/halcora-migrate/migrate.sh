@@ -63,10 +63,14 @@ if ! command -v ntfsfix >/dev/null 2>&1; then
     exit 1
 fi
 
-state=$(ntfsfix --info "$device" 2>&1 || true)
+# ntfsfix -n is a no-action run: it reports what it would do and changes nothing.
+# It is the only tool in the NTFS set that will tell us whether the volume is
+# dirty without mounting it.
+state=$(ntfsfix -n "$device" 2>&1 || true)
 case "$state" in
-    *"not a valid NTFS"*)
-        echo "$device does not look like NTFS." >&2
+    *"not a valid NTFS"*|*"failed to read"*)
+        echo "$device does not look like an intact NTFS volume:" >&2
+        printf '%s\n' "$state" >&2
         exit 1
         ;;
 esac
