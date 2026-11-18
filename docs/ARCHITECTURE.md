@@ -12,16 +12,21 @@ piece of layer 3 must justify its existence against something that already works
 - **Installer** — Calamares. Configuration only.
 - **Live image** — archiso. Profile only, `mkarchiso` unmodified.
 - **App store** — KDE Discover + Flatpak. Configuration only.
-- **GPU detection** — `chwd`. Called, not modified.
+- **GPU detection** — `chwd`, when it is used. Not currently called at all: it is
+  not in any pacman repository, the installer is offline, and ADR-16 records the
+  three ways to resolve that. Until one is chosen, no driver is installed
+  automatically.
 - **Applications** — Dolphin, Kate, Firefox, Konsole and the rest. Shipped as
   they are.
 
 ## Layer 1 — Distribution configuration
 
 Everything in `iso/profile/` is an archiso profile: naming, the package list,
-`pacman.conf` pointing at Arch plus our own repo, and an `airootfs` overlay that
-drops files into the live system before packaging (os-release, skel files,
-enabled systemd units, the Discover featured-listing config, Calamares config).
+`pacman.conf` (pointing at Arch, plus our own repository when `HALCORA_REPO` is
+set), and an `airootfs` overlay that drops files into the live system before
+packaging (os-release, skel files, enabled systemd units, the Discover
+featured-listing config, Calamares config and its launcher, the polkit rule that
+lets the live account run the installer).
 
 Derived from the archiso `releng` profile. `mkarchiso` itself is never edited.
 
