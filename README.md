@@ -104,6 +104,10 @@ have to reconstruct the situation from the rest of the tree.
 
 An ISO is published as a moving `prealpha` pre-release. On Windows, download
 `Halcora.exe` from that release and double-click it; see `windows/README.md`.
+
+`index.html` is a browser mirror of the same resource-sizing rule, with five
+self-checks that run on load. It does not boot anything — a browser cannot — and
+exists so the rule can be read and tested anywhere, including on a phone.
 **It has never been booted.** See `docs/STATE.md` for what that does and does not
 mean, and `docs/TESTING.md` if you are the person who can change that.
 

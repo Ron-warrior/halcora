@@ -198,3 +198,35 @@ how they get proven.
   under WHPX (QEMU falls back to TCG if not); whether the single-file executable
   starts on a machine with no .NET runtime (it should, it is self-contained).
 
+## The browser mirror (`index.html`)
+
+- The repository is tagged as a web app, so `Run` serves `index.html` at
+  https://tessera-xs25--preview.freemilk.app (private preview, built by
+  `publish_preview`).
+- It is **not** Halcora in a browser. A browser cannot start a virtual machine or
+  read memory in use, so the page mirrors the *sizing rule* only: you type the
+  machine's figures in, and it shows what Halcora.exe would take.
+- It carries five self-check cases that run on every load and print PASS/FAIL
+  against hard-coded expectations.
+- **Verified working** by the web inspector on 2026-11-19: 5 of 5 cases pass,
+  the 16 GB / 6 GB default yields 9 GB and 6 of 8 cores with 1 GB spare, live
+  input updates every figure, the tight-memory warning appears at 4 GB total with
+  3 GB used, and there were no JavaScript errors.
+- Two `.cmd` files cannot be published by the static preview publisher, so
+  `windows/Halcora.cmd` was deleted; `Halcora-VM.ps1` remains as the fallback.
+
+### The rule changed, in two places, because of this page
+
+Writing the JavaScript exposed a bug in the C#. Its low-memory branch handed out
+`min(2048, max(total/2, 1024))` MB — on a 4 GB machine with 3 GB used that is
+2 GB, when only 1 GB was free. The host would have swapped, which is slower than
+the smaller machine it was trying to avoid. Both now do the same thing:
+
+    vm = available - max(1 GB, total/16)     capped at 75% of total
+    if that is below 2 GB, take what is free instead of inventing more
+    floor at 512 MB, round down to 256 MB
+
+`Resources.cs` and the JavaScript in `index.html` must be kept in agreement. If
+they disagree, the C# is what ships and the page is wrong.
+
+

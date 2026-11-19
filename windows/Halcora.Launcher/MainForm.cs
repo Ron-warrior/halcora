@@ -123,6 +123,11 @@ internal sealed class MainForm : Form
 
         Log($"This PC has {_plan.TotalRamMb / 1024} GB of memory, {_plan.UsedRamMb / 1024} GB of it in use.");
         Log($"Halcora will take {_plan.VmRamMb / 1024} GB and {_plan.VmCpus} cores, keeping {_plan.ReserveRamMb / 1024} GB spare.");
+        if (_plan.Tight)
+        {
+            Log("Warning: this PC does not have much free memory, so Halcora will run slowly.");
+            Log("Closing some applications before starting will give it more to work with.");
+        }
         Log("The virtual disk starts near empty and grows only as Halcora uses it.");
         Log(string.Empty);
         Log("Press Start Halcora. The first run downloads about 1.9 GB.");

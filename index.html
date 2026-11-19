@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halcora</title>
+<style>
+  :root {
+    --background: #1b1b1f;
+    --surface: #26262c;
+    --line: #3c3c46;
+    --accent: #3482ff;
+    --foreground: #f0f0f5;
+    --muted: #a0a0ac;
+    --good: #3fb97a;
+    --warn: #e0a040;
+    --bad: #e05a5a;
+  }
+  [hidden] { display: none !important; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font: 15px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 20px 56px; }
+  h1 { font-size: 40px; margin: 0; font-weight: 600; letter-spacing: -0.5px; }
+  h2 { font-size: 17px; margin: 0 0 12px; font-weight: 600; }
+  .tagline { color: var(--muted); margin: 4px 0 24px; }
+  .card {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+  }
+  .notice {
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    color: var(--muted);
+  }
+  .notice strong { color: var(--foreground); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+  label { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 13px; }
+  input[type=number] {
+    background: var(--background);
+    color: var(--foreground);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font: inherit;
+  }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: 0;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 14px;
+  }
+  button.secondary { background: transparent; border: 1px solid var(--line); color: var(--foreground); }
+  .muted { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
+  .error { color: var(--bad); margin: 10px 0 0; }
+  .warn { color: var(--warn); margin: 12px 0 0; }
+  .sentence { font-size: 17px; margin: 0 0 16px; }
+  .bar {
+    display: flex;
+    height: 14px;
+    border-radius: 7px;
+    overflow: hidden;
+    background: var(--background);
+  }
+  .bar span { display: block; height: 100%; transition: width 0.25s ease; }
+  .bar .used { background: #5a5a66; }
+  .bar .vm { background: var(--accent); }
+  .bar .free { background: var(--good); }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 13px; margin: 8px 0 18px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .stat { background: var(--background); border-radius: 10px; padding: 12px 14px; }
+  .stat b { display: block; font-size: 22px; font-weight: 600; }
+  .stat small { color: var(--muted); font-size: 12px; }
+  .diskbar { height: 10px; border-radius: 5px; background: var(--background); overflow: hidden; margin-top: 12px; }
+  .diskbar span { display: block; height: 100%; background: var(--accent); width: 0; transition: width 0.25s ease; }
+  ul.checks { list-style: none; padding: 0; margin: 0; }
+  ul.checks li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  ul.checks li:last-child { border-bottom: 0; }
+  .pass { color: var(--good); font-weight: 600; }
+  .fail { color: var(--bad); font-weight: 600; }
+  footer { color: var(--muted); font-size: 12px; margin-top: 28px; }
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Halcora</h1>
+    <p class="tagline">A desktop that stays out of your way.</p>
+  </header>
+
+  <aside class="notice">
+    <strong>This page is the browser version of the sizing rule in Halcora.exe.</strong>
+    A browser cannot start a virtual machine, cannot boot Halcora, and cannot read
+    how much memory you are using, so you type that in. Halcora.exe does the real
+    work on Windows. The checks at the bottom run the same rule against known cases.
+  </aside>
+
+  <section class="card">
+    <h2>This PC</h2>
+    <div class="grid">
+      <label>Total memory (GB)
+        <input id="total" type="number" min="1" step="1" value="16">
+      </label>
+      <label>Memory in use right now (GB)
+        <input id="used" type="number" min="0" step="0.5" value="6">
+      </label>
+      <label>Logical cores
+        <input id="cores" type="number" min="1" step="1" value="8">
+      </label>
+      <label>CPU busy right now (%)
+        <input id="load" type="number" min="0" max="100" step="1" value="20">
+      </label>
+    </div>
+    <button id="detect" class="secondary" type="button">Fill in what this browser can read</button>
+    <p id="detectNote" class="muted">Browsers report memory only roughly, capped at 8 GB, and cannot see memory in use.</p>
+    <p id="error" class="error" hidden></p>
+  </section>
+
+  <section class="card" id="resultCard">
+    <h2>What Halcora would take</h2>
+    <p id="sentence" class="sentence"></p>
+    <div class="bar">
+      <span class="used" id="barUsed"></span>
+      <span class="vm" id="barVm"></span>
+      <span class="free" id="barFree"></span>
+    </div>
+    <div class="legend">
+      <span><i style="background:#5a5a66"></i>in use</span>
+      <span><i style="background:var(--accent)"></i>Halcora</span>
+      <span><i style="background:var(--good)"></i>left for Windows</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="statRam">-</b><small>memory given to Halcora</small></div>
+      <div class="stat"><b id="statFree">-</b><small>memory left for Windows</small></div>
+      <div class="stat"><b id="statCpu">-</b><small>cores given to Halcora</small></div>
+    </div>
+    <p id="tight" class="warn" hidden>Not much memory is free, so Halcora will run slowly. Close some apps for a better result.</p>
+  </section>
+
+  <section class="card">
+    <h2>Disk</h2>
+    <p class="muted" style="margin-top:0">
+      There is no size to choose. The disk file starts near empty, grows only as
+      Halcora writes to it, and shrinks again when files are deleted inside it.
+      The 64 GB figure is a ceiling, not space that is reserved.
+    </p>
+    <label>Space used inside the installed system (GB)
+      <input id="diskUsed" type="range" min="0" max="64" step="1" value="3">
+    </label>
+    <div class="diskbar"><span id="diskFill"></span></div>
+    <p id="diskText" class="muted"></p>
+  </section>
+
+  <section class="card">
+    <h2>Checks</h2>
+    <p class="muted" style="margin-top:0">These cases run every time the page loads.</p>
+    <ul class="checks" id="checks"></ul>
+    <p id="checkSummary" class="muted"></p>
+  </section>
+
+  <footer>
+    Halcora is GPL-3.0-or-later. The rule on this page mirrors
+    <code>windows/Halcora.Launcher/Resources.cs</code>. If the two disagree, the C# is
+    the one that ships and this page is wrong.
+  </footer>
+</main>
+
+<script>
+'use strict';
+
+// ---- The rule. Mirrors ResourcePlan.Compute in windows/Halcora.Launcher. ----
+
+const MINIMUM_COMFORTABLE_MB = 2048; // below this, memory is "tight"
+const HARD_FLOOR_MB = 512;           // never give the system less than this
+const MAXIMUM_SHARE_OF_TOTAL = 0.75; // never take more than this share of RAM
+const VIRTUAL_DISK_GB = 64;          // ceiling the installer sees, not a reservation
+
+function computePlan(totalMb, availableMb, logicalCpus, cpuLoadPercent) {
+  const total = Math.floor(totalMb);
+  const available = Math.min(Math.floor(availableMb), total);
+  const used = total - available;
+
+  // A sixteenth of RAM, never under 1 GB: exactly 1 GB of spare on 16 GB.
+  const reserve = Math.max(1024, Math.floor(total / 16));
+
+  let vm = available - reserve;
+
+  const ceiling = Math.floor(total * MAXIMUM_SHARE_OF_TOTAL);
+  if (vm > ceiling) vm = ceiling;
+
+  // Not enough free for a comfortable desktop: take what is free above the
+  // reserve, but never less than the hard floor.
+  const tight = vm < MINIMUM_COMFORTABLE_MB;
+  if (tight) vm = Math.max(HARD_FLOOR_MB, vm);
+
+  vm = Math.floor(vm / 256) * 256;
+  if (vm < HARD_FLOOR_MB) vm = HARD_FLOOR_MB;
+
+  // Two cores fewer than the machine has, between 1 and 8, one fewer when busy.
+  let cpus = Math.min(8, Math.max(1, logicalCpus - 2));
+  if (cpuLoadPercent >= 50 && cpus > 1) cpus -= 1;
+
+  return {
+    totalMb: total,
+    usedMb: used,
+    availableMb: available,
+    reserveMb: reserve,
+    vmMb: vm,
+    logicalCpus,
+    vmCpus: cpus,
+    tight,
+    freeAfterMb: available - vm,
+  };
+}
+
+// ---- Self-checks: the same cases the Windows self-test is meant to cover. ----
+
+const CASES = [
+  { name: '16 GB, 6 GB in use, 8 cores',        total: 16384, avail: 10240, cores: 8,  load: 20, vm: 9216,  vcpus: 6, tight: false },
+  { name: '8 GB, 2 GB in use, 8 cores',         total: 8192,  avail: 6144,  cores: 8,  load: 20, vm: 5120,  vcpus: 6, tight: false },
+  { name: '4 GB, 1 GB in use, 4 cores',         total: 4096,  avail: 3072,  cores: 4,  load: 20, vm: 2048,  vcpus: 2, tight: false },
+  { name: '4 GB, 3 GB in use, 4 cores',         total: 4096,  avail: 1024,  cores: 4,  load: 20, vm: 512,   vcpus: 2, tight: true  },
+  { name: '32 GB, 2 GB in use, 16 cores, 80% busy', total: 32768, avail: 30720, cores: 16, load: 80, vm: 24576, vcpus: 7, tight: false },
+];
+
+function runChecks() {
+  const list = document.getElementById('checks');
+  let passed = 0;
+  list.innerHTML = '';
+  for (const c of CASES) {
+    const p = computePlan(c.total, c.avail, c.cores, c.load);
+    const ok = p.vmMb === c.vm && p.vmCpus === c.vcpus && p.tight === c.tight;
+    if (ok) passed++;
+    const item = document.createElement('li');
+    const label = document.createElement('span');
+    label.textContent = `${c.name}: takes ${gb(p.vmMb)} GB and ${p.vmCpus} cores`;
+    const verdict = document.createElement('span');
+    verdict.className = ok ? 'pass' : 'fail';
+    verdict.textContent = ok ? 'PASS' : `FAIL (expected ${gb(c.vm)} GB, ${c.vcpus} cores)`;
+    item.append(label, verdict);
+    list.append(item);
+  }
+  document.getElementById('checkSummary').textContent =
+    `${passed} of ${CASES.length} cases pass.`;
+}
+
+// ---- The page. ----
+
+function gb(mb) {
+  return (mb / 1024).toFixed(1).replace(/\.0$/, '');
+}
+
+function readNumber(id) {
+  const value = parseFloat(document.getElementById(id).value);
+  return Number.isFinite(value) ? value : NaN;
+}
+
+function render() {
+  const totalGb = readNumber('total');
+  const usedGb = readNumber('used');
+  const cores = readNumber('cores');
+  const load = readNumber('load');
+
+  const error = document.getElementById('error');
+  const sentence = document.getElementById('sentence');
+  const resultCard = document.getElementById('resultCard');
+
+  if (!(totalGb >= 1) || !(usedGb >= 0) || !(cores >= 1) || !(load >= 0 && load <= 100)) {
+    error.textContent = 'Fill in every box with a number. Total memory must be at least 1 GB and cores at least 1.';
+    error.hidden = false;
+    return;
+  }
+  if (usedGb > totalGb) {
+    error.textContent = 'Memory in use cannot be more than total memory.';
+    error.hidden = false;
+    return;
+  }
+  error.hidden = true;
+
+  const totalMb = totalGb * 1024;
+  const availableMb = totalMb - usedGb * 1024;
+  const p = computePlan(totalMb, availableMb, Math.round(cores), load);
+
+  sentence.textContent =
+    `This PC has ${gb(p.totalMb)} GB, ${gb(p.usedMb)} GB of it in use. ` +
+    `Halcora takes ${gb(p.vmMb)} GB and ${p.vmCpus} of ${p.logicalCpus} cores, ` +
+    `leaving ${gb(p.freeAfterMb)} GB for Windows.`;
+
+  const pct = (mb) => Math.max(0, Math.min(100, (mb / p.totalMb) * 100)) + '%';
+  document.getElementById('barUsed').style.width = pct(p.usedMb);
+  document.getElementById('barVm').style.width = pct(p.vmMb);
+  document.getElementById('barFree').style.width = pct(p.freeAfterMb);
+
+  document.getElementById('statRam').textContent = gb(p.vmMb) + ' GB';
+  document.getElementById('statFree').textContent = gb(p.freeAfterMb) + ' GB';
+  document.getElementById('statCpu').textContent = `${p.vmCpus} of ${p.logicalCpus}`;
+  document.getElementById('tight').hidden = !p.tight;
+
+  renderDisk();
+  resultCard.dataset.tight = p.tight ? 'yes' : 'no';
+}
+
+function renderDisk() {
+  const used = readNumber('diskUsed');
+  const clamped = Math.max(0, Math.min(VIRTUAL_DISK_GB, used));
+  document.getElementById('diskFill').style.width = (clamped / VIRTUAL_DISK_GB * 100) + '%';
+  document.getElementById('diskText').textContent =
+    `The disk file is about ${clamped} GB on your drive, out of a ${VIRTUAL_DISK_GB} GB ceiling. ` +
+    `Nothing is reserved up front.`;
+}
+
+function fillFromDevice() {
+  const note = document.getElementById('detectNote');
+  const parts = [];
+  if (navigator.deviceMemory) {
+    document.getElementById('total').value = navigator.deviceMemory;
+    parts.push(`memory set to ${navigator.deviceMemory} GB (the browser's rough figure, capped at 8)`);
+  } else {
+    parts.push('this browser does not report memory, so total memory was not changed');
+  }
+  if (navigator.hardwareConcurrency) {
+    document.getElementById('cores').value = navigator.hardwareConcurrency;
+    parts.push(`cores set to ${navigator.hardwareConcurrency}`);
+  }
+  note.textContent = 'Filled in: ' + parts.join('; ') + '. Memory in use is still yours to type.';
+  render();
+}
+
+for (const id of ['total', 'used', 'cores', 'load']) {
+  document.getElementById(id).addEventListener('input', render);
+}
+
+const diskSlider = document.getElementById('diskUsed');
+
+// On a touch device a range input only responds to dragging its thumb; tapping
+// the track does nothing. This makes a tap move the thumb, which is what you
+// expect when you poke a bar.
+function moveSliderToEvent(event) {
+  const rect = diskSlider.getBoundingClientRect();
+  const x = (event.clientX ?? event.touches?.[0]?.clientX ?? 0) - rect.left;
+  const fraction = Math.max(0, Math.min(1, x / rect.width));
+  diskSlider.value = Math.round(fraction * VIRTUAL_DISK_GB);
+  renderDisk();
+}
+diskSlider.addEventListener('pointerdown', moveSliderToEvent);
+diskSlider.addEventListener('input', renderDisk);
+document.getElementById('detect').addEventListener('click', fillFromDevice);
+
+runChecks();
+render();
+</script>
+</body>
+</html>

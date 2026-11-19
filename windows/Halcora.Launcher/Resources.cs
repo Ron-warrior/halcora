@@ -26,12 +26,19 @@ internal sealed record ResourcePlan(
     int LogicalCpus,
     int CpuLoadPercent,
     int VmCpus,
-    int VirtualDiskGb)
+    int VirtualDiskGb,
+    bool Tight)
 {
     private const long Mb = 1024L * 1024L;
 
     /// <summary>Floor for guest RAM. Plasma on 1 GB is not a desktop.</summary>
     private const long MinimumVmRamMb = 2048;
+
+    /// <summary>
+    /// The least we will ever hand the guest. Below this the desktop will not
+    /// start, so it is a floor rather than a preference.
+    /// </summary>
+    private const long HardFloorMb = 512;
 
     /// <summary>
     /// Never hand the guest more than this share of physical RAM. Free memory
@@ -71,17 +78,20 @@ internal sealed record ResourcePlan(
             vmMb = ceilingMb;
         }
 
-        if (vmMb < MinimumVmRamMb)
+        // Tight means this machine cannot comfortably host a desktop. Say so,
+        // then take what is actually free rather than a comfortable figure the
+        // machine does not have: handing out 2 GB when only 1 GB is free means
+        // the host swaps, which is slower than a smaller machine that fits.
+        bool tight = vmMb < MinimumVmRamMb;
+        if (tight)
         {
-            // Not enough free memory for a comfortable desktop. Take what is
-            // safely there rather than refusing, and let the window say so.
-            vmMb = Math.Min(MinimumVmRamMb, Math.Max(totalMb / 2, 1024));
+            vmMb = Math.Max(HardFloorMb, vmMb);
         }
 
         vmMb = vmMb / 256 * 256;
-        if (vmMb < 512)
+        if (vmMb < HardFloorMb)
         {
-            vmMb = 512;
+            vmMb = HardFloorMb;
         }
 
         int logical = Math.Max(1, Environment.ProcessorCount);
@@ -101,7 +111,8 @@ internal sealed record ResourcePlan(
             LogicalCpus: logical,
             CpuLoadPercent: loadPercent,
             VmCpus: vmCpus,
-            VirtualDiskGb: DefaultVirtualDiskGb);
+            VirtualDiskGb: DefaultVirtualDiskGb,
+            Tight: tight);
     }
 
     /// <summary>A short line for the window, in the words a user would use.</summary>

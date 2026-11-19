@@ -58,9 +58,14 @@ otherwise.
 
 ## Without the executable
 
-`Halcora.cmd` runs the same thing through PowerShell, for machines where the
+`Halcora-VM.ps1` runs the same thing through PowerShell, for machines where the
 single-file executable will not start. Same behaviour, same window, no
-installation.
+installation:
+
+    powershell -ExecutionPolicy Bypass -File Halcora-VM.ps1
+
+There is deliberately no `.cmd` wrapper: the static preview publisher in this
+project rejects `.cmd` files, and the executable is the real path anyway.
 
 ## Starting over
 

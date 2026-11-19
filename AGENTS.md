@@ -66,6 +66,8 @@ Never write that something works. Write what CI said and what the human said.
 - `docs/DECISIONS.md` — settled decisions (ADR-1 onward). Read before disagreeing with the design.
 - `docs/ROADMAP.md`, `docs/REUSE.md`, `docs/DESIGN.md`, `docs/LEGAL.md`, `docs/ARCHITECTURE.md`.
 - `iso/` — the live image. `iso/profile/` is the archiso delta, `iso/overlay/` is what gets added to the live root.
+- `windows/` — the Windows app. `Halcora.Launcher/` is the C# source; `Halcora.exe` is a CI build output and is never committed.
+- `index.html` — a browser mirror of the sizing rule in `Resources.cs`, with self-checks. **The two must agree**; if they disagree the C# is right and the page is wrong.
 - `scripts/` — the two small scripts we actually wrote.
 - `packages/` — the theme packages. **They do not exist yet.** Only a README does.
 
