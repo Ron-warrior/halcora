@@ -1,10 +1,8 @@
-name: Windows launcher
+name: Windows app
 
-# The launcher runs on Windows, and nothing in this environment can run it. CI
-# is the only check: it parses the PowerShell, confirms the batch file starts
-# it, and runs the script's -ShowCommand path, which builds the QEMU command
-# line without starting anything. That catches typos that would otherwise only
-# appear on a user's machine.
+# Halcora.exe is built here, on a real Windows machine, because nothing in the
+# development environment can compile or run it. The self-test below is the only
+# execution the resource-sizing code gets before a user runs it.
 
 on:
   push:
@@ -19,18 +17,102 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  # Needed only for the release upload at the end.
+  contents: write
 
 jobs:
-  check:
-    name: Parse and dry-run
+  build:
+    name: Build Halcora.exe
     runs-on: windows-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: PowerShell scripts parse
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish a single self-contained executable
+        run: |
+          dotnet publish windows/Halcora.Launcher/Halcora.Launcher.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:EnableCompressionInSingleFile=true `
+            -p:DebugType=none `
+            -o out/win
+
+      - name: The executable exists
+        shell: pwsh
+        run: |
+          $exe = 'out/win/Halcora.exe'
+          if (-not (Test-Path $exe)) {
+            Write-Host "::error::Halcora.exe was not produced"
+            Get-ChildItem -Recurse out | Out-String | Write-Host
+            exit 1
+          }
+          $size = (Get-Item $exe).Length / 1MB
+          Write-Host ("Halcora.exe is {0:N1} MB" -f $size)
+
+      # Runs the sizing logic for real: how much RAM and how many cores this
+      # machine has, and what Halcora would take. No window, no virtual machine.
+      - name: Self-test the resource plan
+        shell: pwsh
+        run: |
+          $report = Join-Path $env:TEMP 'halcora-self-test.txt'
+          if (Test-Path $report) { Remove-Item $report }
+
+          & ./out/win/Halcora.exe --self-test | Out-Null
+          Start-Sleep -Seconds 3
+
+          if (-not (Test-Path $report)) {
+            Write-Host "::error::the self-test wrote no report"
+            exit 1
+          }
+
+          Get-Content $report | Write-Host
+
+          $text = Get-Content -Raw $report
+          foreach ($expected in @('total-ram-mb', 'vm-ram-mb', 'vm-cpus', 'disk-virtual-gb')) {
+            if ($text -notmatch $expected) {
+              Write-Host "::error::self-test did not report $expected"
+              exit 1
+            }
+          }
+
+          if ($text -notmatch 'vm-ram-mb\s+(\d+)') {
+            Write-Host "::error::vm-ram-mb is not a number"
+            exit 1
+          }
+          if ([int]$Matches[1] -lt 512) {
+            Write-Host "::error::the plan would give the virtual machine less than 512 MB"
+            exit 1
+          }
+
+      - name: Upload the executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: halcora-windows
+          path: out/win/Halcora.exe
+          if-no-files-found: error
+          retention-days: 14
+
+      # Attaching with gh rather than the release action: gh uploads one asset
+      # and leaves the release body and the ISO alone. The release action would
+      # rewrite the release, and the ISO is 1.9 GB of someone else's download.
+      - name: Attach the executable to the prealpha release
+        if: github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload prealpha out/win/Halcora.exe --clobber --repo ${{ github.repository }}
+
+      # The PowerShell launcher is kept as a fallback for machines where the
+      # single-file executable will not start. It is still checked.
+      - name: The fallback launcher parses
         shell: pwsh
         run: |
           $failed = $false
@@ -43,16 +125,3 @@ jobs:
             }
           }
           if ($failed) { exit 1 }
-
-      - name: Launcher starts the script
-        shell: pwsh
-        run: |
-          $cmd = Get-Content -Raw -Path windows/Halcora.cmd
-          if ($cmd -notmatch 'Halcora-VM\.ps1') {
-            Write-Host '::error file=windows/Halcora.cmd::does not start Halcora-VM.ps1'
-            exit 1
-          }
-
-      - name: Build the QEMU command line without starting it
-        shell: pwsh
-        run: ./windows/Halcora-VM.ps1 -ShowCommand

@@ -1,64 +1,68 @@
 # Running Halcora on Windows
 
-Double-click `Halcora.cmd` and Halcora opens in a window, inside Windows. It
-does not replace Windows, does not touch your Windows disk, and can be closed
-like any other window.
+Download **Halcora.exe** from
+https://github.com/Ron-warrior/halcora/releases/tag/prealpha and double-click it.
+No installer, no .NET runtime, nothing to configure.
 
-**Status: not yet run on Windows.** The launcher is written against QEMU's
-documented options and checked by CI for syntax, but no one has double-clicked
-it yet. If it fails, the message says which step it was on.
+Halcora runs as a window inside Windows. It does not replace Windows, and it
+cannot touch your Windows disk: the installer writes to a single file in
+`%LOCALAPPDATA%\Halcora`.
 
-## What you need
+**Status: never run on Windows.** `Halcora.exe` is compiled and its sizing logic
+is self-tested by CI on a real Windows machine, but nobody has double-clicked it.
+Every step reports what it was doing when it fails.
 
-- Windows 10 (version 1803 or later) or Windows 11.
-- About 25 GB of free disk space: 1.9 GB for the ISO and up to 20 GB for the
-  installer's virtual disk.
-- 8 GB of RAM or more. The virtual machine takes 4 GB.
-- Internet access, for the first download.
+## What the window does
 
-## Steps
+It says what it is taking before it takes it — how much memory, how many cores —
+then downloads the image on first run, checks it against the release's checksum,
+and starts the virtual machine.
 
-1. Download `Halcora.cmd` and `Halcora-VM.ps1` into one folder. Both are in
-   the `windows/` folder of
-   https://github.com/Ron-warrior/halcora. Use "Download ZIP" on that page if
-   you prefer, and take the `windows` folder out of it.
-2. Double-click `Halcora.cmd`.
-   - If Windows says it "protected your PC", click **More info**, then
-     **Run anyway**. The file is unsigned.
-   - The first run downloads the ISO, which takes a while. It then checks the
-     download against the release's checksum before it starts anything.
-   - If QEMU is not installed, the launcher installs it with `winget`. Windows
-     will ask for permission.
-3. A Halcora window opens. It is a live system, so nothing is installed yet.
-4. To install, use **Install Halcora** from the application launcher. It erases
-   only the virtual disk in `%LOCALAPPDATA%\Halcora`, never your Windows disk.
-5. After installing, close the window. Next time, run `Halcora.cmd` with
-   `-BootDisk` in a PowerShell window to boot the installed system:
+**How much it takes.** Computed every launch from what is actually free. On a
+16 GB PC with 6 GB in use there is 10 GB free, so Halcora takes 9 GB and leaves
+1 GB spare. It never takes more than three quarters of your RAM, and it takes two
+fewer cores than the machine has so Windows stays responsive. If the machine is
+busy at launch it takes one core fewer still.
 
-       powershell -ExecutionPolicy Bypass -File Halcora-VM.ps1 -BootDisk
+**The disk.** There is no size to choose and nothing is reserved up front. The
+virtual disk is a sparse file: it starts near empty and grows only as Halcora
+writes to it. The installer is told it has 64 GB so it is not constrained, and
+the window shows real usage — a fresh install is a few gigabytes, not sixty-four.
+Freed space returns to Windows as the guest discards it.
 
-## Speed
+**The title bar** says Halcora, and so does the window the desktop appears in.
 
-Turn on hardware acceleration for a usable speed. In an administrator
-PowerShell:
+## If it does not start
 
-    Enable-WindowsOptionalFeature -Online -FeatureName HypervisorPlatform -All
+- **Windows protects your PC.** The executable is unsigned. Click **More info**,
+  then **Run anyway**.
+- **QEMU is installed on first run.** If that fails, Halcora says so and points
+  at https://qemu.weilnetz.de/w64/. Install it and open Halcora again.
+- **It is very slow.** Hardware acceleration is off. In an administrator
+  PowerShell:
 
-Then restart Windows. Virtualisation must also be enabled in the BIOS or UEFI,
-usually as "Intel VT-x" or "SVM". Without it the virtual machine runs in
-software and is very slow. The launcher prints this instruction when
-acceleration is off.
+      Enable-WindowsOptionalFeature -Online -FeatureName HypervisorPlatform -All
 
-Whether this works on Windows 11 Home has not been confirmed.
+  Then restart Windows. Virtualisation must also be on in the BIOS or UEFI,
+  usually called "Intel VT-x" or "SVM". Halcora asks QEMU to use acceleration
+  when it is there and fall back to software when it is not, so this costs speed
+  rather than working.
+
+## What it cannot do
+
+The desktop appears in a **separate window**, titled Halcora, that belongs to the
+virtual machine engine. Putting that display inside Halcora's own window means
+routing it over VNC, which adds a whole class of connection failures for a
+cosmetic gain. It is not done, and this file would rather say so than imply
+otherwise.
+
+## Without the executable
+
+`Halcora.cmd` runs the same thing through PowerShell, for machines where the
+single-file executable will not start. Same behaviour, same window, no
+installation.
 
 ## Starting over
 
-    powershell -ExecutionPolicy Bypass -File Halcora-VM.ps1 -Reset
-
-This erases the virtual disk and starts the installer from nothing.
-
-## Where things are
-
-- `%LOCALAPPDATA%\Halcora\halcora-*.iso` — the downloaded ISO
-- `%LOCALAPPDATA%\Halcora\halcora-disk.qcow2` — the installed system's disk
-- Delete the whole `Halcora` folder to remove everything the launcher made.
+Delete `%LOCALAPPDATA%\Halcora`. That removes the downloaded image and the
+installed system. Nothing outside that folder was ever written to.

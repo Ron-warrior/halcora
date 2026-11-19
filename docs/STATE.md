@@ -174,13 +174,27 @@ how they get proven.
 
 ## Windows launcher (written, never run on Windows)
 
-- `windows/Halcora.cmd` starts `windows/Halcora-VM.ps1`.
-- The script downloads the newest `halcora-*.iso` from the `prealpha` release
-  and checks it against `SHA256SUMS` before starting anything.
-- It runs QEMU's `qemu-system-x86_64w.exe` with WHPX when the hypervisor is
-  present, TCG otherwise, and creates a 20 GB qcow2 disk for the installer.
-- CI (`.github/workflows/windows.yml`) parses the PowerShell and dry-runs
-  `-ShowCommand` on a Windows runner. That is the only verification so far.
-- Unknowns: whether WHPX works on Windows 11 Home; whether `-cpu Haswell` is
-  accepted under WHPX; whether PowerShell 5.1 quotes paths containing spaces
-  the way QEMU needs. These are the first things to check on a real machine.
+- `windows/Halcora.exe` is built by `.github/workflows/windows.yml` from
+  `windows/Halcora.Launcher/` (C# / WinForms, .NET 8, self-contained single file)
+  and attached to the `prealpha` release with `gh release upload --clobber`, so
+  it never rewrites the release body or the ISO asset.
+- **Sizing is computed per launch, not live.** QEMU fixes guest RAM at start.
+  The rule: `vm = available - max(1 GB, total/16)`, capped at 75% of total,
+  floored at 2 GB, rounded down to 256 MB. On 16 GB with 6 GB used that is 9 GB
+  with 1 GB spare. Cores: `min(logical - 2, 8)`, one fewer if the machine is
+  already ≥50% busy.
+- **The disk is sparse qcow2 with a 64 GB ceiling.** It starts near empty and
+  grows with use; `discard=unmap` returns freed blocks. There is no meaningful
+  minimum and nothing is preallocated.
+- CI runs `Halcora.exe --self-test` on `windows-latest` and asserts the report
+  contains a `vm-ram-mb` of at least 512. That is the only execution the sizing
+  code gets.
+- **Not possible as asked:** the desktop appears in QEMU's window, not inside
+  Halcora's own window. Embedding it means routing the display over VNC. The
+  title bar of both windows says Halcora.
+- `windows/Halcora.cmd` and `Halcora-VM.ps1` remain as a fallback for machines
+  where the single-file executable will not start.
+- Unknowns: whether WHPX works on Windows 11 Home; whether `-cpu max` is accepted
+  under WHPX (QEMU falls back to TCG if not); whether the single-file executable
+  starts on a machine with no .NET runtime (it should, it is self-contained).
+

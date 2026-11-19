@@ -24,3 +24,8 @@ vendor/
 *.swp
 *~
 .DS_Store
+
+# .NET build output for the Windows app
+windows/**/bin/
+windows/**/obj/
+out/win/
