@@ -198,7 +198,25 @@ how they get proven.
   under WHPX (QEMU falls back to TCG if not); whether the single-file executable
   starts on a machine with no .NET runtime (it should, it is self-contained).
 
-## The browser mirror (`index.html`)
+## Running it in a browser (`index.html`)
+
+**It boots.** Verified by the web inspector on 2026-11-19: pressing Start loads
+v86 and a Linux kernel from jsDelivr, the guest prints SeaBIOS, ISOLINUX and
+kernel messages, and reaches a `/root%` shell in about 8 seconds. No errors.
+
+How it works, and what it is not:
+
+- **v86** (`npm:v86@0.5.473`, BSD-2-Clause) translates x86 to WebAssembly and
+  runs in the tab. The BIOS blobs and a 6 MB Buildroot Linux ISO come from the
+  same CDN. Nothing is vendored: the static preview refuses `.bin`, `.iso` and
+  `.wasm` files, so every binary is a jsDelivr URL and the machine needs a
+  network connection.
+- **It is not Halcora, and cannot be.** v86's own documentation says 64-bit
+  kernels are unsupported, and Halcora is x86_64 Plasma. What boots here is a
+  32-bit Linux console. A real Halcora-in-a-tab needs an **i686 build**, which
+  means porting the profile to Arch Linux 32 — a separate port, not a flag.
+- The guest writes 80 columns; below 620px the console font shrinks so eighty
+  fit instead of being clipped mid-word.
 
 ### Image tiers
 

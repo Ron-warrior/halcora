@@ -107,9 +107,13 @@ An ISO is published as a moving `prealpha` pre-release, in two tiers:
 download `Halcora.exe` from that release and double-click it; it works out which
 tier this machine should run and downloads that one. See `windows/README.md`.
 
-`index.html` is a browser mirror of the same sizing rule and tier choice, with
-self-checks that run on load. It does not boot anything — a browser cannot — and
-exists so the decisions can be read and tested anywhere, including on a phone.
+`index.html` contains two things. A live demo: the v86 emulator boots a 32-bit
+Linux in the browser tab, from CDN-hosted assets, and gives you a shell. And a
+calculator: the sizing rule and tier choice the Windows app uses, with self-checks.
+
+It is not Halcora in a browser. v86 does not support 64-bit kernels and Halcora is
+x86_64 Plasma, so the demo is a 32-bit Linux console. A real Halcora-in-a-tab
+needs an i686 port, which is a separate job.
 **It has never been booted.** See `docs/STATE.md` for what that does and does not
 mean, and `docs/TESTING.md` if you are the person who can change that.
 

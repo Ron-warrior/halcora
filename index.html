@@ -92,6 +92,20 @@
   ul.checks { list-style: none; padding: 0; margin: 0; }
   ul.checks li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
   ul.checks li > span:last-child { flex: 0 0 auto; white-space: nowrap; }
+
+  /* v86 writes the console into .text and the framebuffer into the canvas. */
+  .vm { margin-top: 14px; background: #000; border-radius: 10px; padding: 10px; overflow-x: auto; }
+  #screen_container { white-space: pre; font: 14px/14px ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: #d8d8e0; }
+  #screen_container .text { min-height: 14px; }
+  #screen_container canvas { display: block; max-width: 100%; image-rendering: pixelated; }
+
+  /* The guest writes 80 columns. At 14px that is about 700px wide, which a phone
+     cannot show, so the console would be clipped mid-word. Shrink the type until
+     eighty columns fit, and keep horizontal scrolling for anything wider. */
+  @media (max-width: 620px) {
+    #screen_container { font: 8.5px/9px ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    #screen_container .text { min-height: 9px; }
+  }
   ul.checks li:last-child { border-bottom: 0; }
   .pass { color: var(--good); font-weight: 600; }
   .fail { color: var(--bad); font-weight: 600; }
@@ -117,7 +131,31 @@
   </aside>
 
   <section class="card">
-    <h2>This PC</h2>
+    <h2>Run Linux in this tab</h2>
+    <p class="muted" style="margin-top:0">
+      This is a real machine, emulated in JavaScript: v86 turns x86 instructions
+      into WebAssembly, and the 6 MB image below is a 32-bit Linux with a shell.
+      Press Start and wait about twenty seconds.
+    </p>
+    <p class="muted" id="vmNote">
+      What it is not: Halcora. Halcora is Plasma on x86_64, and no browser
+      emulator supports 64-bit, so the image here is a 32-bit Linux console —
+      the closest thing that can boot inside a tab. A true Halcora-in-a-browser
+      needs an i686 build, which is a separate port.
+    </p>
+    <button id="vmStart" type="button">Start</button>
+    <p id="progressNote" class="muted"></p>
+    <div id="vmFrame" class="vm" hidden>
+      <div id="screen_container">
+        <div class="text"></div>
+        <canvas></canvas>
+      </div>
+    </div>
+    <p id="vmError" class="error" hidden></p>
+  </section>
+
+  <section class="card">
+    <h2>This PC (for the Windows app)</h2>
     <div class="grid">
       <label>Total memory (GB)
         <input id="total" type="number" min="1" step="1" value="16">
@@ -499,6 +537,86 @@ function moveSliderToEvent(event) {
 diskSlider.addEventListener('pointerdown', moveSliderToEvent);
 diskSlider.addEventListener('input', renderDisk);
 document.getElementById('detect').addEventListener('click', fillFromDevice);
+
+// Everything comes from jsDelivr: it serves npm and GitHub files with CORS, and
+// the static preview here will not publish binary files. The cost is that the
+// machine needs a network connection to start.
+const V86_CDN = 'https://cdn.jsdelivr.net';
+const V86_VERSION = '0.5.473';
+
+const V86 = {
+  script: `${V86_CDN}/npm/v86@${V86_VERSION}/build/libv86.js`,
+  wasm: `${V86_CDN}/npm/v86@${V86_VERSION}/build/v86.wasm`,
+  bios: `${V86_CDN}/gh/copy/v86@master/bios/seabios.bin`,
+  vgaBios: `${V86_CDN}/gh/copy/v86@master/bios/vgabios.bin`,
+  // v86's own test image: a 6 MB Buildroot Linux, 32-bit, with a shell.
+  image: `${V86_CDN}/gh/copy/images@master/linux.iso`,
+};
+
+const vmButton = document.getElementById('vmStart');
+let emulator = null;
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const tag = document.createElement('script');
+    tag.src = src;
+    tag.onload = () => resolve();
+    tag.onerror = () => reject(new Error(`could not load ${src}`));
+    document.head.append(tag);
+  });
+}
+
+async function startVm() {
+  const error = document.getElementById('vmError');
+  error.textContent = '';
+  error.hidden = true;
+
+  document.getElementById('progressNote').textContent = 'Loading the emulator, about 2 MB.';
+  vmButton.disabled = true;
+  vmButton.textContent = 'Starting…';
+  document.getElementById('vmFrame').hidden = false;
+  document.getElementById('vmNote').hidden = true;
+
+  try {
+    if (!window.V86 && !window.V86Starter) {
+      await loadScript(V86.script);
+    }
+
+    const Machine = window.V86 || window.V86Starter;
+    if (!Machine) {
+      throw new Error('v86 loaded but exposed no machine constructor.');
+    }
+
+    document.getElementById('progressNote').textContent =
+      'Emulator ready. Booting the image — the screen below fills in about twenty seconds.';
+
+    emulator = new Machine({
+      wasm_path: V86.wasm,
+      memory_size: 128 * 1024 * 1024,
+      vga_memory_size: 8 * 1024 * 1024,
+      screen_container: document.getElementById('screen_container'),
+      bios: { url: V86.bios },
+      vga_bios: { url: V86.vgaBios },
+      cdrom: { url: V86.image },
+      autostart: true,
+    });
+
+    vmButton.textContent = 'Running';
+    document.getElementById('progressNote').textContent =
+      'Booting. The console below is the guest machine; type into it and it responds.';
+  } catch (e) {
+    error.textContent =
+      'The browser machine could not start: ' + (e && e.message ? e.message : String(e));
+    error.hidden = false;
+    document.getElementById('progressNote').textContent = '';
+    vmButton.disabled = false;
+    vmButton.textContent = 'Try again';
+  }
+}
+
+vmButton.addEventListener('click', startVm);
+
+// ---- Self-checks ----
 
 runChecks();
 render();
