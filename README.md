@@ -102,7 +102,8 @@ have to reconstruct the situation from the rest of the tree.
 
 ## Status
 
-An ISO is published as a moving `prealpha` pre-release and can be downloaded.
+An ISO is published as a moving `prealpha` pre-release. On Windows,
+`windows/Halcora.cmd` downloads it and runs it in a window; see `windows/README.md`.
 **It has never been booted.** See `docs/STATE.md` for what that does and does not
 mean, and `docs/TESTING.md` if you are the person who can change that.
 

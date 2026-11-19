@@ -1,0 +1,58 @@
+name: Windows launcher
+
+# The launcher runs on Windows, and nothing in this environment can run it. CI
+# is the only check: it parses the PowerShell, confirms the batch file starts
+# it, and runs the script's -ShowCommand path, which builds the QEMU command
+# line without starting anything. That catches typos that would otherwise only
+# appear on a user's machine.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'windows/**'
+      - '.github/workflows/windows.yml'
+  pull_request:
+    paths:
+      - 'windows/**'
+      - '.github/workflows/windows.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Parse and dry-run
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PowerShell scripts parse
+        shell: pwsh
+        run: |
+          $failed = $false
+          foreach ($script in Get-ChildItem -Path windows -Filter '*.ps1') {
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($script.FullName, [ref]$null, [ref]$errors) | Out-Null
+            foreach ($problem in $errors) {
+              Write-Host "::error file=$($script.FullName)::$($problem.Message)"
+              $failed = $true
+            }
+          }
+          if ($failed) { exit 1 }
+
+      - name: Launcher starts the script
+        shell: pwsh
+        run: |
+          $cmd = Get-Content -Raw -Path windows/Halcora.cmd
+          if ($cmd -notmatch 'Halcora-VM\.ps1') {
+            Write-Host '::error file=windows/Halcora.cmd::does not start Halcora-VM.ps1'
+            exit 1
+          }
+
+      - name: Build the QEMU command line without starting it
+        shell: pwsh
+        run: ./windows/Halcora-VM.ps1 -ShowCommand

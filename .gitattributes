@@ -1,0 +1,3 @@
+# cmd.exe is stricter about line endings than PowerShell. Keep the Windows
+# launcher's batch file on CRLF wherever it is checked out.
+windows/*.cmd text eol=crlf

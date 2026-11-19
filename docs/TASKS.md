@@ -11,7 +11,9 @@ If you cannot tell, you have not finished.
 
 - [ ] Blocked on a person, not on the agent.
 
-Give the human `docs/TESTING.md` and wait. Do not guess at results, and do not
+Give the human `docs/TESTING.md` and wait. On Windows, the easiest route is
+`windows/Halcora.cmd`, described in `windows/README.md`; it runs the ISO in a
+QEMU window without touching the Windows disk. Do not guess at results, and do not
 "pre-emptively fix" things you suspect might be wrong: the first boot report is
 the most valuable data this project will ever get, and changes made before it
 arrive contaminate it.

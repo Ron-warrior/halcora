@@ -128,3 +128,17 @@ costs the agent a 40-minute build cycle.
   purpose, and TASK-6 handles that.
 - Missing applications. The package list is deliberately minimal.
 - That it is not Windows. That is the point of the project.
+
+
+## The Windows route
+
+On Windows, `windows/Halcora.cmd` runs the same ISO in a QEMU window, so the
+Windows disk is never touched. See `windows/README.md` for the steps.
+
+Add these to the report template:
+
+    Route:          (Halcora.cmd / other)
+    Launcher:       (opened? which step did it stop on?)
+    Accelerator:    (WHPX or TCG? the launcher prints which)
+    Window:         (appeared? resolution? mouse captured?)
+    Boot time:      (seconds from window to desktop, roughly)

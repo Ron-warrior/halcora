@@ -170,3 +170,17 @@ the installer.
 
 Every one of these is a claim from reading, not from a boot. `docs/TESTING.md` is
 how they get proven.
+
+
+## Windows launcher (written, never run on Windows)
+
+- `windows/Halcora.cmd` starts `windows/Halcora-VM.ps1`.
+- The script downloads the newest `halcora-*.iso` from the `prealpha` release
+  and checks it against `SHA256SUMS` before starting anything.
+- It runs QEMU's `qemu-system-x86_64w.exe` with WHPX when the hypervisor is
+  present, TCG otherwise, and creates a 20 GB qcow2 disk for the installer.
+- CI (`.github/workflows/windows.yml`) parses the PowerShell and dry-runs
+  `-ShowCommand` on a Windows runner. That is the only verification so far.
+- Unknowns: whether WHPX works on Windows 11 Home; whether `-cpu Haswell` is
+  accepted under WHPX; whether PowerShell 5.1 quotes paths containing spaces
+  the way QEMU needs. These are the first things to check on a real machine.
