@@ -99,12 +99,20 @@
   #screen_container .text { min-height: 14px; }
   #screen_container canvas { display: block; max-width: 100%; image-rendering: pixelated; }
 
-  /* The guest writes 80 columns. At 14px that is about 700px wide, which a phone
-     cannot show, so the console would be clipped mid-word. Shrink the type until
-     eighty columns fit, and keep horizontal scrolling for anything wider. */
+  /* The guest writes 80 columns. At 14px that is about 700px of text, which a
+     phone cannot show, so lines were being clipped mid-word. On a narrow screen
+     the console goes edge-to-edge (cancelling the card's padding) and the type
+     shrinks until eighty columns fit: about 349px of usable width at 7px, where
+     a monospace character is roughly 4.2px, gives 336px for 80 columns. */
   @media (max-width: 620px) {
-    #screen_container { font: 8.5px/9px ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
-    #screen_container .text { min-height: 9px; }
+    .vm {
+      margin-left: -22px;
+      margin-right: -22px;
+      border-radius: 0;
+      padding: 8px 6px;
+    }
+    #screen_container { font: 7px/7.5px ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    #screen_container .text { min-height: 7.5px; }
   }
   ul.checks li:last-child { border-bottom: 0; }
   .pass { color: var(--good); font-weight: 600; }
@@ -604,6 +612,14 @@ async function startVm() {
     vmButton.textContent = 'Running';
     document.getElementById('progressNote').textContent =
       'Booting. The console below is the guest machine; type into it and it responds.';
+
+    // v86 gives no "boot finished" event, so the wording changes on a timer that
+    // is generous compared with the eight seconds a boot actually takes.
+    setTimeout(() => {
+      if (!emulator) return;
+      document.getElementById('progressNote').textContent =
+        'Running. Tap the console and type — it is a Linux shell, not a picture of one.';
+    }, 15000);
   } catch (e) {
     error.textContent =
       'The browser machine could not start: ' + (e && e.message ? e.message : String(e));
