@@ -3,6 +3,11 @@ name: ISO
 # Nothing is built on the user's device, and an Arch ISO cannot be built in the
 # web chat, so CI is the real build host and the real test loop. Every change to
 # iso/ lands here before it can be called working.
+#
+# Two tiers are built from the same profile: "full" for a real desktop and
+# "lite" for a budget laptop. They differ only in their package list; everything
+# else — the shell, the theme, the installer, the live-session fixes — is shared,
+# which is the point.
 
 on:
   push:
@@ -16,21 +21,27 @@ on:
       - '.github/workflows/iso.yml'
   workflow_dispatch:
 
-# The release step needs to create a tag and upload assets. Everything else
+# The release job needs to create a tag and upload assets. Everything else
 # here only reads.
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build live ISO
+    name: Build ${{ matrix.tier }} ISO
     runs-on: ubuntu-latest
     # mkarchiso mounts filesystems and uses loop devices, so the job container
     # has to be privileged. There is no unprivileged path.
     container:
       image: archlinux:latest
       options: --privileged
-    timeout-minutes: 180
+    timeout-minutes: 240
+    strategy:
+      # One tier failing is a result, not a reason to cancel the other: a broken
+      # lite list should not hide whether full still builds.
+      fail-fast: false
+      matrix:
+        tier: [full, lite]
 
     steps:
       - name: Install git
@@ -84,25 +95,14 @@ jobs:
       - name: Build ISO
         env:
           CALAMARES_STAGE: ${{ github.workspace }}/calamares-stage
+          TIER: ${{ matrix.tier }}
         # Invoked through bash rather than executed directly. The script's
         # executable bit does not survive every checkout, and a bare
         # "./iso/build.sh" was this workflow's first failure (exit 126).
         run: bash ./iso/build.sh
 
-      - name: Upload ISO
-        uses: actions/upload-artifact@v4
-        with:
-          name: halcora-iso
-          path: |
-            out/*.iso
-            out/SHA256SUMS
-          if-no-files-found: error
-          retention-days: 14
-
-      # GitHub caps a single release asset at 2 GiB. Whether a Plasma ISO fits
-      # under that is unknown until one exists, so it is measured rather than
-      # assumed, and the failure says so plainly instead of arriving as a 422
-      # from the upload API.
+      # GitHub caps a single release asset at 2 GiB, and the full image is close
+      # to it. Measuring per tier says which one crossed the line.
       - name: Check the ISO fits a release asset
         if: github.ref == 'refs/heads/main'
         run: |
@@ -119,10 +119,46 @@ jobs:
             exit 1
           fi
 
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: halcora-${{ matrix.tier }}
+          path: |
+            out/*.iso
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish prealpha release
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      # One job publishes, after both tiers have built. Publishing from inside
+      # the matrix would have two jobs writing the same release at once, and the
+      # winner would be whichever finished last rather than whichever is right.
+      - name: Collect the ISOs
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Index them
+        run: |
+          set -eu
+          cd artifacts
+          mapfile -t isos < <(find . -name '*.iso' -type f | sort)
+          if (( ${#isos[@]} == 0 )); then
+            echo '::error::no ISO was downloaded from the build jobs'
+            exit 1
+          fi
+          printf 'shipping:\n'
+          printf '  %s\n' "${isos[@]}"
+          sha256sum "${isos[@]}" > SHA256SUMS
+          cat SHA256SUMS
+
       # One moving prealpha rather than accumulating versions: a version number
       # on an image nobody has booted would claim more than it has earned.
       - name: Publish prealpha release
-        if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: prealpha
@@ -134,15 +170,30 @@ jobs:
             An untested image. Nothing in this repository has been booted on
             real hardware, and the installer has never completed an install.
 
+            **Two images, same shell.**
+
+            `halcora-full` is for a desktop: 8 GB of RAM or more, a discrete GPU
+            or a recent integrated one. Plasma with the whole application set,
+            the store and a browser.
+
+            `halcora-lite` is for a budget laptop: 4 GB of RAM, two cores,
+            integrated graphics. The same Plasma, the same theme and the same
+            installer, with the KDE application suite, the store, Flatpak, the
+            browser, printing and Bluetooth left out. Each of those is a real
+            loss, not a cosmetic one.
+
+            There is no image for phones or Chromebooks. An ISO cannot run in a
+            browser; `index.html` in the repository shows the desktop's sizing
+            rule and is a preview, not the system.
+
             What it is: Plasma 6 on **X11** (the live session is X11 on purpose —
             the installer runs as root and a root Qt application cannot reach a
             Wayland socket), SDDM autologin, NetworkManager, and Calamares
             unpacking the live squashfs to disk. The installer can be started
-            from its launcher without a password, which the previous prealpha
-            could not do.
+            from its launcher without a password.
 
-            No Halcora skin: the packages are written but this image does not
-            install them, so it looks like stock Plasma. Building one that does
+            No Halcora skin: the packages are written but these images do not
+            install them, so they look like stock Plasma. Building one that does
             means running `packages/build.sh` and setting `HALCORA_REPO`.
 
             What it is not: safe for a machine holding another operating system.
@@ -153,5 +204,5 @@ jobs:
             Verify the download against SHA256SUMS before writing it to a stick;
             a truncated ISO fails in ways that look like a broken installer.
           files: |
-            out/*.iso
-            out/SHA256SUMS
+            artifacts/**/*.iso
+            artifacts/SHA256SUMS

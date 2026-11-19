@@ -54,6 +54,23 @@ internal sealed record ResourcePlan(
     /// </summary>
     public const int DefaultVirtualDiskGb = 64;
 
+    /// <summary>
+    /// Which image this machine should run.
+    ///
+    /// Two tiers ship and they differ only in what is installed: "full" carries
+    /// the whole KDE application set, the store and a browser; "lite" carries
+    /// Plasma, the theme and the installer, and leaves those out. The threshold
+    /// is where a full Plasma desktop stops swapping, not a benchmark: 8 GB and
+    /// four cores.
+    ///
+    /// It is a recommendation, not a limit. Someone with 4 GB can still choose
+    /// full and find out exactly why it is slow.
+    /// </summary>
+    public static string RecommendTier(long totalRamMb, int logicalCpus)
+    {
+        return totalRamMb >= 8192 && logicalCpus >= 4 ? "full" : "lite";
+    }
+
     public static ResourcePlan Compute()
     {
         var memory = MemoryStatus.Query();
@@ -88,10 +105,22 @@ internal sealed record ResourcePlan(
             vmMb = Math.Max(HardFloorMb, vmMb);
         }
 
+        // Never take more than is actually free. Without this, a machine with
+        // 4 GB and all of it in use was handed the 512 MB floor out of an empty
+        // pool, and the window then reported a negative amount left over.
+        if (vmMb > availableMb)
+        {
+            vmMb = availableMb;
+        }
+
         vmMb = vmMb / 256 * 256;
         if (vmMb < HardFloorMb)
         {
-            vmMb = HardFloorMb;
+            vmMb = Math.Min(availableMb, HardFloorMb);
+        }
+        if (vmMb < 0)
+        {
+            vmMb = 0;
         }
 
         int logical = Math.Max(1, Environment.ProcessorCount);

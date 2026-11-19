@@ -46,29 +46,53 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      # Every name in packages.x86_64 must exist in the Arch repositories. A
-      # typo here is the single most common way this build dies, and it dies
-      # forty minutes in, after Calamares has compiled.
+      # Every name in every tier's package list must exist in the Arch
+      # repositories. A typo here is the single most common way this build dies,
+      # and it dies forty minutes in, after Calamares has compiled — now twice
+      # over, once per tier.
       - name: Package names exist
         run: |
           missing=0
-          while IFS= read -r line || [ -n "$line" ]; do
-            pkg=${line%%#*}
-            pkg=$(printf '%s' "$pkg" | tr -d '[:space:]')
-            [ -z "$pkg" ] && continue
-            if ! pacman -Si "$pkg" >/dev/null 2>&1; then
-              printf '::error file=iso/profile/packages.x86_64::no such package: %s\n' "$pkg"
-              missing=1
-            fi
-          done < iso/profile/packages.x86_64
+          for file in iso/profile/packages-*.x86_64; do
+            [ -f "$file" ] || continue
+            printf '%s\n' "checking $file"
+            while IFS= read -r line || [ -n "$line" ]; do
+              pkg=${line%%#*}
+              pkg=$(printf '%s' "$pkg" | tr -d '[:space:]')
+              [ -z "$pkg" ] && continue
+              if ! pacman -Si "$pkg" >/dev/null 2>&1; then
+                printf '::error file=%s::no such package: %s\n' "$file" "$pkg"
+                missing=1
+              fi
+            done < "$file"
+          done
           exit "$missing"
 
       - name: Duplicate package entries
         run: |
-          dupes=$(sed 's/#.*//' iso/profile/packages.x86_64 \
-                  | tr -d '[:space:]' | grep -v '^$' | sort | uniq -d)
-          if [ -n "$dupes" ]; then
-            printf '::warning::duplicate entries: %s\n' "$dupes"
+          for file in iso/profile/packages-*.x86_64; do
+            [ -f "$file" ] || continue
+            dupes=$(sed 's/#.*//' "$file" \
+                    | tr -d '[:space:]' | grep -v '^$' | sort | uniq -d)
+            if [ -n "$dupes" ]; then
+              printf '::warning file=%s::duplicate entries: %s\n' "$file" "$dupes"
+            fi
+          done
+
+      # The lite image exists to be smaller. If it ever stops being smaller than
+      # the full one, something has gone wrong with the lists rather than with
+      # the build, and this says so without needing a forty-minute run.
+      - name: The lite list is actually shorter
+        run: |
+          count() {
+            sed 's/#.*//' "$1" | tr -d '[:space:]' | grep -cv '^$'
+          }
+          full=$(count iso/profile/packages-full.x86_64)
+          lite=$(count iso/profile/packages-lite.x86_64)
+          printf 'full: %s entries, lite: %s entries\n' "$full" "$lite"
+          if [ "$lite" -ge "$full" ]; then
+            echo '::error file=iso/profile/packages-lite.x86_64::the lite list is not shorter than the full one'
+            exit 1
           fi
 
       - name: Shell scripts parse

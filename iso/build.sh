@@ -19,10 +19,24 @@
 # Usage:
 #   sudo ./iso/build.sh
 #   sudo CALAMARES_STAGE=/path/to/stage ./iso/build.sh
+#   sudo TIER=lite ./iso/build.sh
+#
+# TIER selects the package set: "full" (the default) or "lite". See
+# iso/profile/packages-*.x86_64. The tier also names the image, so the two can
+# sit on the same release without colliding.
 set -euo pipefail
 
+TIER=${TIER:-full}
+case "$TIER" in
+    full|lite) ;;
+    *)
+        printf 'TIER must be "full" or "lite", not "%s"\n' "$TIER" >&2
+        exit 1
+        ;;
+esac
+
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-WORK=${WORK:-/tmp/halcora-build}
+WORK=${WORK:-/tmp/halcora-build-$TIER}
 OUT=${OUT:-$ROOT/out}
 RELENG=${RELENG:-/usr/share/archiso/configs/releng}
 PROFILE=$WORK/profile
@@ -42,7 +56,19 @@ cp -a "$RELENG/." "$PROFILE/"
 
 # 2. Profile-level deltas: naming and package set.
 install -m 644 "$ROOT/iso/profile/profiledef.sh" "$PROFILE/profiledef.sh"
-install -m 644 "$ROOT/iso/profile/packages.x86_64" "$PROFILE/packages.x86_64"
+
+if [[ ! -f $ROOT/iso/profile/packages-$TIER.x86_64 ]]; then
+    printf 'no package list for tier "%s" at iso/profile/packages-%s.x86_64\n' "$TIER" "$TIER" >&2
+    exit 1
+fi
+install -m 644 "$ROOT/iso/profile/packages-$TIER.x86_64" "$PROFILE/packages.x86_64"
+
+# The image name carries the tier, so a full and a lite ISO can live on the same
+# release. install_dir deliberately does NOT change: it is the path mkarchiso
+# writes the squashfs to and the path Calamares unpacks, and only one image is on
+# a stick at a time.
+sed -i "s/^iso_name=.*/iso_name=\"halcora-$TIER\"/" "$PROFILE/profiledef.sh"
+printf '==> tier: %s\n' "$TIER"
 
 # 3. Everything we add to the live root.
 cp -a "$ROOT/iso/overlay/." "$PROFILE/airootfs/"

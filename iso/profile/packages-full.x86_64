@@ -1,8 +1,12 @@
-# Halcora live image package set.
+# Halcora — full image package set.
 #
 # This list ends up BOTH in the live session and, because the installer unpacks
 # the live squashfs, on the installed system. There is no separate target list,
 # so anything a user needs after installing has to be here.
+#
+# "Full" is the image for a real desktop: 8 GB of RAM or more, a discrete GPU or
+# a recent integrated one. It is the one that carries the whole theme, the store
+# and the applications. The lite list lives beside this one.
 #
 # Deliberately absent: archinstall (we ship Calamares) and releng's rescue
 # toolchain (irssi, nmap, testdisk, clonezilla and ~40 others). zsh is absent

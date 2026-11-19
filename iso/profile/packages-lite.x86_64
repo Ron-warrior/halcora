@@ -1,0 +1,105 @@
+# Halcora — lite image package set.
+#
+# Same shell, fewer things in it. For a budget laptop: 4 GB of RAM, two cores,
+# integrated graphics, a small SSD.
+#
+# What is kept, and why: Plasma itself, because the entire design — the Global
+# Theme switcher, the HyperOS palette, the window decoration — is Plasma's. A
+# lighter desktop would mean throwing away every visual decision this project has
+# made, which is a different product rather than a smaller one.
+#
+# What is dropped: the applications and services that a 4 GB machine cannot
+# afford to keep resident, and the ones a minimum install does not need. Each
+# removal is a real cost, stated:
+#
+#   plasma-meta  the whole KDE application suite — replaced by the desktop
+#                packages below, which is where most of the saving is
+#   discover     no graphical package manager; pacman remains
+#   flatpak      no store, so no Flatpak applications
+#   firefox      the biggest single application; Epiphany is not included
+#                either, so the lite image has no browser until one is installed
+#   cups/bluez   printing and Bluetooth are off by default
+#
+# A user can install any of these afterwards; the point is that the image does
+# not pay for them on a machine that cannot run them.
+
+# --- base system ---
+base
+linux
+linux-firmware
+mkinitcpio
+mkinitcpio-archiso
+arch-install-scripts
+sudo
+nano
+
+# --- filesystems and partitioning ---
+btrfs-progs
+dosfstools
+e2fsprogs
+exfatprogs
+ntfsprogs
+parted
+gptfdisk
+squashfs-tools
+
+# --- boot ---
+grub
+efibootmgr
+syslinux
+
+# --- networking ---
+networkmanager
+iwd
+wpa_supplicant
+
+# --- audio ---
+# PipeWire, not PulseAudio, and without the JACK layer: JACK is for audio work,
+# not for a laptop that plays video.
+pipewire
+pipewire-alsa
+pipewire-pulse
+wireplumber
+
+# --- desktop, explicitly, instead of plasma-meta ---
+# The half-dozen packages that make a working Plasma session, plus the settings
+# and display tools. This is the single largest difference between the images.
+plasma-desktop
+plasma-workspace
+kwin
+kscreen
+systemsettings
+plasma-nm
+plasma-pa
+powerdevil
+xdg-desktop-portal-kde
+breeze
+breeze-icons
+sddm
+xdg-user-dirs
+xdg-utils
+konsole
+dolphin
+kate
+ark
+udisks2
+gvfs
+
+# --- fonts ---
+# No emoji set: it is a large package for something a minimum install can live
+# without, and Noto's base set already covers text.
+noto-fonts
+ttf-liberation
+inter-font
+
+# --- installer ---
+polkit
+polkit-kde-agent
+xorg-xhost
+kcoreaddons
+kpmcore
+libpwquality
+qt6-declarative
+qt6-svg
+qt6-translations
+yaml-cpp

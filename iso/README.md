@@ -58,6 +58,27 @@ GitHub caps a release asset at 2 GiB. Whether a Plasma ISO lands under that is
 unknown until one exists, so the workflow measures it and fails with a plain
 message rather than letting the upload fail as an opaque 422.
 
+## Two tiers
+
+The profile is the same for both; they differ only in their package list, and the
+tier names the image, so both can sit on one release.
+
+    sudo TIER=full ./iso/build.sh     # default
+    sudo TIER=lite ./iso/build.sh
+
+- **`packages-full.x86_64`** — a real desktop: 8 GB of RAM or more, four cores,
+  a discrete GPU or a recent integrated one. Plasma with the whole KDE
+  application set, the store, Flatpak and a browser.
+- **`packages-lite.x86_64`** — a budget laptop: 4 GB, two cores, integrated
+  graphics. The same Plasma, theme, installer and live-session fixes, with
+  `plasma-meta`, Discover, Flatpak, Firefox, CUPS and BlueZ removed. Each is a
+  real loss; the file lists them and says why.
+
+Three tiers were asked for. The third — "runs in HTML on a Chromebook or a
+phone" — is not an image and cannot be: a browser cannot boot an ISO. What exists
+instead is `index.html`, which mirrors the sizing rule and shows which tier a
+machine would get. It is a preview of a decision, not of the system.
+
 ## What is in the first image
 
 - Plasma 6 on **X11**, SDDM autologin to a `live` account, Firefox, Dolphin. X11

@@ -42,23 +42,35 @@ internal sealed class IsoSource
         return release ?? throw new InvalidOperationException($"GitHub returned nothing for {Tag}.");
     }
 
-    public static async Task<IsoSource> ResolveAsync(CancellationToken cancellation)
+    public static async Task<IsoSource> ResolveAsync(CancellationToken cancellation, string tier)
     {
         var release = await GetReleaseAsync(cancellation).ConfigureAwait(false);
-        Asset? iso = null;
+
+        // Two images ship under the same tag, named "halcora-full-…" and
+        // "halcora-lite-…". Pick the one this machine asked for; if the release
+        // only has one, take it rather than failing, because a half-published
+        // release should still be runnable.
+        Asset? preferred = null;
+        Asset? anyIso = null;
         Asset? sums = null;
 
         foreach (var asset in release.Assets ?? new List<Asset>())
         {
-            if (asset.Name.EndsWith(".iso", StringComparison.OrdinalIgnoreCase) && iso is null)
+            if (asset.Name.EndsWith(".iso", StringComparison.OrdinalIgnoreCase))
             {
-                iso = asset;
+                anyIso ??= asset;
+                if (asset.Name.Contains($"-{tier}-", StringComparison.OrdinalIgnoreCase))
+                {
+                    preferred = asset;
+                }
             }
             else if (string.Equals(asset.Name, "SHA256SUMS", StringComparison.OrdinalIgnoreCase))
             {
                 sums = asset;
             }
         }
+
+        var iso = preferred ?? anyIso;
 
         if (iso is null || sums is null)
         {

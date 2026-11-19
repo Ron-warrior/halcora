@@ -91,6 +91,7 @@
   .diskbar span { display: block; height: 100%; background: var(--accent); width: 0; transition: width 0.25s ease; }
   ul.checks { list-style: none; padding: 0; margin: 0; }
   ul.checks li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  ul.checks li > span:last-child { flex: 0 0 auto; white-space: nowrap; }
   ul.checks li:last-child { border-bottom: 0; }
   .pass { color: var(--good); font-weight: 600; }
   .fail { color: var(--bad); font-weight: 600; }
@@ -158,6 +159,16 @@
   </section>
 
   <section class="card">
+    <h2>Which image this PC would get</h2>
+    <p class="muted" style="margin-top:0">
+      Two images are built from the same profile and differ only in what is
+      installed. Halcora.exe picks one from your memory and cores; you can
+      disagree with it.
+    </p>
+    <ul class="checks" id="tiers"></ul>
+  </section>
+
+  <section class="card">
     <h2>Disk</h2>
     <p class="muted" style="margin-top:0">
       There is no size to choose. The disk file starts near empty, grows only as
@@ -188,6 +199,76 @@
 <script>
 'use strict';
 
+// Which image a machine should run. Mirrors ResourcePlan.RecommendTier:
+// the threshold is where a full Plasma desktop stops swapping, 8 GB and four
+// cores, not a benchmark.
+function recommendTier(totalMb, cores) {
+  return totalMb >= 8192 && cores >= 4 ? 'full' : 'lite';
+}
+
+const TIERS = [
+  {
+    id: 'full',
+    name: 'Full',
+    needs: '8 GB of memory, 4 cores, 8 GB of disk',
+    gets: 'Plasma, the whole KDE application set, the store and a browser',
+  },
+  {
+    id: 'lite',
+    name: 'Lite',
+    needs: '4 GB of memory, 2 cores, 6 GB of disk',
+    gets: 'The same Plasma, theme and installer, with no KDE app suite, store, Flatpak, browser, printing or Bluetooth',
+  },
+  {
+    id: 'browser',
+    name: 'This page',
+    needs: 'any browser, including a phone',
+    gets: 'This sizing rule. It is not the system: a browser cannot boot an ISO',
+  },
+];
+
+let tiersBuilt = false;
+
+function renderTiers(totalMb, cores) {
+  const chosen = recommendTier(totalMb, cores);
+  const list = document.getElementById('tiers');
+
+  // Built once and updated afterwards. Rebuilding it on every keystroke made the
+  // whole card flash while typing.
+  if (!tiersBuilt) {
+    for (const tier of TIERS) {
+      const item = document.createElement('li');
+      const label = document.createElement('span');
+      const title = document.createElement('b');
+      title.textContent = tier.name;
+      label.append(title, document.createTextNode(` — ${tier.needs}. ${tier.gets}.`));
+      const verdict = document.createElement('span');
+      verdict.id = `tier-${tier.id}`;
+      item.append(label, verdict);
+      list.append(item);
+    }
+    tiersBuilt = true;
+  }
+
+  for (const tier of TIERS) {
+    const verdict = document.getElementById(`tier-${tier.id}`);
+    if (!verdict) continue;
+    if (tier.id === 'browser') {
+      verdict.className = 'pass';
+      verdict.style.color = '';
+      verdict.textContent = 'YOU ARE HERE';
+    } else if (tier.id === chosen) {
+      verdict.className = 'pass';
+      verdict.style.color = '';
+      verdict.textContent = 'YOUR PC';
+    } else {
+      verdict.className = '';
+      verdict.style.color = '#6c6c78';
+      verdict.textContent = '—';
+    }
+  }
+}
+
 // ---- The rule. Mirrors ResourcePlan.Compute in windows/Halcora.Launcher. ----
 
 const MINIMUM_COMFORTABLE_MB = 2048; // below this, memory is "tight"
@@ -213,8 +294,14 @@ function computePlan(totalMb, availableMb, logicalCpus, cpuLoadPercent) {
   const tight = vm < MINIMUM_COMFORTABLE_MB;
   if (tight) vm = Math.max(HARD_FLOOR_MB, vm);
 
+  // Never take more than is actually free. Without this, a machine with 4 GB and
+  // 4 GB in use was given a 512 MB floor out of an empty pool and the page
+  // reported "leaving -0.5 GB for Windows".
+  if (vm > available) vm = available;
+
   vm = Math.floor(vm / 256) * 256;
-  if (vm < HARD_FLOOR_MB) vm = HARD_FLOOR_MB;
+  if (vm < HARD_FLOOR_MB) vm = Math.min(available, HARD_FLOOR_MB);
+  if (vm < 0) vm = 0;
 
   // Two cores fewer than the machine has, between 1 and 8, one fewer when busy.
   let cpus = Math.min(8, Math.max(1, logicalCpus - 2));
@@ -229,7 +316,8 @@ function computePlan(totalMb, availableMb, logicalCpus, cpuLoadPercent) {
     logicalCpus,
     vmCpus: cpus,
     tight,
-    freeAfterMb: available - vm,
+    canRun: vm >= HARD_FLOOR_MB,
+    freeAfterMb: Math.max(0, available - vm),
   };
 }
 
@@ -262,6 +350,15 @@ function runChecks() {
   }
   document.getElementById('checkSummary').textContent =
     `${passed} of ${CASES.length} cases pass.`;
+
+  // The tier rule gets its own line rather than a sixth case, because it is a
+  // policy (what a machine can carry) rather than arithmetic.
+  const tierOk = recommendTier(16384, 8) === 'full'
+    && recommendTier(8192, 4) === 'full'
+    && recommendTier(4096, 2) === 'lite'
+    && recommendTier(16384, 2) === 'lite';
+  document.getElementById('checkSummary').textContent +=
+    tierOk ? ' Image choice: PASS.' : ' Image choice: FAIL.';
 }
 
 // ---- The page. ----
@@ -285,21 +382,57 @@ function render() {
   const sentence = document.getElementById('sentence');
   const resultCard = document.getElementById('resultCard');
 
-  if (!(totalGb >= 1) || !(usedGb >= 0) || !(cores >= 1) || !(load >= 0 && load <= 100)) {
-    error.textContent = 'Fill in every box with a number. Total memory must be at least 1 GB and cores at least 1.';
-    error.hidden = false;
-    return;
+  // When the figures do not make sense, the numbers below would be the last
+  // valid ones — which reads as if they still applied. Clear them instead.
+  function markStale() {
+    sentence.textContent = '—';
+    document.getElementById('statRam').textContent = '—';
+    document.getElementById('statFree').textContent = '—';
+    document.getElementById('statCpu').textContent = '—';
+    document.getElementById('tight').hidden = true;
+    for (const id of ['barUsed', 'barVm', 'barFree']) {
+      document.getElementById(id).style.width = '0%';
+    }
+    for (const tier of TIERS) {
+      if (tier.id === 'browser') continue;
+      const verdict = document.getElementById(`tier-${tier.id}`);
+      if (!verdict) continue;
+      verdict.className = '';
+      verdict.style.color = '#6c6c78';
+      verdict.textContent = '—';
+    }
   }
-  if (usedGb > totalGb) {
-    error.textContent = 'Memory in use cannot be more than total memory.';
+
+  function fail(message) {
+    error.textContent = message;
     error.hidden = false;
-    return;
+    markStale();
   }
+
+  if (!(totalGb >= 1)) return fail('Total memory must be at least 1 GB.');
+  if (!(usedGb >= 0)) return fail('Memory in use must be 0 or more.');
+  if (!(cores >= 1)) return fail('Logical cores must be at least 1.');
+  if (!(load >= 0 && load <= 100)) return fail('CPU busy must be between 0 and 100%.');
+  if (usedGb > totalGb) return fail('Memory in use cannot be more than total memory.');
   error.hidden = true;
 
   const totalMb = totalGb * 1024;
   const availableMb = totalMb - usedGb * 1024;
   const p = computePlan(totalMb, availableMb, Math.round(cores), load);
+
+  if (p.vmMb < HARD_FLOOR_MB) {
+    sentence.textContent =
+      'There is not enough free memory to start Halcora. Close some applications and try again.';
+    document.getElementById('statRam').textContent = '0 GB';
+    document.getElementById('statFree').textContent = gb(p.freeAfterMb) + ' GB';
+    document.getElementById('statCpu').textContent = `${p.vmCpus} of ${p.logicalCpus}`;
+    document.getElementById('tight').hidden = true;
+    for (const id of ['barUsed', 'barVm', 'barFree']) {
+      document.getElementById(id).style.width = '0%';
+    }
+    renderTiers(p.totalMb, Math.round(cores));
+    return;
+  }
 
   sentence.textContent =
     `This PC has ${gb(p.totalMb)} GB, ${gb(p.usedMb)} GB of it in use. ` +
@@ -317,6 +450,7 @@ function render() {
   document.getElementById('tight').hidden = !p.tight;
 
   renderDisk();
+  renderTiers(p.totalMb, Math.round(cores));
   resultCard.dataset.tight = p.tight ? 'yes' : 'no';
 }
 

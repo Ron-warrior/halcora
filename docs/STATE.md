@@ -200,6 +200,21 @@ how they get proven.
 
 ## The browser mirror (`index.html`)
 
+### Image tiers
+
+Three were asked for; two are images.
+
+- `full` (`packages-full.x86_64`) — 8 GB, 4 cores: everything.
+- `lite` (`packages-lite.x86_64`) — 4 GB, 2 cores: same Plasma, theme and
+  installer; no `plasma-meta`, Discover, Flatpak, Firefox, CUPS or BlueZ.
+- **No third image.** "Runs in HTML on a Chromebook or phone" cannot be an ISO,
+  because a browser cannot boot one. `index.html` is the browser tier, and it is
+  a preview of the sizing and tier rules, not the system.
+
+`TIER` selects the package list and names the image; CI builds both tiers in a
+matrix and one job publishes them together so the assets cannot race. Exe picks
+a tier with `ResourcePlan.RecommendTier`: 8 GB **and** four cores means full.
+
 - The repository is tagged as a web app, so `Run` serves `index.html` at
   https://tessera-xs25--preview.freemilk.app (private preview, built by
   `publish_preview`).

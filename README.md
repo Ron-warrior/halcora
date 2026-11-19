@@ -102,12 +102,14 @@ have to reconstruct the situation from the rest of the tree.
 
 ## Status
 
-An ISO is published as a moving `prealpha` pre-release. On Windows, download
-`Halcora.exe` from that release and double-click it; see `windows/README.md`.
+An ISO is published as a moving `prealpha` pre-release, in two tiers:
+`halcora-full` for a desktop and `halcora-lite` for a budget laptop. On Windows,
+download `Halcora.exe` from that release and double-click it; it works out which
+tier this machine should run and downloads that one. See `windows/README.md`.
 
-`index.html` is a browser mirror of the same resource-sizing rule, with five
+`index.html` is a browser mirror of the same sizing rule and tier choice, with
 self-checks that run on load. It does not boot anything — a browser cannot — and
-exists so the rule can be read and tested anywhere, including on a phone.
+exists so the decisions can be read and tested anywhere, including on a phone.
 **It has never been booted.** See `docs/STATE.md` for what that does and does not
 mean, and `docs/TESTING.md` if you are the person who can change that.
 

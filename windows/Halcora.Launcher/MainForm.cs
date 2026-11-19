@@ -38,6 +38,7 @@ internal sealed class MainForm : Form
     private CancellationTokenSource? _cancellation;
     private Process? _qemu;
     private ResourcePlan _plan;
+    private readonly string _tier;
 
     public MainForm()
     {
@@ -46,6 +47,7 @@ internal sealed class MainForm : Form
             "Halcora");
         _diskPath = Path.Combine(_stateDirectory, "halcora-disk.qcow2");
         _plan = ResourcePlan.Compute();
+        _tier = ResourcePlan.RecommendTier(_plan.TotalRamMb, Environment.ProcessorCount);
 
         Text = "Halcora";
         StartPosition = FormStartPosition.CenterScreen;
@@ -122,15 +124,25 @@ internal sealed class MainForm : Form
         _bootInstalled.Enabled = File.Exists(_diskPath);
 
         Log($"This PC has {_plan.TotalRamMb / 1024} GB of memory, {_plan.UsedRamMb / 1024} GB of it in use.");
-        Log($"Halcora will take {_plan.VmRamMb / 1024} GB and {_plan.VmCpus} cores, keeping {_plan.ReserveRamMb / 1024} GB spare.");
+        if (_plan.VmRamMb < 512)
+        {
+            Log("There is not enough free memory to start Halcora. Close some applications and try again.");
+        }
+        else
+        {
+            Log($"Halcora will take {_plan.VmRamMb / 1024} GB and {_plan.VmCpus} cores, keeping {Math.Max(0, _plan.AvailableRamMb - _plan.VmRamMb) / 1024} GB spare.");
+        }
         if (_plan.Tight)
         {
             Log("Warning: this PC does not have much free memory, so Halcora will run slowly.");
             Log("Closing some applications before starting will give it more to work with.");
         }
         Log("The virtual disk starts near empty and grows only as Halcora uses it.");
+        Log(_tier == "full"
+            ? "This PC gets the full image: the whole application set, the store and a browser."
+            : "This PC gets the lite image: the same desktop and theme, without the KDE application suite or a browser. That is what this much memory can carry.");
         Log(string.Empty);
-        Log("Press Start Halcora. The first run downloads about 1.9 GB.");
+        Log("Press Start Halcora. The first run downloads the image, about 1.9 GB for full and less for lite.");
 
         FormClosing += OnFormClosing;
     }
@@ -339,7 +351,7 @@ internal sealed class MainForm : Form
     private async Task<string> EnsureIsoAsync(CancellationToken token)
     {
         SetBusy(true, "Finding the latest Halcora image.");
-        var source = await IsoSource.ResolveAsync(token).ConfigureAwait(true);
+        var source = await IsoSource.ResolveAsync(token, _tier).ConfigureAwait(true);
         var isoPath = Path.Combine(_stateDirectory, source.FileName);
         var sumsPath = Path.Combine(_stateDirectory, "SHA256SUMS.tmp");
 
