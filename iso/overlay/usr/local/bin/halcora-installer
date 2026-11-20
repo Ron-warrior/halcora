@@ -1,32 +1,27 @@
 #!/bin/sh
-# Launch Calamares as root, on X11, with the X access it needs.
+# Launch Halcora's own installer in a window.
 #
-# Calamares must run as root. Under X11 a root client cannot open the live user's
-# display unless xhost grants it, and `pkexec calamares` alone therefore opens
-# nothing at all — the failure looks like a dead icon. This grants access for the
-# duration of the installer and revokes it after, rather than leaving the root
-# user permanently allowed to connect.
+# The installer is a script. This runs it under pkexec inside Konsole, with the
+# window titled for Halcora: a terminal in a named window is an honest interface
+# for a program that asks questions and prints what it is doing. A graphical
+# installer is a later job, and pretending otherwise by wrapping a few dialogs
+# around the same script would hide the prompts it prints between them.
 #
-# There is deliberately no Wayland path: the live session runs X11 for this
-# reason (see the sddm drop-in in this overlay).
+# Runs as the live user. pkexec elevates; the polkit rule in
+# /etc/polkit-1/rules.d/49-halcora-live.rules allows exactly this program and
+# nothing else, which is why the live account needs no password.
 set -eu
 
-if ! command -v calamares >/dev/null 2>&1; then
-    # Say something rather than failing silently: a missing installer is a build
-    # problem, and a silent exit looks like a broken button.
+installer=/usr/local/bin/halcora-install
+
+if [ ! -x "$installer" ]; then
     command -v kdialog >/dev/null 2>&1 &&
         kdialog --title 'Install Halcora' --error \
-            'Calamares is not installed in this image. This is a bug in the image, not something you did.'
-    echo "halcora-installer: calamares not found" >&2
+            'The installer is missing from this image. That is a bug in the image, not something you did.'
+    echo "halcora-installer: $installer not found" >&2
     exit 1
 fi
 
-xhost +si:localuser:root >/dev/null 2>&1 || true
-
-status=0
-# The root half is a named script, not `env`: the polkit rule matches on the
-# program path, and granting root to /usr/bin/env would grant it to everything.
-pkexec /usr/local/bin/halcora-installer-root || status=$?
-
-xhost -si:localuser:root >/dev/null 2>&1 || true
-exit "$status"
+# There is no X access problem here, unlike the Calamares launcher this replaces:
+# the installer draws nothing. It needs a terminal, and Konsole provides one.
+exec konsole --title "Install Halcora" --hold -e pkexec "$installer"

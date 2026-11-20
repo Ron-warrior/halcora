@@ -93,13 +93,8 @@ ttf-liberation
 inter-font
 
 # --- installer ---
+# Our own script, not Calamares. It needs polkit for elevation, konsole for the
+# window it runs in, and the base tools already listed above.
 polkit
 polkit-kde-agent
-xorg-xhost
-kcoreaddons
-kpmcore
-libpwquality
-qt6-declarative
-qt6-svg
-qt6-translations
-yaml-cpp
+konsole

@@ -2,9 +2,9 @@
 Type=Application
 Name=Install Halcora
 Comment=Install Halcora on this computer
-# Through the wrapper, not pkexec directly: the wrapper grants root access to the
-# X display and takes it away again afterwards, and says something if Calamares is
-# missing rather than appearing to do nothing.
+# Through the launcher, which opens a Halcora-titled Konsole and runs the
+# installer under pkexec. The installer is a script that asks questions and says
+# what it is doing; a terminal is the honest window for it.
 Exec=/usr/local/bin/halcora-installer
 Icon=calamares
 Terminal=false

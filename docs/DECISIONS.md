@@ -212,3 +212,34 @@ target machine happens to have an RTX 2060. The image is for everyone.
 **Open:** which of the three to take. It should be decided after a first install
 succeeds, because the answer depends on how the installer behaves on the target
 machine, and nothing about that is known yet.
+
+
+## ADR-17 — Halcora installs itself
+
+**Decision:** replace Calamares with `iso/overlay/usr/local/bin/halcora-install`,
+a shell script built from tools that already ship in the Arch base system.
+
+**Why:** the project's rule changed. Until now the brief was to borrow and glue;
+the aim now is independence from upstream, the way HarmonyOS moved off AOSP.
+Calamares was the largest upstream dependency in the install path: an AUR-only
+package we built from source in CI, with its own module model, its own
+configuration language and its own release cycle. Every installer bug this
+project has had was a mismatch between our files and its expectations. The
+replacement is about two hundred lines and one language.
+
+**What changed:**
+- Calamares removed from both package lists, from `iso/build.sh`, and from CI —
+  no out-of-tree build, no `INSTALL_CONFIG=OFF`, no staged `usr/`.
+- Its `/etc/calamares` tree deleted from the overlay.
+- The launcher opens a Halcora-titled Konsole and runs the script under pkexec;
+  the polkit rule names `halcora-install` and nothing else.
+
+**Closed off:** going back to Calamares. If the installer is a problem, the fix
+is in the script.
+
+**Not done:** nothing here has run on hardware. A graphical installer — the thing
+Calamares actually gave us — is a later job, and the Konsole window is the honest
+intermediate rather than a few dialogs wrapped around prompts they hide.
+
+**Revisit if:** the script cannot be made to survive a real install, in which case
+the answer is still ours, just a different implementation of it.

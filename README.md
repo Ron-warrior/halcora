@@ -38,15 +38,17 @@ for why that matters and what still needs checking before anything is public.
 
 ## What we author vs. what we borrow
 
-- **Borrowed:** the base system, package manager, desktop shell, installer, live
-  image tooling, app store, two of the three visual themes, the GPU detection
-  tool, the file manager, the migration logic. Enumerated with licences and
-  pinning strategy in `docs/REUSE.md`.
-- **Authored:** the HyperOS palette, a recoloured window decoration and Kvantum
-  configuration, two wallpapers, one first-run question, a read-only Windows
-  import tool, and the thin glue between all of it. Right now: two shell scripts,
-  the palette, the decoration, two SVG wallpapers and the Calamares
-  configuration.
+- **Borrowed:** the base system, package manager, desktop shell, live image
+  tooling, app store, two of the three visual themes, the GPU detection tool, the
+  file manager, the migration logic. Enumerated with licences and pinning
+  strategy in `docs/REUSE.md`.
+- **Authored:** **the installer**, the HyperOS palette, a recoloured window
+  decoration and Kvantum configuration, two wallpapers, one first-run question, a
+  read-only Windows import tool, and the thin glue between all of it.
+
+The installer is the first thing this project has taken back from upstream: it
+used to be Calamares, configured by us, and is now our own script (ADR-17). The
+direction is independence, not glue.
 
 ## The three visual identities, stacked rather than mixed
 

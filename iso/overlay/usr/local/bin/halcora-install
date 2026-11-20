@@ -1,0 +1,197 @@
+#!/bin/bash
+# halcora-install: Halcora's own installer.
+#
+# This replaces Calamares. The point is independence: Calamares is an upstream
+# project with its own module model, its own configuration language and its own
+# release cycle, and every Halcora installer bug so far has been a mismatch
+# between our files and its expectations. Here the whole install is one readable
+# script, built from tools that ship in the Arch base system.
+#
+# What it does, in order:
+#   1. asks which disk, and confirms it by typing the device name back
+#   2. partitions it: an EFI system partition and one root partition
+#   3. unpacks the live system's squashfs onto the root partition
+#   4. creates the user and sets passwords
+#   5. installs the bootloader for both UEFI and BIOS
+#   6. removes the live-session leftovers that must not survive installation
+#
+# It erases the chosen disk. There is no install-alongside path, and there is
+# none planned until this script has survived a real install.
+#
+# Runs as root. The desktop launcher reaches it through pkexec and the polkit
+# rule in /etc/polkit-1/rules.d/49-halcora-live.rules.
+#
+# NOT YET TESTED. This has never run on hardware. Read every step before trusting it.
+
+set -euo pipefail
+
+SQUASHFS_GLOB='/run/archiso/bootmnt/halcora/x86_64/airootfs.sfs'
+TARGET=/mnt/halcora
+ESP_MB=512
+
+say()  { printf '\n==> %s\n' "$*"; }
+die()  { printf '\nhalcora-install: %s\n' "$*" >&2; exit 1; }
+
+need() {
+    command -v "$1" >/dev/null 2>&1 || die "missing tool: $1 (is it in packages-full.x86_64?)"
+}
+
+if [[ $EUID -ne 0 ]]; then
+    die "must run as root (the launcher uses pkexec)"
+fi
+
+for tool in sfdisk mkfs.fat mkfs.ext4 mount umount unsquashfs arch-chroot grub-install genfstab blkid; do
+    need "$tool"
+done
+
+[[ -f $SQUASHFS_GLOB ]] || die "live system image not found at $SQUASHFS_GLOB; the ISO layout has changed"
+
+# ---- choose the disk ------------------------------------------------------
+
+say "Disks on this computer"
+lsblk -dno NAME,SIZE,MODEL,TRAN | awk '$1 !~ /^(loop|sr|zram)/' || true
+
+read -r -p "Disk to ERASE (for example sda or nvme0n1): " disk
+[[ -n $disk ]] || die "no disk given"
+device="/dev/$disk"
+[[ -b $device ]] || die "$device is not a block device"
+
+# Refuse the disk the live system is running from. Erasing it would destroy the
+# installer while it runs.
+live_source=$(findmnt -no SOURCE /run/archiso/bootmnt 2>/dev/null || true)
+live_disk=$(lsblk -no PKNAME "$live_source" 2>/dev/null | head -n1 || true)
+if [[ -n $live_disk && $disk == "$live_disk" ]]; then
+    die "$device is the disk this installer is running from. Choose another."
+fi
+
+size=$(lsblk -dno SIZE "$device")
+echo "$device is $size. Everything on it will be erased."
+read -r -p "Type the disk name again to confirm ($disk): " confirm
+[[ $confirm == "$disk" ]] || die "confirmation did not match; nothing was changed"
+
+# ---- user details ---------------------------------------------------------
+
+read -r -p "Your name shown on the login screen: " full_name
+read -r -p "Username (lowercase letters, digits, dashes): " username
+[[ $username =~ ^[a-z_][a-z0-9_-]{0,30}$ ]] || die "that username is not valid"
+
+while :; do
+    read -r -s -p "Password: " password; echo
+    read -r -s -p "Password again: " password2; echo
+    [[ $password == "$password2" ]] && break
+    echo "Passwords do not match. Try again."
+done
+[[ ${#password} -ge 4 ]] || die "password is too short"
+
+# ---- partition ------------------------------------------------------------
+
+say "Partitioning $device"
+
+firmware=bios
+[[ -d /sys/firmware/efi ]] && firmware=uefi
+
+# Wipe old signatures so a previous partition table cannot confuse the kernel.
+wipefs --all --force "$device" >/dev/null
+
+if [[ $firmware == uefi ]]; then
+    sfdisk --wipe always "$device" <<EOF
+label: gpt
+size=${ESP_MB}MiB, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, name=ESP
+type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709, name=root
+EOF
+    esp="$(lsblk -lno PATH "$device" | sed -n 2p)"
+    root="$(lsblk -lno PATH "$device" | sed -n 3p)"
+    mkfs.fat -F32 -n ESP "$esp" >/dev/null
+else
+    # BIOS: a single bootable MBR partition holds everything.
+    sfdisk --wipe always "$device" <<EOF
+label: dos
+size=, type=83, bootable
+EOF
+    root="$(lsblk -lno PATH "$device" | sed -n 2p)"
+    esp=""
+fi
+
+[[ -b $root ]] || die "could not find the root partition after partitioning"
+
+mkfs.ext4 -F -L halcora-root "$root" >/dev/null
+
+# ---- mount and unpack -----------------------------------------------------
+
+say "Mounting the new system"
+mkdir -p "$TARGET"
+mount "$root" "$TARGET"
+if [[ -n $esp ]]; then
+    mkdir -p "$TARGET/boot/efi"
+    mount "$esp" "$TARGET/boot/efi"
+fi
+
+say "Copying the live system to disk (this takes several minutes)"
+# unsquashfs writes the image's own tree, so the installed system is exactly the
+# live system. Ownership and modes are preserved (-no-xattrs keeps the copy
+# portable across filesystems that lack them).
+unsquashfs -f -d "$TARGET" -no-xattrs "$SQUASHFS_GLOB"
+
+# The live system's own autologin and live account must not survive into the
+# installed system. These are removed rather than edited, so a missed edit cannot
+# leave them behind.
+rm -f  "$TARGET/etc/sysusers.d/live.conf" \
+       "$TARGET/etc/sysusers.d/autologin.conf" \
+       "$TARGET/etc/polkit-1/rules.d/49-halcora-live.rules" \
+       "$TARGET/etc/systemd/logind.conf.d/halcora-live.conf" \
+       "$TARGET/usr/share/applications/halcora-installer.desktop" \
+       "$TARGET/usr/local/bin/halcora-installer" \
+       "$TARGET/usr/local/bin/halcora-installer-root" \
+       "$TARGET/usr/local/bin/halcora-install"
+rm -f  "$TARGET/etc/sddm.conf.d/halcora-live.conf"
+rm -rf "$TARGET/home/live"
+sed -i '/^live:/d' "$TARGET/etc/passwd" "$TARGET/etc/shadow" "$TARGET/etc/group" "$TARGET/etc/gshadow" 2>/dev/null || true
+
+# Generated fresh for this machine. Copying the live one would make two machines
+# share an identity.
+rm -f "$TARGET/etc/machine-id"
+
+# ---- system files ---------------------------------------------------------
+
+say "Writing the fstab"
+genfstab -U "$TARGET" > "$TARGET/etc/fstab"
+
+# ---- account --------------------------------------------------------------
+
+say "Creating the account $username"
+arch-chroot "$TARGET" useradd -m -G wheel,video,audio,storage,network \
+    -c "$full_name" "$username"
+printf '%s:%s\n' "$username" "$password" | arch-chroot "$TARGET" chpasswd
+printf 'root:%s\n' "$password" | arch-chroot "$TARGET" chpasswd
+
+# Sudo for the wheel group, and nothing more permissive. The installed system
+# asks for a password, which is the point.
+install -d -m 0750 "$TARGET/etc/sudoers.d"
+printf '%%wheel ALL=(ALL:ALL) ALL\n' > "$TARGET/etc/sudoers.d/10-wheel"
+chmod 0440 "$TARGET/etc/sudoers.d/10-wheel"
+
+# The live system had autologin. The installed system asks for the password.
+rm -rf "$TARGET/etc/systemd/system/getty@tty1.service.d"
+
+# ---- bootloader -----------------------------------------------------------
+
+say "Installing the bootloader ($firmware)"
+# grub is already in the image's package set, so there is nothing to fetch. A
+# failure here is a real failure, so it is not hidden with "|| true".
+if [[ $firmware == uefi ]]; then
+    arch-chroot "$TARGET" grub-install --target=x86_64-efi \
+        --efi-directory=/boot/efi --bootloader-id=Halcora --removable
+else
+    arch-chroot "$TARGET" grub-install --target=i386-pc "$device"
+fi
+
+arch-chroot "$TARGET" grub-mkconfig -o /boot/grub/grub.cfg
+
+# ---- finish ---------------------------------------------------------------
+
+say "Finishing"
+sync
+umount -R "$TARGET"
+
+say "Halcora is installed on $device."
+echo "Remove the installation medium and restart the computer."

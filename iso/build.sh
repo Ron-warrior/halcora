@@ -85,20 +85,12 @@ cp -a "$ROOT/iso/overlay/." "$PROFILE/airootfs/"
 #    Everything from step 5 on is conditional or additive, so the default build
 #    (CI, no repo) is unchanged by this file only in ways described here.
 
-# 5. Calamares, when CI has built it out of tree. It is not in the Arch
-#    repositories, so it cannot come from the package list.
-if [[ -n ${CALAMARES_STAGE:-} ]]; then
-    if [[ ! -d $CALAMARES_STAGE ]]; then
-        printf 'CALAMARES_STAGE is set but %s is not a directory\n' "$CALAMARES_STAGE" >&2
-        exit 1
-    fi
-    # Only usr/ is taken from the stage. Its etc/ would be upstream's default
-    # configuration and would overwrite the overlay above, so it is never copied.
-    printf '==> overlaying Calamares binaries from %s\n' "$CALAMARES_STAGE"
-    cp -a "$CALAMARES_STAGE/usr" "$PROFILE/airootfs/"
-else
-    printf '==> CALAMARES_STAGE unset: building an ISO with no installer\n'
-fi
+# 5. The installer is ours.
+#
+#    It used to be Calamares, built out of tree because it is AUR-only, and
+#    overlaid here. It is now /usr/local/bin/halcora-install, which arrives with
+#    the rest of the overlay in step 3 — a script, not a build. Nothing to stage
+#    and nothing to configure, which is the point of the change.
 
 # 6. Halcora's own packages, when somebody has built them.
 #

@@ -90,17 +90,14 @@ flatpak
 packagekit-qt6
 
 # --- installer ---
-# Calamares is not in the Arch repositories, so CI builds it and iso/build.sh
-# overlays it. These are the libraries it links against at runtime, plus polkit
-# so it can elevate with pkexec, and xorg-xhost so that the root process is
-# allowed to open the live session's X display at all.
+# Halcora installs itself now: /usr/local/bin/halcora-install is our own script,
+# built from tools that already ship in the base system. What it needs is
+# arch-install-scripts (genfstab, arch-chroot), squashfs-tools (unsquashfs),
+# dosfstools, e2fsprogs, util-linux (sfdisk, lsblk, findmnt) and grub — all
+# listed above. Adding them again here would be a comment pretending to be a
+# dependency.
+#
+# What remains is the elevation path and the terminal the installer runs in.
 polkit
 polkit-kde-agent
-xorg-xhost
-kcoreaddons
-kpmcore
-libpwquality
-qt6-declarative
-qt6-svg
-qt6-translations
-yaml-cpp
+konsole

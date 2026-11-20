@@ -35,6 +35,6 @@ file_permissions=(
   ["/usr/local/bin/Installation_guide"]="0:0:755"
   ["/usr/local/bin/livecd-sound"]="0:0:755"
   ["/usr/local/bin/halcora-installer"]="0:0:755"
-  ["/usr/local/bin/halcora-installer-root"]="0:0:755"
+  ["/usr/local/bin/halcora-install"]="0:0:755"
   ["/home/live"]="1000:1000:750"
 )

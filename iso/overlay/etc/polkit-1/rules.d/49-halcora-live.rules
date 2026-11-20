@@ -5,9 +5,8 @@
 // refuses. Without this rule the installer's icon does nothing, which is
 // indistinguishable from a broken image.
 //
-// The grant is as narrow as polkit allows: one user, one action, and only when
-// the program is the installer's root helper — a fixed path, not `/usr/bin/env`,
-// which is why the helper exists.
+// The grant is one user, one action, one program path. It used to name a
+// Calamares helper; Halcora now installs itself, so it names that instead.
 //
 // This file is one of the live-session leftovers the installer has to remove
 // (iso/README gap 5).
@@ -20,7 +19,7 @@ polkit.addRule(function (action, subject) {
         return null;
     }
     var program = action.lookup("program");
-    if (program === "/usr/local/bin/halcora-installer-root") {
+    if (program === "/usr/local/bin/halcora-install") {
         return polkit.Result.YES;
     }
     return null;

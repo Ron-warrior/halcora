@@ -198,7 +198,23 @@ how they get proven.
   under WHPX (QEMU falls back to TCG if not); whether the single-file executable
   starts on a machine with no .NET runtime (it should, it is self-contained).
 
-## Running it in a browser (`index.html`)
+## The installer is ours now (ADR-17)
+
+- `iso/overlay/usr/local/bin/halcora-install` — about 200 lines of bash, built
+  from Arch base tools (`sfdisk`, `mkfs.*`, `unsquashfs`, `arch-chroot`,
+  `grub-install`, `genfstab`). It partitions, unpacks the squashfs, creates the
+  account, installs the bootloader for UEFI or BIOS, and removes the
+  live-session leftovers.
+- Calamares is gone: removed from both package lists, from `iso/build.sh`, from
+  CI, and its `/etc/calamares` tree deleted. A CI check fails if the word
+  reappears under `iso/`.
+- The launcher opens a Konsole titled "Install Halcora" and runs the script under
+  pkexec; the polkit rule now names `halcora-install`.
+- **Nothing has run.** This is the least tested, most dangerous file in the
+  repository: it partitions disks, and its first real execution is also its first
+  test. `docs/TESTING.md` covers how to report what it did.
+
+
 
 **It boots.** Verified by the web inspector on 2026-11-19: pressing Start loads
 v86 and a Linux kernel from jsDelivr, the guest prints SeaBIOS, ISOLINUX and

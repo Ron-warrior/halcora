@@ -58,47 +58,17 @@ jobs:
         run: |
           pacman -S --noconfirm --needed \
             archiso \
-            base-devel \
-            cmake \
-            ninja \
-            extra-cmake-modules \
-            kcoreaddons \
-            kpmcore \
-            libpwquality \
-            qt6-declarative \
-            qt6-svg \
-            qt6-tools \
-            qt6-translations \
-            yaml-cpp
-
-      # Calamares is AUR-only on Arch, so it is built from its upstream tag. The
-      # dependency list mirrors the AUR recipe (calamares 3.4.2, which builds
-      # 3.4.3 upstream); if a future release adds a dependency, the configure
-      # step fails loudly rather than producing a broken installer.
-      - name: Build Calamares
-        run: |
-          git clone --depth 1 --branch v3.4.3 \
-            https://codeberg.org/Calamares/calamares.git /tmp/calamares
-          # INSTALL_CONFIG=OFF: upstream's default /etc/calamares must not be
-          # staged, or it would overwrite our own configuration in the overlay.
-          cmake -S /tmp/calamares -B /tmp/calamares/build -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX=/usr \
-            -DINSTALL_CONFIG=OFF
-          cmake --build /tmp/calamares/build
-          DESTDIR="$PWD/calamares-stage" cmake --install /tmp/calamares/build
-          test -x "$PWD/calamares-stage/usr/bin/calamares"
-          # Only usr/ is ours to take from the stage. Anything under etc/ here
-          # would be upstream's default configuration.
-          test ! -e "$PWD/calamares-stage/etc" || rm -rf "$PWD/calamares-stage/etc"
+            base-devel
 
       - name: Build ISO
         env:
-          CALAMARES_STAGE: ${{ github.workspace }}/calamares-stage
           TIER: ${{ matrix.tier }}
         # Invoked through bash rather than executed directly. The script's
         # executable bit does not survive every checkout, and a bare
         # "./iso/build.sh" was this workflow's first failure (exit 126).
+        #
+        # There is no Calamares step any more: Halcora's installer is a script in
+        # the overlay, so the image needs no out-of-tree build to contain one.
         run: bash ./iso/build.sh
 
       # GitHub caps a single release asset at 2 GiB, and the full image is close

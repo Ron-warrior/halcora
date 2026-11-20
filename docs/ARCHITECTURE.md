@@ -9,7 +9,9 @@ piece of layer 3 must justify its existence against something that already works
 - **Package manager** — pacman / makepkg. We add a repository; we do not change
   the tool.
 - **Desktop shell** — KDE Plasma 6. We add packages; we do not write QML.
-- **Installer** — Calamares. Configuration only.
+- **Installer** — **ours.** `iso/overlay/usr/local/bin/halcora-install`, a shell
+  script over the Arch base tools. See ADR-17. This is the first component this
+  project has taken back from upstream.
 - **Live image** — archiso. Profile only, `mkarchiso` unmodified.
 - **App store** — KDE Discover + Flatpak. Configuration only.
 - **GPU detection** — `chwd`, when it is used. Not currently called at all: it is
